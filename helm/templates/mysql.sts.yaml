@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "mgnl.mysql.name" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+spec:
+  serviceName: "mysql"
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mysql
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mysql
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      initContainers:
+        - name: change-permissions
+          image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
+          imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
+          command: ["sh", "-c", "chown 1001:1001 /var/lib/mysql"]
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+              subPath: mysql
+          resources:
+            {{- toYaml .Values.tmpInit.resources | nindent 12 }}
+      containers:
+        - name: mysql
+          image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
+          imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.mysql.resources | nindent 12 }}
+          args: ["mysqld", "--ignore-db-dir=lost+found"]
+          env:
+            {{- if .Values.mysql.rootPassword }}
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mgnl.mysql.name" . }}-passwords
+                  key: root
+            {{- else }}
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            {{- end }}
+            - name: MYSQL_ROOT_HOST
+              value: "localhost"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+              subPath: mysql
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+      imagePullSecrets:
+        - name: dockerregistry
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-persistent-storage
+        - name: config
+          configMap:
+            name: {{ include "mgnl.mysql.name" . }}-config
+        - name: init
+          secret:
+            secretName: {{ include "mgnl.mysql.name" . }}-init
+      {{- with .Values.mysql.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.mysql.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.mysql.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-persistent-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          {{- toYaml .Values.mysql.storage.resources | nindent 10 }}

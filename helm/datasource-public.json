@@ -1,0 +1,12 @@
+{
+    "datasources": [
+        {
+            "host": "{{ include "mgnl.mysql.public.host" . }}",
+            "port": "{{ .Values.magnoliaPublic.datasource.port }}",
+            "username": "{{ include "mgnl.mysql.public.user" . }}",
+            "password": "{{ .Values.magnoliaPublic.datasource.password }}",
+            "name": "{{ .Values.magnoliaPublic.datasource.name }}",
+            "database": "{{ include "mgnl.mysql.public.database" . }}"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "datasources": [
+        {
+            "host": "{{ include "mgnl.mysql.author.host" . }}",
+            "port": "{{ .Values.magnoliaAuthor.datasource.port }}",
+            "username": "{{ include "mgnl.mysql.author.user" . }}",
+            "password": "{{ .Values.magnoliaAuthor.datasource.password }}",
+            "name": "{{ .Values.magnoliaAuthor.datasource.name }}",
+            "database": "{{ include "mgnl.mysql.author.database" . }}"
+        }
+    ]
+}

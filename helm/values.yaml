@@ -1,0 +1,158 @@
+magnoliaLightModuleUpdater:
+  privateKey: "" # Pass this base64 encoded
+  repoUrl: ""
+  branch: "master"
+  sourceDir: "/"
+  image:
+    repository: neoskop/mgnl-light-module-updater
+    tag: latest
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 50M
+    limits:
+      cpu: 0.1
+      memory: 100M
+magnoliaRuntime:
+  image:
+    repository: neoskop/mgnl-runtime-env
+    tag: 9.0.30-jdk13-openjdk-oracle
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 0.5
+      memory: 1536M
+    limits:
+      cpu: 1
+      memory: 2560M
+magnoliaWebapp:
+  image:
+    repository: neoskop/mgnl-webapp-ce
+    tag: 6.1.4
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: "0.1"
+      memory: 100Mi
+    limits:
+      cpu: "0.1"
+      memory: 100Mi   
+tmpInit:
+  image:
+    repository: busybox
+    tag: 1.31.1
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: "0.01"
+      memory: 20Mi
+    limits:
+      cpu: "0.01"
+      memory: 20Mi
+mysqlInit:
+  image:
+    repository: busybox
+    tag: 1.31.1
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: "0.01"
+      memory: 20Mi
+    limits:
+      cpu: "0.01"
+      memory: 20Mi
+mysql:
+  enabled: true
+  rootPassword: ""
+  image:
+    repository: mysql
+    tag: 5.7.29
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 500Mi
+      cpu: 250m
+  storage:
+    resources:
+      requests:
+        storage: 3Gi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+magnoliaTmp:
+  storage:
+    resources:
+      requests:
+        storage: 250m
+magnoliaActivation:
+  privateKey: ""
+  publicKey: ""
+paperboy:
+  token: ""
+  userPassword: ""
+paperboyPreview:
+  token: ""
+  userPassword: ""
+magnoliaPublic:
+  replicaCount: 1
+  configName: livePublic
+  datasource:
+    host: "" # If empty the created service is used
+    port: 3306
+    username: "" # If empty the value is derived automatically
+    password: ""
+    database: "" # If empty the value is derived automatically
+    name: MagnoliaPublic
+  ingress:
+    enabled: true
+    hostname: magnolia-public.local
+    annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - magnolia-public
+        topologyKey: "kubernetes.io/hostname"
+magnoliaAuthor:
+  replicaCount: 1
+  configName: liveAuthor
+  datasource:
+    host: "" # If empty the created service is used
+    port: 3306
+    username: "" # If empty the value is derived automatically
+    password: ""
+    database: "" # If empty the value is derived automatically
+    name: MagnoliaAuthor
+  ingress:
+    enabled: true
+    hostname: magnolia-author.local
+    annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - magnolia-author
+        topologyKey: "kubernetes.io/hostname"
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,0 +1,10 @@
+[mysqld]
+default_storage_engine = InnoDB
+max_connections = 200
+max_allowed_packet = 1024M
+wait_timeout = 1209600
+interactive_timeout = 1209600
+lower_case_table_names = 1
+
+[mysqldump]
+max_allowed_packet = 1024M

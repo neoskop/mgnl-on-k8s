@@ -1,0 +1,12 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "mgnl.public.name" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "mgnl.public.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}

@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "mgnl.public.name" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+spec:
+  serviceName: "magnolia-public"
+  replicas: {{ .Values.magnoliaPublic.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: magnolia-public
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: magnolia-public
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      initContainers:
+        - name: tmp-init
+          image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
+          imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
+          command:
+            [
+              "sh",
+              "-c",
+              "mkdir -p /home/tomcat/magnolia_tmp/repositories; chown -R 100 /home/tomcat/magnolia_tmp/repositories",
+            ]
+          resources:
+            {{- toYaml .Values.tmpInit.resources | nindent 12 }}
+          volumeMounts:
+            - name: magnolia-tmp
+              mountPath: /home/tomcat/magnolia_tmp
+        - name: war-copy
+          image: "{{ .Values.magnoliaWebapp.image.repository }}:{{ .Values.magnoliaWebapp.image.tag }}"
+          imagePullPolicy: {{ .Values.magnoliaWebapp.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.magnoliaWebapp.resources | nindent 12 }} 
+          volumeMounts:
+            - name: webapps
+              mountPath: /usr/local/tomcat/webapps
+      containers:
+        - name: magnolia
+          image: "{{ .Values.magnoliaRuntime.image.repository }}:{{ .Values.magnoliaRuntime.image.tag }}"
+          imagePullPolicy: {{ .Values.magnoliaRuntime.image.pullPolicy }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/local/tomcat/bin/catalina.sh", "stop", "30"]
+          readinessProbe:
+            httpGet:
+              path: /.resources/defaultMagnoliaLoginForm/login.css
+              port: http
+            initialDelaySeconds: 200
+            periodSeconds: 10
+            failureThreshold: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /.resources/defaultMagnoliaLoginForm/login.css
+              port: http
+            initialDelaySeconds: 350
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 1
+          resources:
+            {{- toYaml .Values.magnoliaRuntime.resources | nindent 12 }}
+          env:
+            - name: DATASOURCES
+              valueFrom:
+                secretKeyRef:
+                  name: magnolia-public-datasource
+                  key: datasource
+            - name: MAGNOLIA_CONFIG
+              value: "{{ .Values.magnoliaPublic.configName }}"
+            - name: TZ
+              value: "Europe/Berlin"
+            - name: PAPERBOY_ENABLED
+              value: "true"
+            - name: PAPERBOY_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: magnolia-public-paperboy-config
+                  key: userPassword
+            - name: PAPERBOY_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: magnolia-public-paperboy-config
+                  key: webhookUrl
+            - name: PAPERBOY_WEBHOOK_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: magnolia-public-paperboy-config
+                  key: webhookBearerToken
+            - name: PAPERBOY_WEBHOOK_AUTHORIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: magnolia-public-paperboy-config
+                  key: webhookAuthorization
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: magnolia-tmp
+              mountPath: /home/tomcat/magnolia_tmp
+            - name: webapps
+              mountPath: /usr/local/tomcat/webapps
+            - name: light-modules
+              mountPath: /home/tomcat/light-modules
+            - name: activation-keypair
+              mountPath: /home/tomcat/magnolia-activation-keypair.properties
+              subPath: magnolia-activation-keypair.properties
+              readOnly: true
+        - name: light-module-updater
+          image: "{{ .Values.magnoliaLightModuleUpdater.image.repository }}:{{ .Values.magnoliaLightModuleUpdater.image.tag }}"
+          imagePullPolicy: {{ .Values.magnoliaLightModuleUpdater.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.magnoliaLightModuleUpdater.resources | nindent 12 }}
+          volumeMounts:
+            - name: light-modules
+              mountPath: /home/tomcat/light-modules
+          env:
+            - name: SOURCE_DIR
+              value: {{ .Values.magnoliaLightModuleUpdater.sourceDir }}
+            - name: GIT_BRANCH
+              value: {{ .Values.magnoliaLightModuleUpdater.branch }}
+            - name: GIT_REPO_URL
+              value: {{ .Values.magnoliaLightModuleUpdater.repoUrl }}
+            {{- if .Values.magnoliaLightModuleUpdater.privateKey }}
+            - name: GIT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: magnolia-light-module-updater
+                  key: privateKey
+            {{- end }}
+      imagePullSecrets:
+        - name: pull-secret
+      volumes:
+        - name: webapps
+          emptyDir: {}
+        - name: light-modules
+          emptyDir: {}
+        - name: activation-keypair
+          secret:
+            secretName: magnolia-activation-keypair
+      {{- with .Values.magnoliaPublic.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.magnoliaPublic.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.magnoliaPublic.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: magnolia-tmp
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          {{- toYaml .Values.magnoliaTmp.storage.resources | nindent 10 }}
+

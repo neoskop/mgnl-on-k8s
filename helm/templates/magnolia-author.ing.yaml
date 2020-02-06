@@ -1,0 +1,27 @@
+{{- if .Values.magnoliaAuthor.ingress.enabled -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ include "mgnl.author.name" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.magnoliaAuthor.ingress.annotations | nindent 4 }}
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.magnoliaAuthor.ingress.hostname }}
+      secretName: internal-tls
+  rules:
+    - host: {{ .Values.magnoliaAuthor.ingress.hostname }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ include "mgnl.author.name" . }}
+              servicePort: http
+{{- end }}

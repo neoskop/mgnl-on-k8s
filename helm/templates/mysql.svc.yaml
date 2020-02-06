@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "mgnl.mysql.name" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+    - port: 3306
+  clusterIP: None
