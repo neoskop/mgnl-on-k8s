@@ -94,9 +94,11 @@ magnoliaActivation:
 paperboy:
   token: ""
   userPassword: ""
+  webhookUrl: http://paperboy-push-service:8080/
 paperboyPreview:
   token: ""
   userPassword: ""
+  webhookUrl: http://paperboy-preview-push-service:8080/
 magnoliaPublic:
   replicaCount: 1
   configName: livePublic
