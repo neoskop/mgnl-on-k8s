@@ -112,6 +112,11 @@ magnoliaPublic:
   ingress:
     enabled: true
     hostname: magnolia-public.local
+    secret:
+      enabled: false
+      ca: ""
+      cert: ""
+      key: ""
     annotations: {}
   nodeSelector: {}
   tolerations: []
@@ -138,6 +143,11 @@ magnoliaAuthor:
   ingress:
     enabled: true
     hostname: magnolia-author.local
+    secret:
+      enabled: false
+      ca: ""
+      cert: ""
+      key: ""
     annotations: {}
   nodeSelector: {}
   tolerations: []

@@ -15,7 +15,7 @@ spec:
   tls:
     - hosts:
         - {{ .Values.magnoliaAuthor.ingress.hostname }}
-      secretName: internal-tls
+      secretName: {{ include "mgnl.author.name" . }}-tls
   rules:
     - host: {{ .Values.magnoliaAuthor.ingress.hostname }}
       http:
