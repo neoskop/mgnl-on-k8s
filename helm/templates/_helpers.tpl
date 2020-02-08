@@ -76,15 +76,15 @@ Mysql public instance db name
 {{/*
 Mysql author instance user name
 */}}
-{{- define "mgnl.mysql.author.user" -}}
-{{- default (printf "%s-author" (include "mgnl.name" .)) .Values.magnoliaAuthor.datasource.user -}}
+{{- define "mgnl.mysql.author.username" -}}
+{{- default (printf "%s-author" (include "mgnl.name" .)) .Values.magnoliaAuthor.datasource.username -}}
 {{- end -}}
 
 {{/*
 Mysql public instance user name
 */}}
-{{- define "mgnl.mysql.public.user" -}}
-{{- default (printf "%s-public" (include "mgnl.name" .)) .Values.magnoliaPublic.datasource.user -}}
+{{- define "mgnl.mysql.public.username" -}}
+{{- default (printf "%s-public" (include "mgnl.name" .)) .Values.magnoliaPublic.datasource.username -}}
 {{- end -}}
 
 {{- define "mgnl.magnolia.pullSecrets" -}}
