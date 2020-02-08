@@ -14,16 +14,16 @@ spec:
   selector:
     app.kubernetes.io/name: magnolia-public
     app.kubernetes.io/instance: {{ .Release.Name }}
-{{- $root := . -}}
+{{- $ := . -}}
 {{- $replicaCount := .Values.magnoliaPublic.replicaCount | int -}}
 {{ range $i := until $replicaCount }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "mgnl.public.name" $root }}-{{$i}}
+  name: {{ include "mgnl.public.name" $ }}-{{$i}}
   labels:
-{{ include "mgnl.labels" $root | indent 4 }}
+{{ include "mgnl.labels" $ | indent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -33,6 +33,6 @@ spec:
       targetPort: 8080
   selector:
     app.kubernetes.io/name: magnolia-public
-    app.kubernetes.io/instance: {{ $root.Release.Name }}
-    statefulset.kubernetes.io/pod-name: {{ include "mgnl.public.name" . }}-{{$i}}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    statefulset.kubernetes.io/pod-name: {{ include "mgnl.public.name" $ }}-{{$i}}
 {{ end }}
