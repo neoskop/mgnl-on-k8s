@@ -135,7 +135,13 @@ spec:
                   key: privateKey
             {{- end }}
       imagePullSecrets:
-        - name: pull-secret
+      {{- $ := . -}}
+      {{- range list "magnoliaLightModuleUpdater" "magnoliaRuntime" "magnoliaWebapp" "tmpInit" -}}
+      {{- $pullSecret := (get $.Values .).image.pullSecret -}}
+      {{- if $pullSecret }}
+        - name: {{ include "mgnl.name" $ }}-{{ . | lower }}-pull-secret
+      {{ end -}}
+      {{- end }}
       volumes:
         - name: webapps
           emptyDir: {}

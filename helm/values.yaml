@@ -7,6 +7,7 @@ magnoliaLightModuleUpdater:
     repository: neoskop/mgnl-light-module-updater
     tag: latest
     pullPolicy: Always
+    pullSecret: null
   resources:
     requests:
       cpu: 0.1
@@ -19,6 +20,7 @@ magnoliaRuntime:
     repository: neoskop/mgnl-runtime-env
     tag: 9.0.30-jdk13-openjdk-oracle
     pullPolicy: IfNotPresent
+    pullSecret: null
   resources:
     requests:
       cpu: 0.5
@@ -31,6 +33,7 @@ magnoliaWebapp:
     repository: neoskop/mgnl-webapp-ce
     tag: 6.1.4
     pullPolicy: IfNotPresent
+    pullSecret: null
   resources:
     requests:
       cpu: "0.1"
@@ -43,6 +46,7 @@ tmpInit:
     repository: busybox
     tag: 1.31.1
     pullPolicy: IfNotPresent
+    pullSecret: null
   resources:
     requests:
       cpu: "0.01"
@@ -55,6 +59,7 @@ mysqlInit:
     repository: busybox
     tag: 1.31.1
     pullPolicy: IfNotPresent
+    pullSecret: null
   resources:
     requests:
       cpu: "0.01"
@@ -69,6 +74,7 @@ mysql:
     repository: mysql
     tag: 5.7.29
     pullPolicy: IfNotPresent
+    pullSecret: null
   resources:
     requests:
       memory: 200Mi
@@ -161,7 +167,6 @@ magnoliaAuthor:
             values:
             - magnolia-author
         topologyKey: "kubernetes.io/hostname"
-imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 resources: {}

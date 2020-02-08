@@ -59,7 +59,13 @@ spec:
             - name: init
               mountPath: /docker-entrypoint-initdb.d
       imagePullSecrets:
-        - name: dockerregistry
+      {{- $ := . -}}
+      {{- range list "mysqlInit" "mysql" -}}
+      {{- $pullSecret := (get $.Values .).image.pullSecret -}}
+      {{- if $pullSecret }}
+        - name: {{ include "mgnl.name" $ }}-{{ . | lower }}-pull-secret
+      {{ end -}}
+      {{- end }}
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
