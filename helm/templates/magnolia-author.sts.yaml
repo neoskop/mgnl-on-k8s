@@ -134,14 +134,7 @@ spec:
                   name: {{ include "mgnl.name" . }}-light-module-updater
                   key: privateKey
             {{- end }}
-      imagePullSecrets:
-      {{- $ := . -}}
-      {{- range list "magnoliaLightModuleUpdater" "magnoliaRuntime" "magnoliaWebapp" "tmpInit" -}}
-      {{- $pullSecret := (get $.Values .).image.pullSecret -}}
-      {{- if $pullSecret }}
-        - name: {{ include "mgnl.name" $ }}-{{ . | lower }}-pull-secret
-      {{ end -}}
-      {{- end }}
+      imagePullSecrets: {{ include "mgnl.magnolia.pullSecrets" . }}
       volumes:
         - name: magnolia-tmp
         - name: webapps

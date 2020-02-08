@@ -87,6 +87,31 @@ Mysql public instance user name
 {{- default (printf "%s-public" (include "mgnl.name" .)) .Values.magnoliaPublic.datasource.user -}}
 {{- end -}}
 
+{{- define "mgnl.magnolia.pullSecrets" -}}
+{{- $ := . -}}
+{{- $result := dict "secrets" (list) -}}
+{{- range list "magnoliaLightModuleUpdater" "magnoliaRuntime" "magnoliaWebapp" "tmpInit" -}}
+{{- $pullSecret := (get $.Values .).image.pullSecret -}}
+{{- if $pullSecret }}
+{{- $noop := printf "{ name: %s }" (printf "%s-%s-pull-secret" (include "mgnl.name" $) (. | lower)) | append $result.secrets | set $result "secrets" -}}
+{{- end -}}
+{{- end -}}
+[{{- join ", " $result.secrets -}}]
+{{- end -}}
+
+{{- define "mgnl.mysql.pullSecrets" -}}
+{{- $ := . -}}
+{{- $result := dict "secrets" (list) -}}
+{{- range list "mysql" "mysqlInit" -}}
+{{- $pullSecret := (get $.Values .).image.pullSecret -}}
+{{- if $pullSecret }}
+{{- $noop := printf "{ name: %s }" (printf "%s-%s-pull-secret" (include "mgnl.name" $) (. | lower)) | append $result.secrets | set $result "secrets" -}}
+{{- end -}}
+{{- end -}}
+[{{- join ", " $result.secrets -}}]
+{{- end -}}
+
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}
