@@ -70,7 +70,7 @@ spec:
             - name: DATASOURCES
               valueFrom:
                 secretKeyRef:
-                  name: magnolia-author-datasource
+                  name: {{ include "mgnl.author.name" . }}-datasource
                   key: datasource
             - name: MAGNOLIA_CONFIG
               value: "{{ .Values.magnoliaAuthor.configName }}"
@@ -81,22 +81,22 @@ spec:
             - name: PAPERBOY_USER_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: magnolia-author-paperboy-config
+                  name: {{ include "mgnl.author.name" . }}-paperboy-config
                   key: userPassword
             - name: PAPERBOY_WEBHOOK_URL
               valueFrom:
                 secretKeyRef:
-                  name: magnolia-author-paperboy-config
+                  name: {{ include "mgnl.author.name" . }}-paperboy-config
                   key: webhookUrl
             - name: PAPERBOY_WEBHOOK_BEARER_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: magnolia-author-paperboy-config
+                  name: {{ include "mgnl.author.name" . }}-paperboy-config
                   key: webhookBearerToken
             - name: PAPERBOY_WEBHOOK_AUTHORIZATION
               valueFrom:
                 secretKeyRef:
-                  name: magnolia-author-paperboy-config
+                  name: {{ include "mgnl.author.name" . }}-paperboy-config
                   key: webhookAuthorization
           ports:
             - name: http
@@ -131,7 +131,7 @@ spec:
             - name: GIT_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: magnolia-light-module-updater
+                  name: {{ include "mgnl.name" . }}-light-module-updater
                   key: privateKey
             {{- end }}
       imagePullSecrets:
@@ -144,7 +144,7 @@ spec:
           emptyDir: {}
         - name: activation-keypair
           secret:
-            secretName: magnolia-activation-keypair
+            secretName: {{ include "mgnl.name" . }}-activation-keypair
       {{- with .Values.magnoliaAuthor.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
