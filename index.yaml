@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   mgnl:
   - apiVersion: v2
+    appVersion: 0.3.0
+    created: "2020-02-08T16:21:09.154316062+01:00"
+    description: A Helm chart for Kubernetes
+    digest: f3801e8f9681712a3d20900c42d055c6841f2657bcab866d194efc27cc3ef34c
+    name: mgnl
+    urls:
+    - https://github.com/neoskop/mgnl-on-k8s/releases/download/mgnl-0.3.0/mgnl-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
     appVersion: 0.2.0
     created: "2020-02-08T16:09:14.561965259+01:00"
     description: A Helm chart for Kubernetes
