@@ -4,6 +4,10 @@ metadata:
   name: {{ include "mgnl.public.name" . }}
   labels:
     {{- include "mgnl.labels" . | nindent 4 }}
+  {{- if .Values.keel.enabled }}
+  annotations:
+    {{- toYaml .Values.keel.annotations | nindent 4 }}
+  {{- end }}
 spec:
   serviceName: "magnolia-public"
   replicas: {{ .Values.magnoliaPublic.replicaCount }}

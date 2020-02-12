@@ -167,6 +167,12 @@ magnoliaAuthor:
             values:
             - magnolia-author
         topologyKey: "kubernetes.io/hostname"
+keel:
+  enabled: true
+  annotations:
+    keel.sh/policy: "regexp:^(\\d+\\.\\d+\\.\\d+)"
+    keel.sh/trigger: "poll"
+    keel.sh/pollSchedule: "@every 1h"
 nameOverride: ""
 fullnameOverride: ""
 resources: {}

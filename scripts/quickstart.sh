@@ -40,10 +40,14 @@ ACTIVATION_KEYPAIR=$($SCRIPT_DIR/generate-activation-keypair.sh -j)
 ACTIVATION_PRIVATE_KEY=$(echo "$ACTIVATION_KEYPAIR" | jq -r .privateKey)
 ACTIVATION_PUBLIC_KEY=$(echo "$ACTIVATION_KEYPAIR" | jq -r .publicKey)
 
+if [ -z "$NAMESPACE" ]; then
+    NAMESPACE=mgnl-quickstart
+fi
+
 COMMAND=$(echo "helm upgrade --install \
-    foo \
+    $NAMESPACE \
     $SCRIPT_DIR/../helm \
-    -n foo \
+    -n $NAMESPACE \
     --set paperboy.userPassword=$(pwgen 32 1) \
     --set paperboy.token=$(pwgen 32 1) \
     --set paperboyPreview.userPassword=$(pwgen 32 1) \
@@ -64,6 +68,10 @@ fi
 
 if [ -n "$SOURCE_DIR" ]; then
     COMMAND="$COMMAND --set magnoliaLightModuleUpdater.sourceDir=$SOURCE_DIR"
+fi
+
+if ! kubectl get ns $NAMESPACE &>/dev/null; then
+    kubectl create ns $NAMESPACE
 fi
 
 exec $COMMAND
