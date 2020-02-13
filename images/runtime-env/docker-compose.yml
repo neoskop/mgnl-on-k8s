@@ -1,0 +1,19 @@
+version: "3.4"
+services:
+  sut:
+    build:
+      dockerfile: dockerfiles/oracle/Dockerfile
+      context: build
+    environment:
+      DATASOURCES: |
+        {
+          "datasources": [
+            {
+              "name": "MagnoliaAuthor",
+              "database": "author",
+              "host": "mysql",
+              "password": "<&%!$z>",
+              "username": "author"
+            }
+          ]
+        }
