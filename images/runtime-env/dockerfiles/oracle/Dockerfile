@@ -37,13 +37,18 @@ USER tomcat
 
 # Prepare repositories cache
 RUN mkdir -p /home/tomcat/magnolia_tmp/repositories && \
-    chmod -R 0777 /home/tomcat/magnolia_tmp 
-WORKDIR /home/tomcat/repo
+    chmod -R 0777 /home/tomcat/magnolia_tmp
+
+# Prepare light modules dir
+RUN mkdir -p /home/tomcat/light-modules
 
 # Set default JAVA_OPTS
 ENV JAVA_OPTS="-Xms1024m -Xmx2048m \
     -Djava.awt.headless=true -Dfile.encoding=UTF-8 \
     -Xshare:off"
+
+# Set workdir
+WORKDIR /home/tomcat
 
 EXPOSE 8080 5005
 CMD ["/usr/local/bin/run.sh"]

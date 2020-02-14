@@ -27,7 +27,7 @@ warn() {
 
 copy_modules() {
   info "Copying $(bold $SOURCE_DIR) to $(bold $TARGET_DIR)"
-  rsync -r --exclude=.git $SOURCE_DIR/* $TARGET_DIR &>/dev/null
+  rsync -r --exclude=.git --exclude=mtk $SOURCE_DIR/* $TARGET_DIR &>/dev/null
 }
 
 executed_without_error() {

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 usage() {
@@ -8,6 +8,7 @@ usage() {
     echo "  -k|--kaniko    Use Kaniko to build and push the image"
     echo "  -d|--dry-run   Only print commands that would be used to build images"
     echo "  -v|--verbose   Enable debug output"
+    echo "  -f|--force     Push images regardless if they exist or not"
     exit 1
 }
 
@@ -50,7 +51,7 @@ get_tomcat_tags() {
     grep -E '[0-9]+\.[0-9]+\.[0-9]+-jdk[0-9]+-openjdk-' | \
     sort -V
   )
-  local min_version="8.5.47"
+  local min_version="9.0.30"
 
   for tag in $(echo "$all_tags"); do 
     if [ "$min_version" = "`echo -e "$min_version\n$tag" | sort -V | head -n1`" ] ; then 
@@ -120,6 +121,9 @@ case $i in
     -v|--verbose)
     VERBOSE=YES
     ;;
+    -f | --force)
+    FORCE=YES
+    ;;
     -h|--help)
     usage $0
     ;;
@@ -137,7 +141,7 @@ for tag in `get_tomcat_tags`; do
 
   image_name=neoskop/mgnl-runtime-env:$tag
     
-  if docker_tag_exists neoskop/mgnl-runtime-env $tag ; then
+  if [ "$FORCE" != "YES" ] && docker_tag_exists neoskop/mgnl-runtime-env $tag ; then
     info "Ignoring $(bold $image_name) since it already exists."
   else
     build_image "$tag" "$variant" "$image_name"
