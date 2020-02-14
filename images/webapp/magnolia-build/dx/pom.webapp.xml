@@ -32,10 +32,6 @@
           <groupId>info.magnolia.workflow</groupId>
           <artifactId>magnolia-module-workflow-jbpm</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>info.magnolia.templating</groupId>
-          <artifactId>magnolia-templating-kit</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>

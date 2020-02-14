@@ -22,13 +22,7 @@
       <groupId>info.magnolia.dx</groupId>
       <artifactId>magnolia-dx-core-webapp</artifactId>
       <version>${magnoliaBundleVersion}</version>
-      <type>pom</type>
-      <exclusions>
-        <exclusion>
-          <groupId>info.magnolia.templating</groupId>
-          <artifactId>magnolia-templating-kit</artifactId>
-        </exclusion>
-      </exclusions>
+      <type>pom</type>>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
