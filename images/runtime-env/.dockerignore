@@ -1,4 +1,6 @@
 .gitignore
+.dockerignore
+.vscode
 README.md
 build-in-docker.sh
 docker-compose*
