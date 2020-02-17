@@ -18,7 +18,7 @@ magnoliaLightModuleUpdater:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 9.0.30-jdk13-openjdk-oracle
+    tag: 9.0.31-jdk13-openjdk-oracle
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -40,7 +40,7 @@ magnoliaWebapp:
       memory: 100Mi
     limits:
       cpu: "0.1"
-      memory: 100Mi   
+      memory: 100Mi
 tmpInit:
   image:
     repository: busybox
