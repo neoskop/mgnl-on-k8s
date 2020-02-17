@@ -48,8 +48,11 @@ MYSQL_LATEST_TAG=$(get_tags library/mysql | grep '^5.7' | grep '^[0-9]*\.[0-9]*\
 echo "  - MySQL: $(bold $MYSQL_LATEST_TAG)"
 BUSYBOX_LATEST_TAG=$(get_tags library/busybox | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - Busybox: $(bold $BUSYBOX_LATEST_TAG)"
+ALPINE_LATEST_TAG=$(get_tags library/alpine | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
+echo "  - Alpine: $(bold $ALPINE_LATEST_TAG)"
 yq w -i helm/values.yaml magnoliaWebapp.image.tag $MAGNOLIA_LATEST_TAG
 yq w -i helm/values.yaml magnoliaRuntime.image.tag $MAGNOLIA_RUNTIME_ENV_LATEST_TAG
 yq w -i helm/values.yaml mysql.image.tag $MYSQL_LATEST_TAG
 yq w -i helm/values.yaml tmpInit.image.tag $BUSYBOX_LATEST_TAG
 yq w -i helm/values.yaml mysqlInit.image.tag $BUSYBOX_LATEST_TAG
+sed -i "s/^FROM alpine:.*$/FROM alpine:$ALPINE_LATEST_TAG/" images/light-module-updater/Dockerfile
