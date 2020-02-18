@@ -42,11 +42,6 @@ RUN mkdir -p /home/tomcat/magnolia_tmp/repositories && \
 # Prepare light modules dir
 RUN mkdir -p /home/tomcat/light-modules
 
-# Set default JAVA_OPTS
-ENV JAVA_OPTS="-Xms1024m -Xmx2048m \
-    -Djava.awt.headless=true -Dfile.encoding=UTF-8 \
-    -Xshare:off"
-
 # Set workdir
 WORKDIR /home/tomcat
 
