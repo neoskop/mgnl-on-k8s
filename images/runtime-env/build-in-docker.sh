@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 docker build \
-       -f Dockerfile.builder \
+       -f builder.Dockerfile \
        --build-arg DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME \
        --build-arg DOCKERHUB_PASSWORD=$DOCKERHUB_PASSWORD \
        -t neoskop/mgnl-runtime-env-builder \

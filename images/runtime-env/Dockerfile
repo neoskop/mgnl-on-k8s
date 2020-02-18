@@ -12,7 +12,7 @@ WORKDIR /root
 COPY entrypoint ./
 RUN mvn -T 1C package
 
-FROM tomcat:8.5.42-jdk8-openjdk-slim
+FROM tomcat:9.0.21-jdk13-openjdk-oracle
 LABEL maintainer="Neoskop DevOps <devops@neoskop.de>"
 
 # Setup dockerize
@@ -27,7 +27,7 @@ COPY context.xml.tmpl $CATALINA_HOME/conf/
 # Overwrite server.xml
 COPY server.xml $CATALINA_HOME/conf/
 
-# Setup actual build environment and prepare build scripts
+# Setup actual build environment and prepare build script
 RUN rm -rf webapps/*
 COPY bin/* /usr/local/bin/
 
@@ -45,7 +45,9 @@ RUN mkdir -p /home/tomcat/light-modules
 # Set workdir
 WORKDIR /home/tomcat
 
+# Expose port 8080 for http access and 5005 for debugging 
 EXPOSE 8080 5005
+
 CMD ["/usr/local/bin/run.sh"]
 VOLUME [ "/home/tomcat/magnolia_tmp/repositories" ]
 ENTRYPOINT ["dockerize", "-template", "/usr/local/tomcat/conf/context.xml.tmpl:/usr/local/tomcat/conf/context.xml"]

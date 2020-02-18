@@ -1,11 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 set -e
+
+JDK_VERSION=13
+TOMCAT_MIN_VERSION=9.0.30
+IMAGE_NAME=neoskop/mgnl-runtime-env
 
 usage() {
     echo "usage: $0 [-hpkdv]"
     echo "  -h|--help      Display this text"
     echo "  -p|--push      Push the built images to the Docker Hub"
-    echo "  -k|--kaniko    Use Kaniko to build and push the image"
     echo "  -d|--dry-run   Only print commands that would be used to build images"
     echo "  -v|--verbose   Enable debug output"
     echo "  -f|--force     Push images regardless if they exist or not"
@@ -37,71 +40,52 @@ warn() {
 }
 
 docker_tag_exists() {
-    TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${DOCKERHUB_USERNAME}'", "password": "'${DOCKERHUB_PASSWORD}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
-    EXISTS=$(curl -s -H "Authorization: JWT ${TOKEN}" https://hub.docker.com/v2/repositories/$1/tags/?page_size=10000 | jq -r "[.results | .[] | .name == \"$2\"] | any")
-    test "$EXISTS" = true
+  get_tags $1 | grep -q "^$2$"
 }
 
-get_tomcat_tags() {
-  local all_tags=$( \
-    wget -q https://registry.hub.docker.com/v1/repositories/tomcat/tags -O - | \
-    sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | \
-    tr '}' '\n'  | \
-    awk -F: '{print $3}' | \
-    grep -E '[0-9]+\.[0-9]+\.[0-9]+-jdk[0-9]+-openjdk-' | \
-    sort -V
-  )
-  local min_version="9.0.30"
+get_tags() {
+  i=0
+  has_more=""
+  while [[ $has_more != "null" ]]; do
+    i=$((i + 1))
+    answer=$(curl -s "https://hub.docker.com/v2/repositories/$1/tags/?page_size=100&page=$i")
+    result=$(echo "$answer" | jq -r '.results | map(.name) | .[]')
+    has_more=$(echo "$answer" | jq -r '.next')
+    if [[ ! -z "${result// /}" ]]; then results="${results}\n${result}"; fi
+  done
+  echo -e "$results"
+}
+
+get_relevant_tomcat_tags() {  
+  local all_tags=$(get_tags library/tomcat | grep -E "^[0-9]+\.[0-9]+\.[0-9]+-jdk$JDK_VERSION-openjdk-oracle$" | sort -V)
 
   for tag in $(echo "$all_tags"); do 
-    if [ "$min_version" = "`echo -e "$min_version\n$tag" | sort -V | head -n1`" ] ; then 
+    if [ "$TOMCAT_MIN_VERSION" = "`echo -e "$TOMCAT_MIN_VERSION\n$tag" | sort -V | head -n1`" ] ; then 
       echo "$tag"
     fi    
   done
 }
 
 build_image() {
-   dockerfile=$(sed "s/^FROM tomcat:.*$/FROM tomcat:$1/" dockerfiles/$2/Dockerfile)
+   dockerfile=$(sed "s/^FROM tomcat:.*$/FROM tomcat:$1/" Dockerfile)
 
   if [ "$VERBOSE" == "YES" ]; then
-    echo "Building $3"
+    echo "Building $(bold $IMAGE_NAME:$2)"
   fi
 
-  if [ "$KANIKO" == "YES" ]; then
-    TEMP_FILE=$(mktemp)
-    echo "$dockerfile" > $TEMP_FILE
-    KANIKO_COMMAND="executor \
-      --destination $3 \
-      --dockerfile $TEMP_FILE \
-      --context . \
-      --single-snapshot"
+  DOCKER_COMMAND="echo '$dockerfile' | docker build -t $IMAGE_NAME:$2 build -f-"
 
-    if [ "$PUSH" != "YES" ]; then
-      KANIKO_COMMAND="$KANIKO_COMMAND --no-push"
+  if [ "$DRY_RUN" == "YES" ]; then
+    echo "$DOCKER_COMMAND"
+
+    if [ "$PUSH" == "YES" ]; then
+      echo "docker push $IMAGE_NAME:$2"
     fi
-
-    if [ "$DRY_RUN" == "YES" ]; then
-      echo "$KANIKO_COMMAND"
-    else
-      eval "$KANIKO_COMMAND"
-    fi
-
-    rm -rf "$TEMP_FILE"
   else
-    DOCKER_COMMAND="echo '$dockerfile' | docker build -t $3 build -f-"
+    eval "$DOCKER_COMMAND"
 
-    if [ "$DRY_RUN" == "YES" ]; then
-      echo "$DOCKER_COMMAND"
-
-      if [ "$PUSH" == "YES" ]; then
-        echo "docker push $3"
-      fi
-    else
-      eval "$DOCKER_COMMAND"
-
-      if [ "$PUSH" == "YES" ]; then
-        docker push $3
-      fi
+    if [ "$PUSH" == "YES" ]; then
+      docker push $IMAGE_NAME:$2
     fi
   fi
 }
@@ -111,9 +95,6 @@ do
 case $i in
     -p|--push)
     PUSH=YES
-    ;;
-    -k|--kaniko)
-    KANIKO=YES
     ;;
     -d|--dry-run)
     DRY_RUN=YES
@@ -132,18 +113,12 @@ case $i in
 esac
 done
 
-for tag in `get_tomcat_tags`; do
-  variant=slim
-
-  if echo "$tag" | grep -q oracle$ ; then
-      variant=oracle
-  fi
-
-  image_name=neoskop/mgnl-runtime-env:$tag
+for tomcat_tag in $(get_relevant_tomcat_tags); do
+  app_tag=$(echo $tomcat_tag | grep -Po "^[0-9]+\.[0-9]+\.[0-9]+(?=-jdk$JDK_VERSION)")
     
-  if [ "$FORCE" != "YES" ] && docker_tag_exists neoskop/mgnl-runtime-env $tag ; then
-    info "Ignoring $(bold $image_name) since it already exists."
+  if [ "$FORCE" != "YES" ] && docker_tag_exists $IMAGE_NAME $app_tag ; then
+    info "Ignoring $(bold $app_tag) since it already exists."
   else
-    build_image "$tag" "$variant" "$image_name"
+    build_image "$tomcat_tag" "$app_tag"
   fi
 done

@@ -2,7 +2,7 @@ version: "3.4"
 services:
   sut:
     build:
-      dockerfile: dockerfiles/oracle/Dockerfile
+      dockerfile: Dockerfile
       context: build
     environment:
       DATASOURCES: |
