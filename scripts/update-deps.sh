@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+JDK_VERSION=13
+
 bold() {
   local BOLD='\033[1m'
   local NC='\033[0m'
@@ -35,11 +37,22 @@ check_commands() {
 }
 
 get_tags() {
-  curl -s https://hub.docker.com/v2/repositories/$1/tags/?page_size=10000 | jq -r '.results | map(.name) | .[]'
+  i=0
+  has_more=""
+  while [[ $has_more != "null" ]]; do
+    i=$((i + 1))
+    answer=$(curl -s "https://hub.docker.com/v2/repositories/$1/tags/?page_size=100&page=$i")
+    result=$(echo "$answer" | jq -r '.results | map(.name) | .[]')
+    has_more=$(echo "$answer" | jq -r '.next')
+    if [[ ! -z "${result// /}" ]]; then results="${results}\n${result}"; fi
+  done
+  echo -e "$results"
 }
 
 check_commands jq yq
 echo "Will use the following new image versions:"
+MVN_LATEST_TAG=$(get_tags library/maven | grep -E "^[0-9]+\.[0-9]+\.[0-9]+-jdk-$JDK_VERSION$" | sort -V | tail -n 1)
+echo "  - Maven: $(bold $MVN_LATEST_TAG)"
 MAGNOLIA_LATEST_TAG=$(get_tags neoskop/mgnl-webapp-ce | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - Magnolia Webapp CE: $(bold $MAGNOLIA_LATEST_TAG)"
 MAGNOLIA_RUNTIME_ENV_LATEST_TAG=$(get_tags neoskop/mgnl-runtime-env | grep '^[0-9]*\.[0-9]*\.[0-9]*-jdk[0-9]*' | sort -V | tail -n 1)
@@ -55,4 +68,5 @@ yq w -i helm/values.yaml magnoliaRuntime.image.tag $MAGNOLIA_RUNTIME_ENV_LATEST_
 yq w -i helm/values.yaml mysql.image.tag $MYSQL_LATEST_TAG
 yq w -i helm/values.yaml tmpInit.image.tag $BUSYBOX_LATEST_TAG
 yq w -i helm/values.yaml mysqlInit.image.tag $BUSYBOX_LATEST_TAG
+sed -i "s/^FROM maven:.* as java-entrypoint$/FROM maven:$MVN_LATEST_TAG as java-entrypoint/" images/runtime-env/Dockerfile
 sed -i "s/^FROM alpine:.*$/FROM alpine:$ALPINE_LATEST_TAG/" images/light-module-updater/Dockerfile
