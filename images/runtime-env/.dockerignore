@@ -4,4 +4,4 @@
 README.md
 build-in-docker.sh
 docker-compose*
-Dockerfile*
+builder.Dockerfile
