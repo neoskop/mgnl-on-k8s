@@ -7,7 +7,7 @@ RUN apk add --no-cache wget ca-certificates && \
     tar -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && \
     rm -f dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-FROM maven:3.6.1-jdk-13 as java-entrypoint
+FROM maven:3.6.3-jdk-13 as java-entrypoint
 WORKDIR /root
 COPY entrypoint ./
 RUN mvn -T 1C package
