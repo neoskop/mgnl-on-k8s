@@ -5,7 +5,7 @@ magnoliaLightModuleUpdater:
   sourceDir: "/"
   image:
     repository: neoskop/mgnl-light-module-updater
-    tag: 0.4.0
+    tag: 0.5.0
     pullPolicy: Always
     pullSecret: {}
   resources:
@@ -129,13 +129,13 @@ magnoliaPublic:
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - magnolia-public
-          topologyKey: "kubernetes.io/hostname"
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - magnolia-public
+        topologyKey: "kubernetes.io/hostname"
 magnoliaAuthor:
   replicaCount: 1
   configName: liveAuthor
@@ -160,13 +160,13 @@ magnoliaAuthor:
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - magnolia-author
-          topologyKey: "kubernetes.io/hostname"
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - magnolia-author
+        topologyKey: "kubernetes.io/hostname"
 keel:
   enabled: true
   annotations:
