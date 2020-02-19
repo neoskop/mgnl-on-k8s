@@ -56,7 +56,7 @@ version=$(inc_version $current_version $1)
 cd $SCRIPT_DIR/../images/light-module-updater
 docker build -t neoskop/mgnl-light-module-updater:$version .
 docker push neoskop/mgnl-light-module-updater:$version
-cd &>/dev/null
+cd - &>/dev/null
 sed -i "s/appVersion: .*/appVersion: \"$version\"/" $SCRIPT_DIR/../helm/Chart.yaml
 sed -i "s/version: .*/version: $version/" $SCRIPT_DIR/../helm/Chart.yaml
 yq w -i $SCRIPT_DIR/../helm/Chart.yaml version $version
