@@ -55,7 +55,7 @@ MVN_LATEST_TAG=$(get_tags library/maven | grep -E "^[0-9]+\.[0-9]+\.[0-9]+-jdk-$
 echo "  - Maven: $(bold $MVN_LATEST_TAG)"
 MAGNOLIA_LATEST_TAG=$(get_tags neoskop/mgnl-webapp-ce | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - Magnolia Webapp CE: $(bold $MAGNOLIA_LATEST_TAG)"
-MAGNOLIA_RUNTIME_ENV_LATEST_TAG=$(get_tags neoskop/mgnl-runtime-env | grep '^[0-9]*\.[0-9]*\.[0-9]*-jdk[0-9]*' | sort -V | tail -n 1)
+MAGNOLIA_RUNTIME_ENV_LATEST_TAG=$(get_tags neoskop/mgnl-runtime-env | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - Magnolia Runtime environment: $(bold $MAGNOLIA_RUNTIME_ENV_LATEST_TAG)"
 MYSQL_LATEST_TAG=$(get_tags library/mysql | grep '^5.7' | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - MySQL: $(bold $MYSQL_LATEST_TAG)"
