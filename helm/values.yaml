@@ -18,7 +18,7 @@ magnoliaLightModuleUpdater:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 9.0.31-jdk13-openjdk-oracle
+    tag: 9.0.31
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -129,13 +129,13 @@ magnoliaPublic:
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: app.kubernetes.io/name
-            operator: In
-            values:
-            - magnolia-public
-        topologyKey: "kubernetes.io/hostname"
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - magnolia-public
+          topologyKey: "kubernetes.io/hostname"
 magnoliaAuthor:
   replicaCount: 1
   configName: liveAuthor
@@ -160,18 +160,18 @@ magnoliaAuthor:
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: app.kubernetes.io/name
-            operator: In
-            values:
-            - magnolia-author
-        topologyKey: "kubernetes.io/hostname"
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - magnolia-author
+          topologyKey: "kubernetes.io/hostname"
 keel:
   enabled: true
   annotations:
-    keel.sh/policy: "regexp:^(\\d+\\.\\d+\\.\\d+)"
-    keel.sh/trigger: "poll"
+    keel.sh/policy: minor
+    keel.sh/trigger: poll
     keel.sh/pollSchedule: "@every 1h"
 nameOverride: ""
 fullnameOverride: ""
