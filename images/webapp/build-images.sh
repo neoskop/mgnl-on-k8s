@@ -70,7 +70,7 @@ build_image() {
         --context $(dirname $0)/magnolia-build \
         --single-snapshot"
 
-    if [ "$1" != "ce" ]; then
+    if [ -n "$NEXUS_USERNAME" ] && [ -n "$NEXUS_PASSWORD" ]; then
       KANIKO_COMMAND="$KANIKO_COMMAND \
         --build-arg=NEXUS_USERNAME=$NEXUS_USERNAME \
         --build-arg=NEXUS_PASSWORD=$NEXUS_PASSWORD"
@@ -91,7 +91,7 @@ build_image() {
       -t $3 \
       -f $(dirname $0)/magnolia-build/$1/Dockerfile"
 
-    if [ "$1" != "ce" ]; then
+    if [ -n "$NEXUS_USERNAME" ] && [ -n "$NEXUS_PASSWORD" ]; then
       BUILD_COMMAND="$BUILD_COMMAND \
       --build-arg NEXUS_USERNAME=$NEXUS_USERNAME \
       --build-arg NEXUS_PASSWORD=$NEXUS_PASSWORD"
