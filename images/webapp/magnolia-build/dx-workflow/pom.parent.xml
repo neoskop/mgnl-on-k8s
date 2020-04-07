@@ -65,8 +65,8 @@
       <url>https://repo1.maven.org/maven2</url>
     </repository>
     <repository>
-      <id>magnolia.public</id>
-      <url>https://nexus.magnolia-cms.com/content/groups/public</url>
+      <id>magnolia.enterprise</id>
+      <url>https://nexus.magnolia-cms.com/content/groups/enterprise</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
