@@ -36,10 +36,6 @@
     </dependency>
     <dependency>
       <groupId>info.magnolia.dam</groupId>
-      <artifactId>magnolia-dam-compatibility</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>info.magnolia.dam</groupId>
       <artifactId>magnolia-dam-core</artifactId>
     </dependency>
     <dependency>
