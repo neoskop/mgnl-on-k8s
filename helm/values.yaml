@@ -10,7 +10,6 @@ magnoliaLightModuleUpdater:
     pullSecret: {}
   resources:
     requests:
-      cpu: 0.1
       memory: 50M
     limits:
       cpu: 0.1
@@ -18,12 +17,11 @@ magnoliaLightModuleUpdater:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 9.0.31
+    tag: 9.0.33
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
     requests:
-      cpu: 0.5
       memory: 1536M
     limits:
       cpu: 1
@@ -31,12 +29,11 @@ magnoliaRuntime:
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
-    tag: 6.1.4
+    tag: 6.1.5
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
     requests:
-      cpu: "0.1"
       memory: 100Mi
     limits:
       cpu: "0.1"
@@ -49,7 +46,6 @@ tmpInit:
     pullSecret: {}
   resources:
     requests:
-      cpu: "0.01"
       memory: 20Mi
     limits:
       cpu: "0.01"
@@ -62,7 +58,6 @@ mysqlInit:
     pullSecret: {}
   resources:
     requests:
-      cpu: "0.01"
       memory: 20Mi
     limits:
       cpu: "0.01"
@@ -78,7 +73,6 @@ mysql:
   resources:
     requests:
       memory: 200Mi
-      cpu: 100m
     limits:
       memory: 500Mi
       cpu: 250m
