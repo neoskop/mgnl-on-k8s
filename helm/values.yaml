@@ -11,8 +11,8 @@ magnoliaLightModuleUpdater:
   resources:
     requests:
       memory: 50M
-    limits:
       cpu: 0.1
+    limits:
       memory: 100M
 magnoliaRuntime:
   image:
@@ -23,8 +23,8 @@ magnoliaRuntime:
   resources:
     requests:
       memory: 1536M
+      cpu: "0.5"
     limits:
-      cpu: 1
       memory: 2560M
 magnoliaWebapp:
   image:
@@ -35,8 +35,8 @@ magnoliaWebapp:
   resources:
     requests:
       memory: 100Mi
-    limits:
       cpu: "0.1"
+    limits:
       memory: 100Mi
 tmpInit:
   image:
@@ -47,8 +47,8 @@ tmpInit:
   resources:
     requests:
       memory: 20Mi
-    limits:
       cpu: "0.01"
+    limits:
       memory: 20Mi
 mysqlInit:
   image:
@@ -59,8 +59,8 @@ mysqlInit:
   resources:
     requests:
       memory: 20Mi
-    limits:
       cpu: "0.01"
+    limits:
       memory: 20Mi
 mysql:
   enabled: true
