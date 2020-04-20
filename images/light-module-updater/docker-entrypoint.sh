@@ -62,12 +62,8 @@ if ! [ -d $REPO_DIR/.git ]; then
 fi
 
 cd $REPO_DIR
-
-if [ -z "$(ls $TARGET_DIR)" ]; then
-  info "Copying modules initially"
-  copy_modules
-fi
-
+info "Copying modules initially"
+copy_modules
 info "Starting to check repository for changes..."
 
 while true; do
