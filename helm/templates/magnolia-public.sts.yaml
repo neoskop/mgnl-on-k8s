@@ -17,6 +17,8 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        app.kubernetes.io/datasource-checksum: {{ tpl (.Files.Get "datasource-public.json") . | sha256sum }}
       labels:
         app.kubernetes.io/name: magnolia-public
         app.kubernetes.io/instance: {{ .Release.Name }}
