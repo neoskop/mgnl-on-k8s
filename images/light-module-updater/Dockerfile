@@ -1,4 +1,4 @@
-FROM alpine:3.11.5
+FROM alpine:3.11.6
 ENV GIT_BRANCH=master \
     GIT_POLL_INTERVAL=5 \
     REPO_DIR=/home/docker/repo \
