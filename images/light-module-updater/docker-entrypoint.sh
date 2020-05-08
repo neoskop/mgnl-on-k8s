@@ -27,7 +27,7 @@ warn() {
 
 copy_modules() {
   info "Copying $(bold $SOURCE_DIR) to $(bold $TARGET_DIR)"
-  rsync -r --exclude=.git --exclude=mtk $SOURCE_DIR/* $TARGET_DIR &>/dev/null
+  rsync -r --exclude=.git --exclude=mtk $SOURCE_DIR/* $TARGET_DIR --delete &>/dev/null
 }
 
 executed_without_error() {
@@ -56,7 +56,7 @@ if ! [ -d $REPO_DIR/.git ]; then
   TEMP_DIR=$(mktemp -d)
   git clone -b $GIT_BRANCH $GIT_REPO_URL $TEMP_DIR/repo &>/dev/null
   cd $TEMP_DIR/repo
-  rsync -ra . $REPO_DIR &>/dev/null
+  rsync -ra . $REPO_DIR --delete &>/dev/null
   cd - &>/dev/null
   rm -rf $TEMP_DIR
 fi
