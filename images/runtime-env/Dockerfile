@@ -27,8 +27,10 @@ COPY context.xml.tmpl $CATALINA_HOME/conf/
 # Overwrite server.xml
 COPY server.xml $CATALINA_HOME/conf/
 
-# Setup actual build environment and prepare build script
+# Clear webapps dir
 RUN rm -rf webapps/*
+
+# Prepare scripts
 COPY bin/* /usr/local/bin/
 
 # Setup Tomcat user

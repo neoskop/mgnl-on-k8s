@@ -1,0 +1,74 @@
+#!/bin/bash
+set -e
+
+remove_tag() {
+  echo -e "Removing all \033[1m$1\033[0m tags from \033[1m$2\033[0m"
+  sed -i ":a;N;\$!ba; s|<$1>.*<\/$1>||g" $2
+}
+
+determine_widget_set() {
+  PROPERTIES_PATH=$CATALINA_HOME/webapps/ROOT/WEB-INF/config/default/magnolia.properties
+  WIDGETSET=$(cat $PROPERTIES_PATH | grep -o 'magnolia.ui.vaadin.widgetset=info.magnolia.widgetset.*' | cut -f2- -d=)
+
+  if [ -n "$WIDGETSET" ]; then
+    echo "$WIDGETSET"
+  else
+    echo "info.magnolia.widgetset.MagnoliaWidgetSet"
+  fi
+}
+
+add_rescue_app_servlet() {
+  WIDGETSET=$(determine_widget_set)
+  echo -e "Using \033[1m$WIDGETSET\033[0m as widgetset"
+  echo -e "Adding Groovy Rescue App servlet to \033[1m$1\033[0m"
+  sed -i "s|</web-app>||" $1
+  echo "  <servlet>
+    <servlet-name>Vaadin</servlet-name>
+    <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
+      <init-param>
+        <description>Groovy Rescue App</description>
+        <param-name>UI</param-name>
+        <param-value>info.magnolia.module.groovy.rescue.MgnlGroovyRescueApp</param-value>
+    </init-param>
+    <init-param>
+        <param-name>widgetset</param-name>
+        <param-value>$WIDGETSET</param-value>
+    </init-param></servlet>
+  <servlet-mapping>
+    <servlet-name>Vaadin</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+</web-app>" >> $1
+}
+
+if [[ "$#" != "1" ]] || [[ ! "$1" =~ ^(enable|disable)$ ]]; then
+  echo -e "Usage: $0 \033[1menable|disable\033[0m"
+  exit 1
+fi
+
+WEB_XML_PATH=$CATALINA_HOME/webapps/ROOT/WEB-INF/web.xml
+WEB_XML_BACKUP_PATH=$HOME/web.xml.unchanged
+
+if [[ "$1" = "enable" ]]; then
+  if ! [ -f "$WEB_XML_BACKUP_PATH" ]; then
+    echo -e "Backing up \033[1m$WEB_XML_PATH\033[0m to \033[1m$WEB_XML_BACKUP_PATH\033[0m"
+    cp $WEB_XML_PATH $WEB_XML_BACKUP_PATH
+  fi
+
+  WEB_XML_TEMP_PATH=$(mktemp --tmpdir web.XXXXXX.xml)
+  echo -e "Preparing changes of \033[1m$WEB_XML_PATH\033[0m in \033[1m$WEB_XML_TEMP_PATH\033[0m"
+  cp $WEB_XML_BACKUP_PATH $WEB_XML_TEMP_PATH
+  remove_tag "filter" $WEB_XML_TEMP_PATH
+  remove_tag "filter-mapping" $WEB_XML_TEMP_PATH
+  add_rescue_app_servlet $WEB_XML_TEMP_PATH
+  echo -e "Replacing \033[1m$WEB_XML_PATH\033[0m with \033[1m$WEB_XML_TEMP_PATH\033[0m"
+  mv $WEB_XML_TEMP_PATH $WEB_XML_PATH
+else
+  if ! [ -f "$WEB_XML_BACKUP_PATH" ]; then
+    echo -e "Backup does not exist under \033[1m$WEB_XML_BACKUP_PATH\033[0m"
+    exit 1
+  fi
+
+  echo -e "Restoring backup from \033[1m$WEB_XML_BACKUP_PATH\033[0m to \033[1m$WEB_XML_PATH\033[0m"
+  cp $WEB_XML_BACKUP_PATH $WEB_XML_PATH
+fi
