@@ -9,6 +9,6 @@
   {{ end }}
   {{ end }}  
   {{ if .Env.MAGNOLIA_CONFIG }}    
-  <Parameter name="magnolia.initialization.file" value="WEB-INF/config/{{ .Env.MAGNOLIA_CONFIG }}/magnolia.properties,WEB-INF/config/default/magnolia.properties,WEB-INF/config/magnolia.properties"/>
+  <Parameter name="magnolia.initialization.file" value="WEB-INF/config/{{ .Env.MAGNOLIA_CONFIG }}/magnolia.properties,WEB-INF/config/default/magnolia.properties,WEB-INF/config/magnolia.properties" override="false"/>
   {{ end }}
 </Context>

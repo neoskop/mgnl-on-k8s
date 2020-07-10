@@ -22,7 +22,8 @@ COPY --from=dockerize /tmp/dockerize /usr/local/bin
 COPY --from=java-entrypoint /root/target/docker-entrypoint.jar /usr/local/bin
 
 # Setup Tomcat config template
-COPY context.xml.tmpl $CATALINA_HOME/conf/
+RUN mkdir -p $CATALINA_HOME/conf/Catalina/localhost
+COPY context.xml.tmpl $CATALINA_HOME/conf/Catalina/localhost/conf/ROOT.xml.tmpl
 
 # Overwrite server.xml
 COPY server.xml $CATALINA_HOME/conf/
@@ -52,4 +53,4 @@ EXPOSE 8080 5005
 
 CMD ["/usr/local/bin/run.sh"]
 VOLUME [ "/home/tomcat/magnolia_tmp/repositories" ]
-ENTRYPOINT ["dockerize", "-template", "/usr/local/tomcat/conf/context.xml.tmpl:/usr/local/tomcat/conf/context.xml"]
+ENTRYPOINT ["dockerize", "-template", "$CATALINA_HOME/conf/Catalina/localhost/conf/ROOT.xml.tmpl:$CATALINA_HOME/conf/Catalina/localhost/conf/ROOT.xml"]
