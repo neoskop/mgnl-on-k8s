@@ -53,4 +53,4 @@ EXPOSE 8080 5005
 
 CMD ["/usr/local/bin/run.sh"]
 VOLUME [ "/home/tomcat/magnolia_tmp/repositories" ]
-ENTRYPOINT ["dockerize", "-template", "$CATALINA_HOME/conf/Catalina/localhost/conf/ROOT.xml.tmpl:$CATALINA_HOME/conf/Catalina/localhost/conf/ROOT.xml"]
+ENTRYPOINT ["dockerize", "-template", "/usr/local/tomcat/conf/Catalina/localhost/conf/ROOT.xml.tmpl:/usr/local/tomcat/conf/Catalina/localhost/conf/ROOT.xml"]
