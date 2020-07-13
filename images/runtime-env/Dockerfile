@@ -23,7 +23,7 @@ COPY --from=java-entrypoint /root/target/docker-entrypoint.jar /usr/local/bin
 
 # Setup Tomcat config template
 RUN mkdir -p $CATALINA_HOME/conf/Catalina/localhost
-COPY context.xml.tmpl $CATALINA_HOME/conf/Catalina/localhost/conf/ROOT.xml.tmpl
+COPY context.xml.tmpl $CATALINA_HOME/conf/Catalina/localhost/ROOT.xml.tmpl
 
 # Overwrite server.xml
 COPY server.xml $CATALINA_HOME/conf/
