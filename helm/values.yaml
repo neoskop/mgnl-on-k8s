@@ -118,7 +118,7 @@ magnoliaPublic:
       cert: ""
       key: ""
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /dam$1
+      nginx.ingress.kubernetes.io/rewrite-target: /dam/$1
   ingress:
     enabled: true
     hostname: magnolia-public.local
@@ -159,7 +159,7 @@ magnoliaAuthor:
       cert: ""
       key: ""
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /dam$1
+      nginx.ingress.kubernetes.io/rewrite-target: /dam/$1
   ingress:
     enabled: true
     hostname: magnolia-author.local
