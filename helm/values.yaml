@@ -109,6 +109,16 @@ magnoliaPublic:
     password: ""
     database: "" # If empty the value is derived automatically
     name: MagnoliaPublic
+  assetIngress:
+    enabled: false
+    hostname: magnolia-public-assets.local
+    secret:
+      enabled: false
+      ca: ""
+      cert: ""
+      key: ""
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /dam$1
   ingress:
     enabled: true
     hostname: magnolia-public.local
@@ -140,6 +150,16 @@ magnoliaAuthor:
     password: ""
     database: "" # If empty the value is derived automatically
     name: MagnoliaAuthor
+  assetIngress:
+    enabled: false
+    hostname: magnolia-author-assets.local
+    secret:
+      enabled: false
+      ca: ""
+      cert: ""
+      key: ""
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /dam$1
   ingress:
     enabled: true
     hostname: magnolia-author.local

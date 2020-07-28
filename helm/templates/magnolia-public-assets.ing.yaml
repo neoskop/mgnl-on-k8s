@@ -1,0 +1,27 @@
+{{- if .Values.magnoliaPublic.assetIngress.enabled -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ include "mgnl.public.name" . }}-assets
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.magnoliaPublic.assetIngress.annotations | nindent 4 }}
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.magnoliaPublic.assetIngress.hostname }}
+      secretName: {{ include "mgnl.public.name" . }}-tls
+  rules:
+    - host: {{ .Values.magnoliaPublic.assetIngress.hostname }}
+      http:
+        paths:
+          - path: /(.*)
+            backend:
+              serviceName: {{ include "mgnl.public.name" . }}
+              servicePort: http
+{{- end }}
