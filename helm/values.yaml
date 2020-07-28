@@ -29,7 +29,7 @@ magnoliaRuntime:
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
-    tag: 6.2.1
+    tag: 6.2.2
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -41,7 +41,7 @@ magnoliaWebapp:
 tmpInit:
   image:
     repository: busybox
-    tag: 1.31.1
+    tag: 1.32.0
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -53,7 +53,7 @@ tmpInit:
 mysqlInit:
   image:
     repository: busybox
-    tag: 1.31.1
+    tag: 1.32.0
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -67,7 +67,7 @@ mysql:
   rootPassword: ""
   image:
     repository: mysql
-    tag: 5.7.30
+    tag: 5.7.31
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -133,13 +133,13 @@ magnoliaPublic:
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: app.kubernetes.io/name
-            operator: In
-            values:
-            - magnolia-public
-        topologyKey: "kubernetes.io/hostname"
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - magnolia-public
+          topologyKey: "kubernetes.io/hostname"
 magnoliaAuthor:
   replicaCount: 1
   configName: liveAuthor
@@ -174,13 +174,13 @@ magnoliaAuthor:
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: app.kubernetes.io/name
-            operator: In
-            values:
-            - magnolia-author
-        topologyKey: "kubernetes.io/hostname"
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - magnolia-author
+          topologyKey: "kubernetes.io/hostname"
 keel:
   enabled: true
   annotations:
