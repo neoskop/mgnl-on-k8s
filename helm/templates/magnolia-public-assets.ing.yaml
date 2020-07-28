@@ -15,7 +15,7 @@ spec:
   tls:
     - hosts:
         - {{ .Values.magnoliaPublic.assetIngress.hostname }}
-      secretName: {{ include "mgnl.public.name" . }}-tls
+      secretName: {{ include "mgnl.public.name" . }}-assets-tls
   rules:
     - host: {{ .Values.magnoliaPublic.assetIngress.hostname }}
       http:
