@@ -36,6 +36,10 @@
           <groupId>info.magnolia.workflow</groupId>
           <artifactId>magnolia-workflow-compatibility</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>info.magnolia.workflow</groupId>
+          <artifactId>magnolia-module-workflow-pages</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
