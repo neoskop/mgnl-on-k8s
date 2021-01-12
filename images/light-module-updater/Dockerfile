@@ -1,6 +1,7 @@
 FROM alpine:3.12.0
 ENV GIT_BRANCH=master \
-    GIT_POLL_INTERVAL=5 \
+    CHECKOUT_TAG=false \
+    POLL_INTERVAL=5 \
     REPO_DIR=/home/docker/repo \
     TARGET_DIR="/home/tomcat/light-modules"
 RUN apk add --no-cache git openssh-client rsync && \

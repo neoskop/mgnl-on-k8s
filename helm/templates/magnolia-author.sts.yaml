@@ -126,11 +126,15 @@ spec:
           volumeMounts:
             - name: light-modules
               mountPath: /home/tomcat/light-modules
+            - name: light-module-updater-config
+              mountPath: /home/docker/config
           env:
             - name: SOURCE_DIR
               value: {{ .Values.magnoliaLightModuleUpdater.sourceDir }}
             - name: GIT_BRANCH
               value: {{ .Values.magnoliaLightModuleUpdater.branch }}
+            - name: CHECKOUT_TAG
+              value: {{ .Values.magnoliaLightModuleUpdater.tag | quote }}
             - name: GIT_REPO_URL
               value: {{ .Values.magnoliaLightModuleUpdater.repoUrl }}
             {{- if .Values.magnoliaLightModuleUpdater.privateKey }}
@@ -147,6 +151,12 @@ spec:
           emptyDir: {}
         - name: light-modules
           emptyDir: {}
+        - name: light-module-updater-config
+          configMap:
+            name: {{ include "mgnl.name" . }}-light-module-updater
+            items:
+              - key: tag
+                path: tag
         - name: activation-keypair
           secret:
             secretName: {{ include "mgnl.name" . }}-activation-keypair

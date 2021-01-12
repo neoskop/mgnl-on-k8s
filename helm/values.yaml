@@ -1,6 +1,7 @@
 magnoliaLightModuleUpdater:
   privateKey: "" # Pass this base64 encoded
   repoUrl: ""
+  tag: false # change this to true to checkout a tag from the coresponding config map
   branch: "master"
   sourceDir: "/"
   image:
