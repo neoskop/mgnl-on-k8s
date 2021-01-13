@@ -5,4 +5,4 @@ metadata:
   labels:
 {{ include "mgnl.labels" . | indent 4 }}
 data:
-  tag: {{ .Values.magnoliaLightModuleUpdater.privateKey }}
+  tag: ""
