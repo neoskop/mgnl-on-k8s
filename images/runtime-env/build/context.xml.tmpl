@@ -3,6 +3,7 @@
   <Manager pathname="" />
   <WatchedResource>WEB-INF/web.xml</WatchedResource>
   <Resources cachingAllowed="true" cacheMaxSize="100000" />
+  <CookieProcessor sameSiteCookies="strict" />
   <JarScanner scanClassPath="false" />
   {{ if .Env.DATASOURCES }}    {{ range $index, $datasource := jsonQuery .Env.DATASOURCES "datasources" }}    
   <Resource name="jdbc/{{ $datasource.name }}" auth="Container" type="javax.sql.DataSource" maxTotal="100" maxIdle="30" maxWaitMillis="10000" username="{{ if $datasource.username }}{{ $datasource.username }}{{ else }}root{{ end }}" password="{{ if $datasource.password }}{{ html $datasource.password }}{{ end }}" url="jdbc:mysql://{{ if $datasource.host }}{{ $datasource.host }}{{ else }}{{ $.Env.MYSQL_HOST }}{{ end }}:{{ if $datasource.port }}{{ $datasource.port }}{{ else }}3306{{ end }}/{{ $datasource.database }}?useSSL=false" driverClassName="com.mysql.jdbc.Driver" validationQuery="SELECT 1" testOnBorrow="true" />
