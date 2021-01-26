@@ -23,10 +23,10 @@ magnoliaRuntime:
     pullSecret: {}
   resources:
     requests:
-      memory: 1536M
+      memory: 2560M
       cpu: "0.5"
     limits:
-      memory: 2560M
+      memory: 4096M
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
