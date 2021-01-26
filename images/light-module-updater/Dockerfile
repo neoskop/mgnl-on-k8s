@@ -1,4 +1,4 @@
-FROM alpine:3.12.3
+FROM alpine:3.13.0
 ENV GIT_BRANCH=master \
     CHECKOUT_TAG=false \
     POLL_INTERVAL=5 \
