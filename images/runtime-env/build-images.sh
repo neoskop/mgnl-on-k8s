@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-JDK_VERSION=13
-TOMCAT_MIN_VERSION=9.0.30
+JDK_VERSION=15
+TOMCAT_MIN_VERSION=9.0.43
 IMAGE_NAME=neoskop/mgnl-runtime-env
 
 usage() {
