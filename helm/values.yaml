@@ -14,7 +14,7 @@ magnoliaLightModuleUpdater:
       memory: 50M
       cpu: 0.1
     limits:
-      memory: 100M
+      memory: 250M
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
