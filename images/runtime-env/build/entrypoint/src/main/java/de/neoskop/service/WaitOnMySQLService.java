@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.neoskop.exception.WrongCredentialsException;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -60,7 +62,8 @@ public class WaitOnMySQLService {
     }
 
     private String getConnectionUrl() {
-        return "jdbc:mysql://" + hostname + ":" + port + "/" + database + "?user=" + username + "&password=" + password + "&useSSL=false";
+        return "jdbc:mysql://" + hostname + ":" + port + "/" + database + "?user=" + username + "&password=" + password
+                + "&useSSL=false";
     }
 
     public static void waitForAllConnections() {
@@ -79,8 +82,7 @@ public class WaitOnMySQLService {
             final String password = getWithDefault(datasource, "password", "");
             final String database = getWithDefault(datasource, "database", "mysql");
             final String port = getWithDefault(datasource, "port", "3306");
-            return new WaitOnMySQLService(host, username,
-                    password, database, port);
+            return new WaitOnMySQLService(host, username, password, database, port);
         }).map(WaitOnMySQLService::waitForConnection).forEach(future -> {
             boolean credentialsCorrect;
 
@@ -102,7 +104,7 @@ public class WaitOnMySQLService {
 
     private static String getWithDefault(JsonObject object, String property, String defaultValue) {
         if (object.has(property)) {
-            return object.get(property).getAsString();
+            return URLEncoder.encode(object.get(property).getAsString(), StandardCharsets.UTF_8);
         }
 
         return defaultValue;
