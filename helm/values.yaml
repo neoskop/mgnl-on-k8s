@@ -24,13 +24,13 @@ magnoliaRuntime:
   resources:
     requests:
       memory: 2560M
-      cpu: "0.5"
+      cpu: 250m
     limits:
       memory: 4096M
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
-    tag: 6.2.6
+    tag: 6.2.7
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -48,7 +48,7 @@ tmpInit:
   resources:
     requests:
       memory: 20Mi
-      cpu: "0.01"
+      cpu: 10m
     limits:
       memory: 20Mi
 mysqlInit:
@@ -76,7 +76,6 @@ mysql:
       memory: 200Mi
     limits:
       memory: 500Mi
-      cpu: 250m
   storage:
     resources:
       requests:
