@@ -48,7 +48,7 @@
       <version>${mysql-connector-java.version}</version>
     </dependency>
     <dependency>
-      <groupId>de.neoskop.magnolia</groupId>
+      <groupId>com.github.neoskop</groupId>
       <artifactId>paperboy</artifactId>
       <version>${paperboy.version}</version>
     </dependency>
