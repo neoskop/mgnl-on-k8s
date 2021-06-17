@@ -119,6 +119,8 @@ magnoliaPublic:
       key: ""
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /dam/$1
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        more_set_headers "X-Robots-Tag: noindex";
   ingress:
     enabled: true
     hostname: magnolia-public.local
@@ -160,6 +162,8 @@ magnoliaAuthor:
       key: ""
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /dam/$1
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        more_set_headers "X-Robots-Tag: noindex";
   ingress:
     enabled: true
     hostname: magnolia-author.local
