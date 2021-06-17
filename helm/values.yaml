@@ -18,7 +18,7 @@ magnoliaLightModuleUpdater:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 9.0.33
+    tag: 10.0.2
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -30,7 +30,7 @@ magnoliaRuntime:
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
-    tag: 6.2.7
+    tag: 6.2.8
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -42,7 +42,7 @@ magnoliaWebapp:
 tmpInit:
   image:
     repository: busybox
-    tag: 1.33.0
+    tag: 1.33.1
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -54,7 +54,7 @@ tmpInit:
 mysqlInit:
   image:
     repository: busybox
-    tag: 1.33.0
+    tag: 1.33.1
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -68,7 +68,7 @@ mysql:
   rootPassword: ""
   image:
     repository: mysql
-    tag: 5.7.33
+    tag: 5.7.34
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
