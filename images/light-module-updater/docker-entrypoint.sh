@@ -56,6 +56,11 @@ if [ -z "$GIT_REPO_URL" ] || [ -z "$GIT_PRIVATE_KEY" ] || [ -z "$SOURCE_DIR" ]; 
   exit 1
 fi
 
+MEMORY_LIMIT=$(expr $(cat /sys/fs/cgroup/memory/memory.limit_in_bytes) / 1000 / 1000)
+info "Configuring Git for memory limit of ${MEMORY_LIMIT} MB"
+git config --global core.packedGitWindowSize $(expr $MEMORY_LIMIT / 10)
+git config --global core.packedGitLimit $(expr $MEMORY_LIMIT / 2)
+
 if ! [ -f ~/.ssh/id_rsa ]; then
   info "Writing private key to to $(bold ~/.ssh/id_rsa)"
   echo "$GIT_PRIVATE_KEY" >~/.ssh/id_rsa
