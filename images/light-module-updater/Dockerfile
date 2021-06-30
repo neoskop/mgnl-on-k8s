@@ -1,11 +1,15 @@
-FROM alpine:3.14.0
+FROM ubuntu:21.10
 ENV GIT_BRANCH=master \
     CHECKOUT_TAG=false \
     POLL_INTERVAL=5 \
     REPO_DIR=/home/docker/repo \
     TARGET_DIR="/home/tomcat/light-modules"
-RUN apk add --no-cache git openssh-client rsync && \
-    adduser -S --uid 1000 docker && \
+RUN apt-get update -q && \
+    apt-get install -q -y software-properties-common && \
+    add-apt-repository -y ppa:git-core/ppa && \
+    apt-get update -q && \
+    apt-get install -q -y git openssh-client && \
+    useradd -m --uid 1000 docker && \
     mkdir -p $TARGET_DIR && \
     chown docker $TARGET_DIR && \
     mkdir -p $REPO_DIR && \

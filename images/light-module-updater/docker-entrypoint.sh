@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 set -e
 
 bold() {
@@ -56,14 +56,18 @@ if [ -z "$GIT_REPO_URL" ] || [ -z "$GIT_PRIVATE_KEY" ] || [ -z "$SOURCE_DIR" ]; 
   exit 1
 fi
 
-MEMORY_LIMIT=$(expr $(cat /sys/fs/cgroup/memory/memory.limit_in_bytes) / 1000 / 1000)
-info "Configuring Git for memory limit of ${MEMORY_LIMIT} MB"
-git config --global core.packedGitWindowSize $(expr $MEMORY_LIMIT / 10)
-git config --global core.packedGitLimit $(expr $MEMORY_LIMIT / 2)
+MEMORY_LIMIT=$(expr $(cat /sys/fs/cgroup/memory/memory.limit_in_bytes) / 1024 / 1024)
+info "Configuring Git for memory limit of $(bold "${MEMORY_LIMIT} MiB")"
+git config --global core.packedGitWindowSize $(expr $MEMORY_LIMIT / 10)m
+git config --global core.packedGitLimit $(expr $MEMORY_LIMIT / 2)m
+git config --global pack.deltaCacheSize $(expr $MEMORY_LIMIT / 4)m
+git config --global pack.packSizeLimit $(expr $MEMORY_LIMIT / 4)m
+git config --global pack.windowMemory $(expr $MEMORY_LIMIT / 4)m
+git config --global pack.threads 1
 
 if ! [ -f ~/.ssh/id_rsa ]; then
   info "Writing private key to to $(bold ~/.ssh/id_rsa)"
-  echo "$GIT_PRIVATE_KEY" >~/.ssh/id_rsa
+  echo -e "$GIT_PRIVATE_KEY" >~/.ssh/id_rsa
 fi
 
 chmod 0600 ~/.ssh/id_rsa
@@ -72,23 +76,22 @@ if [ "$CHECKOUT_TAG" == "true" ]; then
   update_tag || warn "$(bold CHECKOUT_TAG) is true, yet no tag is specified"
 fi
 
-if ! [ -d $REPO_DIR/.git ]; then
+cd $REPO_DIR
+
+if ! [ -d .git ]; then
   info "Cloning $(bold $GIT_REPO_URL) to $(bold $REPO_DIR)"
-  TEMP_DIR=$(mktemp -d)
-  git clone -b $GIT_BRANCH $GIT_REPO_URL $TEMP_DIR/repo &>/dev/null
-  cd $TEMP_DIR/repo
+  git init &>/dev/null
+  git remote add -f origin $GIT_REPO_URL &>/dev/null
+  git config core.sparseCheckout true
+  echo "$SOURCE_DIR" >> .git/info/sparse-checkout
+  git pull origin master &>/dev/null
 
   if [ -n "$GIT_TAG" ]; then
     info "Checking out tag $(bold $GIT_TAG)"
     git -c advice.detachedHead=false checkout tags/$GIT_TAG &>/dev/null
   fi
-
-  rsync -ra . $REPO_DIR --delete &>/dev/null
-  cd - &>/dev/null
-  rm -rf $TEMP_DIR
 fi
 
-cd $REPO_DIR
 info "Copying modules initially"
 copy_modules
 
@@ -113,7 +116,7 @@ while true; do
     fi
   elif executed_without_error "git fetch"; then
     LOCAL=$(git rev-parse HEAD)
-    REMOTE=$(git rev-parse @{u})
+    REMOTE=$(git rev-parse origin/master)
 
     if [ $LOCAL != $REMOTE ]; then
       info "Pulling changes"
