@@ -61,12 +61,12 @@ MYSQL_LATEST_TAG=$(get_tags library/mysql | grep '^5.7' | grep '^[0-9]*\.[0-9]*\
 echo "  - MySQL: $(bold $MYSQL_LATEST_TAG)"
 BUSYBOX_LATEST_TAG=$(get_tags library/busybox | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - Busybox: $(bold $BUSYBOX_LATEST_TAG)"
-ALPINE_LATEST_TAG=$(get_tags library/alpine | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
-echo "  - Alpine: $(bold $ALPINE_LATEST_TAG)"
+UBUNTU_LATEST_TAG=$(get_tags library/ubuntu | grep '^[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
+echo "  - Ubuntu: $(bold $UBUNTU_LATEST_TAG)"
 yq eval ".magnoliaWebapp.image.tag=\"$MAGNOLIA_LATEST_TAG\"" -i helm/values.yaml
 yq eval ".magnoliaRuntime.image.tag=\"$MAGNOLIA_RUNTIME_ENV_LATEST_TAG\"" -i helm/values.yaml
 yq eval ".mysql.image.tag=\"$MYSQL_LATEST_TAG\"" -i helm/values.yaml
 yq eval ".tmpInit.image.tag=\"$BUSYBOX_LATEST_TAG\"" -i helm/values.yaml
 yq eval ".mysqlInit.image.tag=\"$BUSYBOX_LATEST_TAG\"" -i helm/values.yaml
 sed -i "s/^FROM maven:.* as java-entrypoint$/FROM maven:$MVN_LATEST_TAG as java-entrypoint/" images/runtime-env/Dockerfile
-sed -i "s/^FROM alpine:.*$/FROM alpine:$ALPINE_LATEST_TAG/" images/light-module-updater/Dockerfile
+sed -i "s/^FROM ubuntu:.*$/FROM ubuntu:$UBUNTU_LATEST_TAG/" images/light-module-updater/Dockerfile
