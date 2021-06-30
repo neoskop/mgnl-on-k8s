@@ -4,11 +4,11 @@ ENV GIT_BRANCH=master \
     POLL_INTERVAL=5 \
     REPO_DIR=/home/docker/repo \
     TARGET_DIR="/home/tomcat/light-modules"
-RUN apt-get update -q && \
-    apt-get install -q -y software-properties-common && \
+RUN apt-get update -qq && \
+    apt-get install -qq -y software-properties-common && \
     add-apt-repository -y ppa:git-core/ppa && \
-    apt-get update -q && \
-    apt-get install -q -y git openssh-client && \
+    apt-get update -qq && \
+    apt-get install -qq -y git openssh-client rsync && \
     useradd -m --uid 1000 docker && \
     mkdir -p $TARGET_DIR && \
     chown docker $TARGET_DIR && \
