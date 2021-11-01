@@ -57,21 +57,24 @@ spec:
           startupProbe:
             exec:
               command:
-              - /usr/local/bin/probe startup
+              - /usr/local/bin/probe
+              - startup
             periodSeconds: 10
             failureThreshold: 250
             timeoutSeconds: 10
           readinessProbe:
             exec:
               command:
-              - /usr/local/bin/probe readiness
+              - /usr/local/bin/probe
+              - readiness
             periodSeconds: 10
             failureThreshold: 12
             timeoutSeconds: 10
           livenessProbe:
             exec:
               command:
-              - /usr/local/bin/probe liveness
+              - /usr/local/bin/probe
+              - liveness
             periodSeconds: 10
             failureThreshold: 6
             timeoutSeconds: 10
