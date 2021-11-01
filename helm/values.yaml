@@ -18,7 +18,7 @@ magnoliaLightModuleUpdater:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 9.0.43
+    tag: 9.0.33
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
