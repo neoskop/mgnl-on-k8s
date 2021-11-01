@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-JDK_VERSION=15
-TOMCAT_MIN_VERSION=9.0.43
+JDK_VERSION=13
+TOMCAT_MIN_VERSION=9.0.33
 IMAGE_NAME=neoskop/mgnl-runtime-env
 
 usage() {
@@ -67,7 +67,7 @@ get_tags() {
 # }
 
 get_relevant_tomcat_tags() { 
-  echo 9.0.43-jdk15-openjdk-oracle
+  echo 9.0.33-jdk13-openjdk-oracle
 }
 
 build_image() {
