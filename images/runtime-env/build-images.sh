@@ -67,7 +67,7 @@ get_tags() {
 # }
 
 get_relevant_tomcat_tags() { 
-  echo 9.0.33-jdk15-openjdk-oracle
+  echo 9.0.43-jdk15-openjdk-oracle
 }
 
 build_image() {
