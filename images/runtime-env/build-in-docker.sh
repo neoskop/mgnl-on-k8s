@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 docker build \
        -f builder.Dockerfile \
        --build-arg DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME \
