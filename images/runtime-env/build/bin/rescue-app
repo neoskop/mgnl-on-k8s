@@ -65,10 +65,10 @@ if [[ "$1" = "enable" ]]; then
   mv $WEB_XML_TEMP_PATH $WEB_XML_PATH
 else
   if ! [ -f "$WEB_XML_BACKUP_PATH" ]; then
-    echo -e "Backup does not exist under \033[1m$WEB_XML_BACKUP_PATH\033[0m"
+    echo -e "Backup does not exist under \033[1m$WEB_XML_BACKUP_PATH\033[0m. Is the resuce app really active at the moment?"
     exit 1
   fi
 
   echo -e "Restoring backup from \033[1m$WEB_XML_BACKUP_PATH\033[0m to \033[1m$WEB_XML_PATH\033[0m"
-  cp $WEB_XML_BACKUP_PATH $WEB_XML_PATH
+  mv $WEB_XML_BACKUP_PATH $WEB_XML_PATH
 fi

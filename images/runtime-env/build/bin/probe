@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+WEB_XML_BACKUP_PATH=$HOME/web.xml.unchanged
+
+if [ -f $WEB_XML_BACKUP_PATH ]; then
+  echo "Rescue app is active"!
+  exit 0
+else
+  curl -m 5 -sf http://localhost:8080/.resources/defaultMagnoliaLoginForm/login.css
+fi

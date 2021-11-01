@@ -55,17 +55,17 @@ spec:
               exec:
                 command: ["/usr/local/tomcat/bin/catalina.sh", "stop", "30"]
           readinessProbe:
-            httpGet:
-              path: /.resources/defaultMagnoliaLoginForm/login.css
-              port: http
+            exec:
+              command:
+              - /usr/local/bin/probe readiness
             initialDelaySeconds: 200
             periodSeconds: 10
             failureThreshold: 15
             timeoutSeconds: 5
           livenessProbe:
-            httpGet:
-              path: /.resources/defaultMagnoliaLoginForm/login.css
-              port: http
+            exec:
+              command:
+              - /usr/local/bin/probe liveness
             initialDelaySeconds: 350
             periodSeconds: 5
             failureThreshold: 3
