@@ -56,14 +56,18 @@ get_tags() {
   echo -e "$results"
 }
 
-get_relevant_tomcat_tags() {  
-  local all_tags=$(get_tags library/tomcat | grep -E "^[0-9]+\.[0-9]+\.[0-9]+-jdk$JDK_VERSION-openjdk-oracle$" | sort -V)
+# get_relevant_tomcat_tags() {  
+#   local all_tags=$(get_tags library/tomcat | grep -E "^[0-9]+\.[0-9]+\.[0-9]+-jdk$JDK_VERSION-openjdk-oracle$" | sort -V)
 
-  for tag in $(echo "$all_tags"); do 
-    if [ "$TOMCAT_MIN_VERSION" = "`echo -e "$TOMCAT_MIN_VERSION\n$tag" | sort -V | head -n1`" ] ; then 
-      echo "$tag"
-    fi    
-  done
+#   for tag in $(echo "$all_tags"); do 
+#     if [ "$TOMCAT_MIN_VERSION" = "`echo -e "$TOMCAT_MIN_VERSION\n$tag" | sort -V | head -n1`" ] ; then 
+#       echo "$tag"
+#     fi    
+#   done
+# }
+
+get_relevant_tomcat_tags() { 
+  echo 9.0.33
 }
 
 build_image() {
