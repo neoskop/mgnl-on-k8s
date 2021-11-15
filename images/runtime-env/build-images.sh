@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-JDK_VERSION=13
-TOMCAT_MIN_VERSION=9.0.33
+TOMCAT_VERSIONS=("9.0.33-jdk11-openjdk" "9.0.54-jre11-openjdk")
 IMAGE_NAME=neoskop/mgnl-runtime-env
 
 usage() {
@@ -56,20 +55,6 @@ get_tags() {
   echo -e "$results"
 }
 
-# get_relevant_tomcat_tags() {  
-#   local all_tags=$(get_tags library/tomcat | grep -E "^[0-9]+\.[0-9]+\.[0-9]+-jdk$JDK_VERSION-openjdk-oracle$" | sort -V)
-
-#   for tag in $(echo "$all_tags"); do 
-#     if [ "$TOMCAT_MIN_VERSION" = "`echo -e "$TOMCAT_MIN_VERSION\n$tag" | sort -V | head -n1`" ] ; then 
-#       echo "$tag"
-#     fi    
-#   done
-# }
-
-get_relevant_tomcat_tags() { 
-  echo 9.0.33-jdk13-openjdk-oracle
-}
-
 build_image() {
    dockerfile=$(sed "s/^FROM tomcat:.*$/FROM tomcat:$1/" Dockerfile)
 
@@ -117,12 +102,13 @@ case $i in
 esac
 done
 
-for tomcat_tag in $(get_relevant_tomcat_tags); do
-  app_tag=$(echo $tomcat_tag | grep -Po "^[0-9]+\.[0-9]+\.[0-9]+(?=-jdk$JDK_VERSION)")
+for tomcat_tag in ${TOMCAT_VERSIONS[@]}; do
+  app_tag=$(echo $tomcat_tag | grep -Po "^[0-9]+\.[0-9]+\.[0-9]+(?=-j)")
     
   if [ "$FORCE" != "YES" ] && docker_tag_exists $IMAGE_NAME $app_tag ; then
     info "Ignoring $(bold $app_tag) since it already exists."
   else
+    info "Building image for Tomcat $(bold $app_tag)"
     build_image "$tomcat_tag" "$app_tag"
   fi
 done
