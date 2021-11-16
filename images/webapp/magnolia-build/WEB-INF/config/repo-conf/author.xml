@@ -51,7 +51,7 @@
 			<param name="bufferSize" value="10" />
 			<param name="cacheSize" value="1000" />
 			<param name="enableConsistencyCheck" value="true"/>
-			<param name="forceConsistencyCheck" value="true" />
+			<param name="forceConsistencyCheck" value="false" />
 			<param name="autoRepair" value="true" />
 			<!-- see https://issues.apache.org/jira/browse/JCR-3236 for details -->
 			<!--param name="analyzer" value="org.apache.lucene.analysis.standard.StandardAnalyzer" 
