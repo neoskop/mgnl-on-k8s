@@ -7,5 +7,5 @@ if ! [ -d /home/tomcat/light-modules/mtk ] && [ -w /home/tomcat/light-modules ];
 fi
 
 java -jar /usr/local/bin/docker-entrypoint.jar
-export JAVA_OPTS="-Dmagnolia.repositories.home=/home/tomcat/magnolia_tmp/repositories -Djava.awt.headless=true -Dfile.encoding=UTF-8 $JAVA_OPTS"
+export JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Dmagnolia.repositories.home=/home/tomcat/magnolia_tmp/repositories -Djava.awt.headless=true -Dfile.encoding=UTF-8 $JAVA_OPTS"
 ${CATALINA_HOME}/bin/catalina.sh run
