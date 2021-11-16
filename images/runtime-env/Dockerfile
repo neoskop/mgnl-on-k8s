@@ -28,10 +28,6 @@ COPY context.xml.tmpl $CATALINA_HOME/conf/Catalina/localhost/ROOT.xml.tmpl
 # Overwrite server.xml
 COPY server.xml $CATALINA_HOME/conf/
 
-# Set custom tika config to speed up startup
-COPY tika-config.xml /home/tomcat/
-ENV TIKA_CONFIG=/home/tomcat/tika-config.xml
-
 # Clear webapps dir
 RUN rm -rf webapps/*
 
@@ -41,6 +37,10 @@ COPY bin/* /usr/local/bin/
 # Setup Tomcat user
 RUN useradd -ms /bin/bash -d /home/tomcat tomcat && chown -R tomcat:tomcat .
 USER tomcat
+
+# Set custom tika config to speed up startup
+COPY tika-config.xml /home/tomcat/
+ENV TIKA_CONFIG=/home/tomcat/tika-config.xml
 
 # Prepare repositories cache
 RUN mkdir -p /home/tomcat/magnolia_tmp/repositories && \
