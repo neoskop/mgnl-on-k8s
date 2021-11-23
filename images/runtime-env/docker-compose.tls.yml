@@ -1,3 +1,4 @@
+
 version: "3.4"
 services:
   sut:
@@ -13,10 +14,15 @@ services:
               "database": "author",
               "host": "db",
               "password": "<&%!^>",
-              "username": "author"
+              "username": "author",
+              "useSsl": true,
+              "trustStore": "/tmp/truststore.jks",
+              "trustStorePassword": "changedit"
             }
           ]
         }
+    volumes:
+      - ./truststore.jks:/tmp/truststore.jks:ro
   db:
     image: mysql:5.7.36
     environment:
@@ -24,3 +30,8 @@ services:
       MYSQL_USER: author
       MYSQL_PASSWORD: <&%!^>
       MYSQL_RANDOM_ROOT_PASSWORD: "true"
+    command:
+      - --bind-address=0.0.0.0
+      - --require_secure_transport=ON
+      - --ssl
+      - --default_authentication_plugin=mysql_native_password

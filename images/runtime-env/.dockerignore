@@ -5,3 +5,6 @@ README.md
 build-in-docker.sh
 docker-compose*
 builder.Dockerfile
+ca.pem
+tls-test.sh
+truststore.jks

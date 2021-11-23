@@ -23,13 +23,20 @@ public class WaitOnMySQLService {
     private final String password;
     private final String database;
     private final String port;
+    private final boolean useSsl;
+    private final String trustStore;
+    private final String trustStorePassword;
 
-    private WaitOnMySQLService(String hostname, String username, String password, String database, String port) {
+    private WaitOnMySQLService(String hostname, String username, String password, String database, String port,
+            boolean useSsl, String trustStore, String trustStorePassword) {
         this.hostname = hostname;
         this.username = username;
         this.password = password;
         this.database = database;
         this.port = port;
+        this.useSsl = useSsl;
+        this.trustStore = trustStore;
+        this.trustStorePassword = trustStorePassword;
     }
 
     private Future<Boolean> waitForConnection() {
@@ -62,8 +69,27 @@ public class WaitOnMySQLService {
     }
 
     private String getConnectionUrl() {
-        return "jdbc:mysql://" + hostname + ":" + port + "/" + database + "?user=" + username + "&password=" + password
-                + "&useSSL=false";
+        final StringBuilder sb = new StringBuilder("jdbc:mysql://");
+        sb.append(hostname);
+        sb.append(":");
+        sb.append(port);
+        sb.append("/");
+        sb.append(database);
+        sb.append("?user=");
+        sb.append(username);
+        sb.append("&password=");
+        sb.append(password);
+        sb.append("&useSSL=");
+        sb.append(useSsl);
+
+        if (trustStore != null) {
+            sb.append("&trustCertificateKeyStoreUrl=file://");
+            sb.append(trustStore);
+            sb.append("&trustCertificateKeyStorePassword=");
+            sb.append(trustStorePassword);
+        }
+
+        return sb.toString();
     }
 
     public static void waitForAllConnections() {
@@ -74,15 +100,19 @@ public class WaitOnMySQLService {
             return;
         }
 
-        final JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
+        final JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
         final JsonArray datasources = jsonObject.get("datasources").getAsJsonArray();
         StreamSupport.stream(datasources.spliterator(), false).map(JsonElement::getAsJsonObject).map(datasource -> {
-            final String host = getWithDefault(datasource, "host", "");
-            final String username = getWithDefault(datasource, "username", "root");
-            final String password = getWithDefault(datasource, "password", "");
-            final String database = getWithDefault(datasource, "database", "mysql");
-            final String port = getWithDefault(datasource, "port", "3306");
-            return new WaitOnMySQLService(host, username, password, database, port);
+            final String host = getStringWithDefault(datasource, "host", "");
+            final String username = getStringWithDefault(datasource, "username", "root");
+            final String password = getStringWithDefault(datasource, "password", "");
+            final String database = getStringWithDefault(datasource, "database", "mysql");
+            final String port = getStringWithDefault(datasource, "port", "3306");
+            final boolean useSsl = getBooleanWithDefault(datasource, "useSsl", false);
+            final String trustStore = getStringWithDefault(datasource, "trustStore", null, false);
+            final String trustStorePassword = getStringWithDefault(datasource, "trustStorePassword", "changeit");
+            return new WaitOnMySQLService(host, username, password, database, port, useSsl, trustStore,
+                    trustStorePassword);
         }).map(WaitOnMySQLService::waitForConnection).forEach(future -> {
             boolean credentialsCorrect;
 
@@ -102,9 +132,28 @@ public class WaitOnMySQLService {
         EXECUTOR.shutdown();
     }
 
-    private static String getWithDefault(JsonObject object, String property, String defaultValue) {
+    private static String getStringWithDefault(JsonObject object, String property, String defaultValue) {
+        return getStringWithDefault(object, property, defaultValue, true);
+    }
+
+    private static String getStringWithDefault(JsonObject object, String property, String defaultValue,
+            boolean urlEncode) {
         if (object.has(property)) {
-            return URLEncoder.encode(object.get(property).getAsString(), StandardCharsets.UTF_8);
+            final String value = object.get(property).getAsString();
+
+            if (urlEncode) {
+                return URLEncoder.encode(value, StandardCharsets.UTF_8);
+            } else {
+                return value;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    private static boolean getBooleanWithDefault(JsonObject object, String property, boolean defaultValue) {
+        if (object.has(property)) {
+            return object.get(property).getAsBoolean();
         }
 
         return defaultValue;
