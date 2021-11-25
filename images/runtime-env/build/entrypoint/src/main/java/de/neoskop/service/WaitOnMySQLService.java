@@ -49,7 +49,7 @@ public class WaitOnMySQLService {
                 for (;;) {
                     try {
                         try {
-                            `Connection connection = DriverManager.getConnection(getConnectionUrl());
+                            Connection connection = DriverManager.getConnection(getConnectionUrl());
                             connection.close();
                             return true;
                         } catch (SQLException e) {
