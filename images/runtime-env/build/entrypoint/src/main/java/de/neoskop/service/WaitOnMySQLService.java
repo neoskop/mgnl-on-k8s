@@ -14,9 +14,13 @@ import java.sql.SQLException;
 import java.util.concurrent.*;
 import java.util.stream.StreamSupport;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 public class WaitOnMySQLService {
+    private static final Logger logger = LogManager.getLogger(WaitOnMySQLService.class);
     private static final int ACCESS_DENIED_ERROR_CODE = 1045;
-    private static ExecutorService EXECUTOR = Executors.newFixedThreadPool(5);
+    private static final ExecutorService executor = Executors.newFixedThreadPool(5);
     private static final int DELAY = 1;
     private final String hostname;
     private final String username;
@@ -45,16 +49,18 @@ public class WaitOnMySQLService {
                 for (;;) {
                     try {
                         try {
-                            Connection connection = DriverManager.getConnection(getConnectionUrl());
+                            `Connection connection = DriverManager.getConnection(getConnectionUrl());
                             connection.close();
                             return true;
                         } catch (SQLException e) {
                             if (e.getErrorCode() == ACCESS_DENIED_ERROR_CODE) {
                                 throw new WrongCredentialsException();
+                            } else {
+                                logger.debug("Connection check failed: " + e.getMessage());
                             }
                         }
 
-                        System.out.println("Waiting for connection to " + hostname);
+                        logger.info("Waiting for connection to " + hostname);
                         TimeUnit.SECONDS.sleep(DELAY);
                     } catch (InterruptedException e) {
                         return false;
@@ -65,7 +71,7 @@ public class WaitOnMySQLService {
             }
         };
 
-        return EXECUTOR.submit(task);
+        return executor.submit(task);
     }
 
     private String getConnectionUrl() {
@@ -89,6 +95,7 @@ public class WaitOnMySQLService {
             sb.append(trustStorePassword);
         }
 
+        logger.debug("Connection URL: " + sb.toString());
         return sb.toString();
     }
 
@@ -119,17 +126,17 @@ public class WaitOnMySQLService {
             try {
                 credentialsCorrect = future.get();
             } catch (InterruptedException | ExecutionException e) {
-                System.out.println("Connection test failed: " + e.getMessage());
+                logger.error("Connection test failed: " + e.getMessage());
                 return;
             }
 
             if (!credentialsCorrect) {
-                System.out.println("Credentials are incorrect. Exiting.");
+                logger.error("Credentials are incorrect. Exiting.");
                 System.exit(1);
             }
         });
 
-        EXECUTOR.shutdown();
+        executor.shutdown();
     }
 
     private static String getStringWithDefault(JsonObject object, String property, String defaultValue) {
