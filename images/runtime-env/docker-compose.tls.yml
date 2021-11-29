@@ -36,3 +36,4 @@ services:
       - --require_secure_transport=ON
       - --ssl
       - --default_authentication_plugin=mysql_native_password
+      - --tls_version=TLSv1.2
