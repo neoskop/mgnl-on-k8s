@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.neoskop.magnolia</groupId>
   <artifactId>magnolia-cloud-ce</artifactId>
@@ -12,7 +11,7 @@
     <javaVersion>1.9</javaVersion>
     <maven-war-plugin.version>3.2.3</maven-war-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-    <mysql-connector-java.version>5.1.47</mysql-connector-java.version>
+    <mysql-connector-java.version>8.0.27</mysql-connector-java.version>
     <paperboy.version>2.3.3</paperboy.version>
   </properties>
   <dependencyManagement>
