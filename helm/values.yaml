@@ -6,7 +6,7 @@ magnoliaLightModuleUpdater:
   sourceDir: "/"
   image:
     repository: neoskop/mgnl-light-module-updater
-    tag: 0.16.4
+    tag: 0.16.5
     pullPolicy: Always
     pullSecret: {}
   resources:
