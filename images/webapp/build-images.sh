@@ -48,7 +48,7 @@ get_available_magnolia_versions() {
   versions=$(
     curl -U "$NEXUS_USERNAME:$NEXUS_PASSWORD" "https://nexus.magnolia-cms.com/service/local/lucene/search?g=info.magnolia&a=magnolia-empty-webapp" 2>/dev/null |
       xmlstarlet sel -t -v '//artifact/version/text()' - |
-      sort -r
+      sort -V -r
   )
 
   for version in $versions; do
@@ -120,6 +120,8 @@ build_image() {
       if [ "$PUSH" = "YES" ]; then
         docker push $3
       fi
+
+      docker system prune -f
     fi
   fi
 }
