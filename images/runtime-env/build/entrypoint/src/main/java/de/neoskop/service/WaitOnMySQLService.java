@@ -30,9 +30,10 @@ public class WaitOnMySQLService {
     private final boolean useSsl;
     private final String trustStore;
     private final String trustStorePassword;
+    private final String enabledTLSProtocols;
 
     private WaitOnMySQLService(String hostname, String username, String password, String database, String port,
-            boolean useSsl, String trustStore, String trustStorePassword) {
+            boolean useSsl, String trustStore, String trustStorePassword, String enabledTLSProtocols) {
         this.hostname = hostname;
         this.username = username;
         this.password = password;
@@ -41,6 +42,7 @@ public class WaitOnMySQLService {
         this.useSsl = useSsl;
         this.trustStore = trustStore;
         this.trustStorePassword = trustStorePassword;
+        this.enabledTLSProtocols = enabledTLSProtocols;
     }
 
     private Future<Boolean> waitForConnection() {
@@ -95,6 +97,11 @@ public class WaitOnMySQLService {
             sb.append(trustStorePassword);
         }
 
+        if (enabledTLSProtocols != null) {
+            sb.append("&enabledTLSProtocols=");
+            sb.append(enabledTLSProtocols);
+        }
+
         logger.debug("Connection URL: " + sb.toString());
         return sb.toString();
     }
@@ -118,8 +125,9 @@ public class WaitOnMySQLService {
             final boolean useSsl = getBooleanWithDefault(datasource, "useSsl", false);
             final String trustStore = getStringWithDefault(datasource, "trustStore", null, false);
             final String trustStorePassword = getStringWithDefault(datasource, "trustStorePassword", "changeit");
+            final String enabledTLSProtocols = getStringWithDefault(datasource, "enabledTLSProtocols", null);
             return new WaitOnMySQLService(host, username, password, database, port, useSsl, trustStore,
-                    trustStorePassword);
+                    trustStorePassword, enabledTLSProtocols);
         }).map(WaitOnMySQLService::waitForConnection).forEach(future -> {
             boolean credentialsCorrect;
 

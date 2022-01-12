@@ -18,7 +18,8 @@ services:
               "username": "author",
               "useSsl": true,
               "trustStore": "/tmp/truststore.jks",
-              "trustStorePassword": "changedit"
+              "trustStorePassword": "changedit",
+              "enabledTLSProtocols": "TLSv1.2"
             }
           ]
         }
