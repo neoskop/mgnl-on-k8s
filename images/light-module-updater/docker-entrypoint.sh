@@ -27,7 +27,17 @@ warn() {
 
 copy_modules() {
   info "Copying $(bold $SOURCE_DIR) to $(bold $TARGET_DIR)"
-  rsync -r --exclude=.git --exclude=mtk $SOURCE_DIR/* $TARGET_DIR --delete &>/dev/null
+  TEMP_DIR=`mktemp -d`
+  rsync \
+    -r \
+    --exclude=.git \
+    --exclude=mtk \
+    --temp-dir=$TEMP_DIR \
+    $SOURCE_DIR/* \
+    $TARGET_DIR \
+    --delete \
+    &>/dev/null
+  rm -rf $TEMP_DIR
 }
 
 executed_without_error() {
@@ -103,7 +113,7 @@ fi
 
 while true; do
   if [ "$CHECKOUT_TAG" == "true" ]; then
-    if update_tag ; then 
+    if update_tag ; then
       if [ -z "$GIT_OLD_TAG" ]; then
         info "Tag was set to $(bold $GIT_TAG). Fetching and checking out tag"
       else
