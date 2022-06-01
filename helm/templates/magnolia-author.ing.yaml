@@ -26,7 +26,17 @@ spec:
       http:
         paths:
           - path: /
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: ImplementationSpecific
+            {{- end }}
             backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "mgnl.author.name" . }}
+                port:
+                  name: http
+              {{- else }}
               serviceName: {{ include "mgnl.author.name" . }}
               servicePort: http
+              {{- end }}
 {{- end }}
