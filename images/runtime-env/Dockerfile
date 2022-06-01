@@ -12,7 +12,7 @@ WORKDIR /root
 COPY entrypoint ./
 RUN mvn -T 1C package
 
-FROM tomcat:9.0.21-jdk13-openjdk-oracle
+FROM tomcat:9.0.33-jdk13-openjdk-oracle
 LABEL maintainer="Neoskop DevOps <devops@neoskop.de>"
 
 # Setup dockerize
