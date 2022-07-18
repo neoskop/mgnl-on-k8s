@@ -5,4 +5,4 @@ metadata:
   labels:
 {{ include "mgnl.labels" . | indent 4 }}
 data:
-  tag: ""
+  tag: "{{- if typeIs "string" .Values.magnoliaLightModuleUpdater.tag }}{{ .Values.magnoliaLightModuleUpdater.tag }}{{ end }}"

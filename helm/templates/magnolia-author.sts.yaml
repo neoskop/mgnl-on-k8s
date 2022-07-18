@@ -42,7 +42,7 @@ spec:
           image: "{{ .Values.magnoliaWebapp.image.repository }}:{{ .Values.magnoliaWebapp.image.tag }}"
           imagePullPolicy: {{ .Values.magnoliaWebapp.image.pullPolicy }}
           resources:
-            {{- toYaml .Values.magnoliaWebapp.resources | nindent 12 }} 
+            {{- toYaml .Values.magnoliaWebapp.resources | nindent 12 }}
           volumeMounts:
             - name: webapps
               mountPath: /usr/local/tomcat/webapps
@@ -142,7 +142,7 @@ spec:
             - name: GIT_BRANCH
               value: {{ .Values.magnoliaLightModuleUpdater.branch }}
             - name: CHECKOUT_TAG
-              value: {{ .Values.magnoliaLightModuleUpdater.tag | quote }}
+              value: "{{- if typeIs "string" .Values.magnoliaLightModuleUpdater.tag }}true{{ else }}{{ .Values.magnoliaLightModuleUpdater.tag }}{{ end }}"
             - name: GIT_REPO_URL
               value: {{ .Values.magnoliaLightModuleUpdater.repoUrl }}
             {{- if .Values.magnoliaLightModuleUpdater.privateKey }}
