@@ -112,6 +112,14 @@ spec:
                 secretKeyRef:
                   name: {{ include "mgnl.public.name" . }}-paperboy-config
                   key: webhookAuthorization
+{{- with .Values.magnoliaPublic.customEnv }}
+            - name: JDK_JAVA_OPTIONS
+              value: "-Dmagnolia.yaml.envsubst=true"
+{{- range $key, $value := . }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
+{{- end }}
           ports:
             - name: http
               containerPort: 8080

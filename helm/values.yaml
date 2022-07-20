@@ -102,6 +102,7 @@ paperboyPreview:
 magnoliaPublic:
   replicaCount: 1
   configName: livePublic
+  customEnv: {}
   datasource:
     host: "" # If empty the created service is used
     port: 3306
@@ -146,6 +147,7 @@ magnoliaPublic:
 magnoliaAuthor:
   replicaCount: 1
   configName: liveAuthor
+  customEnv: {}
   datasource:
     host: "" # If empty the created service is used
     port: 3306
