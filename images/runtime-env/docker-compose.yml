@@ -19,7 +19,7 @@ services:
           ]
         }
   db:
-    image: mysql:5.7.38
+    image: mysql:5.7.39
     environment:
       MYSQL_DATABASE: author
       MYSQL_USER: author

@@ -68,7 +68,7 @@ mysql:
   rootPassword: ""
   image:
     repository: mysql
-    tag: 5.7.38
+    tag: 5.7.39
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
