@@ -10,6 +10,9 @@ kind: Ingress
 metadata:
   name: {{ include "mgnl.public.name" . }}-assets
   labels:
+    {{- with .Values.magnoliaPublic.assetIngress.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- include "mgnl.labels" . | nindent 4 }}
   annotations:
     {{- toYaml .Values.magnoliaPublic.assetIngress.annotations | nindent 4 }}
