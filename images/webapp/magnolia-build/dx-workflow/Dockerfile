@@ -24,7 +24,7 @@ RUN mvn -s /mvn-settings.xml \
     -T 1C \
     package
 
-FROM busybox:1.35.0-musl
+FROM busybox:1.36.0-musl
 COPY --from=build --chown=1000 /webapp/target/webapp.war /ROOT.war
 RUN mkdir -p /usr/local/tomcat/webapps && \
     chown 1000:1000 /usr/local/tomcat/webapps
