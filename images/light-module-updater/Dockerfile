@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ENV GIT_BRANCH=master \
     CHECKOUT_TAG=false \
     POLL_INTERVAL=5 \
