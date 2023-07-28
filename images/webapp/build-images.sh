@@ -46,8 +46,8 @@ warn() {
 
 get_available_magnolia_versions() {
   versions=$(
-    curl -U "$NEXUS_USERNAME:$NEXUS_PASSWORD" "https://nexus.magnolia-cms.com/service/local/lucene/search?g=info.magnolia&a=magnolia-empty-webapp" 2>/dev/null |
-      xmlstarlet sel -t -v '//artifact/version/text()' - |
+    curl -U "$NEXUS_USERNAME:$NEXUS_PASSWORD" "https://nexus.magnolia-cms.com/repository/public/info/magnolia/magnolia-empty-webapp/maven-metadata.xml" 2>/dev/null |
+      xmlstarlet sel -t -v '//metadata/versioning/versions/version/text()' - |
       sort -V -r
   )
 
