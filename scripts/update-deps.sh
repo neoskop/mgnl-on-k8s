@@ -57,7 +57,7 @@ MAGNOLIA_LATEST_TAG=$(get_tags neoskop/mgnl-webapp-ce | grep '^[0-9]*\.[0-9]*\.[
 echo "  - Magnolia Webapp CE: $(bold $MAGNOLIA_LATEST_TAG)"
 MAGNOLIA_RUNTIME_ENV_LATEST_TAG=$(get_tags neoskop/mgnl-runtime-env | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - Magnolia Runtime environment: $(bold $MAGNOLIA_RUNTIME_ENV_LATEST_TAG)"
-MYSQL_LATEST_TAG=$(get_tags library/mysql | grep '^5.7' | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
+MYSQL_LATEST_TAG=$(get_tags library/mysql | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - MySQL: $(bold $MYSQL_LATEST_TAG)"
 BUSYBOX_LATEST_TAG=$(get_tags library/busybox | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n 1)
 echo "  - Busybox: $(bold $BUSYBOX_LATEST_TAG)"
