@@ -27,7 +27,7 @@ warn() {
 
 copy_modules() {
   info "Copying $(bold $SOURCE_DIR) to $(bold $TARGET_DIR)"
-  TEMP_DIR=`mktemp -d`
+  TEMP_DIR=$(mktemp -d)
   rsync \
     -r \
     --exclude=.git \
@@ -50,7 +50,7 @@ executed_without_error() {
 }
 
 update_tag() {
-  TAG_FILE_PATH='/home/docker/config/tag';
+  TAG_FILE_PATH='/home/docker/config/tag'
 
   if [ -f $TAG_FILE_PATH ]; then
     GIT_OLD_TAG=$GIT_TAG
@@ -59,6 +59,29 @@ update_tag() {
   else
     return 1
   fi
+}
+
+clone_repo() {
+  info "Cloning $(bold $GIT_REPO_URL) to $(bold $REPO_DIR)"
+  git init &>/dev/null
+  git remote add -f origin $GIT_REPO_URL &>/dev/null
+  git config core.sparseCheckout true
+  echo "$SOURCE_DIR" >>.git/info/sparse-checkout
+  git pull origin master &>/dev/null
+
+  if [ -n "$GIT_TAG" ]; then
+    info "Checking out tag $(bold $GIT_TAG)"
+    git -c advice.detachedHead=false checkout tags/$GIT_TAG &>/dev/null
+  fi
+}
+
+clone_from_scratch() {
+  cd $HOME &>/dev/null
+  rm -rf $REPO_DIR &>/dev/null
+  mkdir -p $REPO_DIR &>/dev/null
+  cd $REPO_DIR &>/dev/null
+  clone_repo
+  copy_modules
 }
 
 if [ -z "$GIT_REPO_URL" ] || [ -z "$GIT_PRIVATE_KEY" ] || [ -z "$SOURCE_DIR" ]; then
@@ -74,6 +97,7 @@ git config --global pack.deltaCacheSize $(expr $MEMORY_LIMIT / 4)m
 git config --global pack.packSizeLimit $(expr $MEMORY_LIMIT / 4)m
 git config --global pack.windowMemory $(expr $MEMORY_LIMIT / 4)m
 git config --global pack.threads 1
+git config --global pull.ff only
 
 if ! [ -f ~/.ssh/id_rsa ]; then
   info "Writing private key to to $(bold ~/.ssh/id_rsa)"
@@ -89,17 +113,7 @@ fi
 cd $REPO_DIR
 
 if ! [ -d .git ]; then
-  info "Cloning $(bold $GIT_REPO_URL) to $(bold $REPO_DIR)"
-  git init &>/dev/null
-  git remote add -f origin $GIT_REPO_URL &>/dev/null
-  git config core.sparseCheckout true
-  echo "$SOURCE_DIR" >> .git/info/sparse-checkout
-  git pull origin master &>/dev/null
-
-  if [ -n "$GIT_TAG" ]; then
-    info "Checking out tag $(bold $GIT_TAG)"
-    git -c advice.detachedHead=false checkout tags/$GIT_TAG &>/dev/null
-  fi
+  clone_repo
 fi
 
 info "Copying modules initially"
@@ -113,27 +127,35 @@ fi
 
 while true; do
   if [ "$CHECKOUT_TAG" == "true" ]; then
-    if update_tag ; then
+    if update_tag; then
       if [ -z "$GIT_OLD_TAG" ]; then
         info "Tag was set to $(bold $GIT_TAG). Fetching and checking out tag"
       else
         info "Tag was changed from $(bold $GIT_OLD_TAG) to $(bold $GIT_TAG). Fetching and checking out tag"
       fi
 
-      if executed_without_error "git fetch" && executed_without_error "git -c advice.detachedHead=false checkout tags/$GIT_TAG" ; then
+      if executed_without_error "git fetch" && executed_without_error "git -c advice.detachedHead=false checkout tags/$GIT_TAG"; then
         copy_modules
       fi
     fi
-  elif executed_without_error "git fetch"; then
-    LOCAL=$(git rev-parse HEAD)
-    REMOTE=$(git rev-parse origin/master)
+  else
+    if executed_without_error "git fetch"; then
+      LOCAL=$(git rev-parse HEAD)
+      REMOTE=$(git rev-parse origin/master)
 
-    if [ $LOCAL != $REMOTE ]; then
-      info "Pulling changes"
+      if [ $LOCAL != $REMOTE ]; then
+        info "Pulling changes"
 
-      if executed_without_error "git pull origin $GIT_BRANCH"; then
-        copy_modules
+        if executed_without_error "git pull origin $GIT_BRANCH"; then
+          copy_modules
+        else
+          warn "$(bold git pull origin $GIT_BRANCH) failed ... will try to clone from scratch"
+          clone_from_scratch
+        fi
       fi
+    else
+      warn "$(bold git fetch) failed ... will try to clone from scratch"
+      clone_from_scratch
     fi
   fi
 
