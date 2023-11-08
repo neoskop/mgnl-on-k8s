@@ -64,10 +64,19 @@ update_tag() {
 clone_repo() {
   info "Cloning $(bold $GIT_REPO_URL) to $(bold $REPO_DIR)"
   git init &>/dev/null
-  git remote add -f origin $GIT_REPO_URL &>/dev/null
+
+  if ! executed_without_error "git remote add -f origin $GIT_REPO_URL"; then
+    error "Setting up upstream failed ... Exiting."
+    exit 1
+  fi
+
   git config core.sparseCheckout true
   echo "$SOURCE_DIR" >>.git/info/sparse-checkout
-  git pull origin master &>/dev/null
+
+  if ! executed_without_error "git pull origin master"; then
+    error "Initial clone failed ... Exiting."
+    exit 1
+  fi
 
   if [ -n "$GIT_TAG" ]; then
     info "Checking out tag $(bold $GIT_TAG)"
@@ -89,7 +98,13 @@ if [ -z "$GIT_REPO_URL" ] || [ -z "$GIT_PRIVATE_KEY" ] || [ -z "$SOURCE_DIR" ]; 
   exit 1
 fi
 
-MEMORY_LIMIT=$(expr $(cat /sys/fs/cgroup/memory/memory.limit_in_bytes) / 1024 / 1024)
+if [ -f "/sys/fs/cgroup/memory.max" ]; then
+  mem_file=/sys/fs/cgroup/memory.max
+else
+  mem_file=/sys/fs/cgroup/memory/memory.limit_in_bytes
+fi
+
+MEMORY_LIMIT=$(expr $(cat $mem_file) / 1024 / 1024)
 info "Configuring Git for memory limit of $(bold "${MEMORY_LIMIT} MiB")"
 git config --global core.packedGitWindowSize $(expr $MEMORY_LIMIT / 10)m
 git config --global core.packedGitLimit $(expr $MEMORY_LIMIT / 2)m
