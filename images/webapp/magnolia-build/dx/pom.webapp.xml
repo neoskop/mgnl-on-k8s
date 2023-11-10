@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>de.neoskop.magnolia</groupId>
@@ -52,6 +53,11 @@
       <artifactId>paperboy</artifactId>
       <version>${paperboy.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.github.neoskop</groupId>
+      <artifactId>neoskop-magnolia-backup</artifactId>
+      <version>${neoskop-magnolia-backup.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
@@ -70,7 +76,8 @@
         <artifactId>maven-war-plugin</artifactId>
         <version>${maven-war-plugin.version}</version>
         <configuration>
-          <!-- exclude jars copied "physically" from the webapp overlay - so we only get those resolved by Maven's dependency management -->
+          <!-- exclude jars copied "physically" from the webapp overlay - so we only get those
+          resolved by Maven's dependency management -->
           <dependentWarExcludes>WEB-INF/lib/*.jar</dependentWarExcludes>
         </configuration>
       </plugin>
