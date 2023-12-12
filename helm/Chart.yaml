@@ -2,8 +2,8 @@ apiVersion: v2
 name: mgnl
 description: Run Magnolia CMS on Kubernetes in production
 type: application
-version: 0.21.0
-appVersion: "0.21.0"
+version: 0.21.1
+appVersion: "0.21.1"
 home: https://github.com/neoskop/mgnl-on-k8s
 sources:
   - https://github.com/neoskop/mgnl-on-k8s
