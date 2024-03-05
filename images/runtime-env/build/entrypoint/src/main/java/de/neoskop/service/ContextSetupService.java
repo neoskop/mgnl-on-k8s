@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,7 +41,8 @@ public class ContextSetupService {
                 datasources.stream().forEach(datasource -> {
                     writer.printf(
                             "  <Resource name=\"jdbc/%s\" auth=\"Container\" type=\"javax.sql.DataSource\" maxTotal=\"100\" maxIdle=\"30\" maxWaitMillis=\"10000\" username=\"%s\" password=\"%s\" url=\"%s",
-                            datasource.name, datasource.username, datasource.password, datasource.getConnectionUrl());
+                            datasource.name, StringEscapeUtils.escapeHtml4(datasource.username), StringEscapeUtils.escapeHtml4(datasource.password),
+                            StringEscapeUtils.escapeHtml4(datasource.getConnectionUrl()));
                     writer.println(
                             "\" driverClassName=\"com.mysql.cj.jdbc.Driver\" validationQuery=\"SELECT 1\" testOnBorrow=\"true\" />");
                 });
