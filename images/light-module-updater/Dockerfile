@@ -9,7 +9,7 @@ RUN apt-get update -qq && \
     add-apt-repository -y ppa:git-core/ppa && \
     apt-get update -qq && \
     apt-get install -qq -y git openssh-client rsync && \
-    useradd -m --uid 1000 docker && \
+    id "1000" ||useradd -m --uid 1000 ubuntu && \
     mkdir -p "$TARGET_DIR" && \
     chown docker "$TARGET_DIR" && \
     mkdir -p "$REPO_DIR" && \
