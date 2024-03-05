@@ -2,7 +2,7 @@ FROM ubuntu:24.04
 ENV GIT_BRANCH=master \
     CHECKOUT_TAG=false \
     POLL_INTERVAL=5 \
-    REPO_DIR=/home/docker/repo \
+    REPO_DIR=/home/ubuntu/repo \
     TARGET_DIR="/home/tomcat/light-modules"
 RUN apt-get update -qq && \
     apt-get install -qq -y software-properties-common && \
@@ -15,13 +15,13 @@ RUN apt-get update -qq && \
     mkdir -p "$REPO_DIR" && \
     chown ubuntu "$REPO_DIR" && \
     rm -rf /var/lib/apt/lists/*
-USER docker
-WORKDIR /home/docker
+USER ubuntu
+WORKDIR /home/ubuntu
 ARG GIT_HOSTS="bitbucket.org github.com"
 RUN mkdir -p ~/.ssh && \
     for host in $GIT_HOSTS ; do \
     ssh-keyscan "$host" >> ~/.ssh/known_hosts ; \
     done
 COPY docker-entrypoint.sh /
-VOLUME ["$TARGET_DIR", "/home/docker/repo"]
+VOLUME ["$TARGET_DIR", "/home/ubuntu/repo"]
 CMD ["/docker-entrypoint.sh"]
