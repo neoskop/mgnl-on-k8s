@@ -1,17 +1,17 @@
 #!/bin/bash
 set -e
 
-TOMCAT_VERSIONS=("9.0.33-jdk11-openjdk" "9.0.54-jre11-openjdk")
+TOMCAT_VERSIONS=("10.1.19-jdk17-temurin-jammy")
 IMAGE_NAME=neoskop/mgnl-runtime-env
 
 usage() {
-    echo "usage: $0 [-hpkdv]"
-    echo "  -h|--help      Display this text"
-    echo "  -p|--push      Push the built images to the Docker Hub"
-    echo "  -d|--dry-run   Only print commands that would be used to build images"
-    echo "  -v|--verbose   Enable debug output"
-    echo "  -f|--force     Push images regardless if they exist or not"
-    exit 1
+  echo "usage: $0 [-hpkdv]"
+  echo "  -h|--help      Display this text"
+  echo "  -p|--push      Push the built images to the Docker Hub"
+  echo "  -d|--dry-run   Only print commands that would be used to build images"
+  echo "  -v|--verbose   Enable debug output"
+  echo "  -f|--force     Push images regardless if they exist or not"
+  exit 1
 }
 
 bold() {
@@ -56,7 +56,7 @@ get_tags() {
 }
 
 build_image() {
-   dockerfile=$(sed "s/^FROM tomcat:.*$/FROM tomcat:$1/" Dockerfile)
+  dockerfile=$(sed "s/^FROM tomcat:.*$/FROM tomcat:$1/" Dockerfile)
 
   if [ "$VERBOSE" == "YES" ]; then
     echo "Building $(bold $IMAGE_NAME:$2)"
@@ -79,33 +79,31 @@ build_image() {
   fi
 }
 
-for i in "$@"
-do
-case $i in
-    -p|--push)
+for i in "$@"; do
+  case $i in
+  -p | --push)
     PUSH=YES
     ;;
-    -d|--dry-run)
+  -d | --dry-run)
     DRY_RUN=YES
     ;;
-    -v|--verbose)
+  -v | --verbose)
     VERBOSE=YES
     ;;
-    -f | --force)
+  -f | --force)
     FORCE=YES
     ;;
-    -h|--help)
+  -h | --help)
     usage $0
     ;;
-    *)
-    ;;
-esac
+  *) ;;
+  esac
 done
 
 for tomcat_tag in ${TOMCAT_VERSIONS[@]}; do
   app_tag=$(echo $tomcat_tag | grep -Po "^[0-9]+\.[0-9]+\.[0-9]+(?=-j)")
-    
-  if [ "$FORCE" != "YES" ] && docker_tag_exists $IMAGE_NAME $app_tag ; then
+
+  if [ "$FORCE" != "YES" ] && docker_tag_exists $IMAGE_NAME $app_tag; then
     info "Ignoring $(bold $app_tag) since it already exists."
   else
     info "Building image for Tomcat $(bold $app_tag)"
