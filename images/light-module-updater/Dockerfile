@@ -11,9 +11,9 @@ RUN apt-get update -qq && \
     apt-get install -qq -y git openssh-client rsync && \
     id "1000" ||useradd -m --uid 1000 ubuntu && \
     mkdir -p "$TARGET_DIR" && \
-    chown docker "$TARGET_DIR" && \
+    chown ubuntu "$TARGET_DIR" && \
     mkdir -p "$REPO_DIR" && \
-    chown docker "$REPO_DIR" && \
+    chown ubuntu "$REPO_DIR" && \
     rm -rf /var/lib/apt/lists/*
 USER docker
 WORKDIR /home/docker
