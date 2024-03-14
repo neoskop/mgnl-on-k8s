@@ -156,7 +156,7 @@ while true; do
   else
     if executed_without_error "git fetch"; then
       LOCAL=$(git rev-parse HEAD)
-      REMOTE=$(git rev-parse origin/master)
+      REMOTE=$(git rev-parse origin/$GIT_BRANCH)
 
       if [ $LOCAL != $REMOTE ]; then
         info "Pulling changes"
