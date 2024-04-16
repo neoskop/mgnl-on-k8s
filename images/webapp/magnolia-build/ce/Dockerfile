@@ -1,5 +1,5 @@
 FROM scratch
-FROM maven:3.6.3-jdk-13 as build
+FROM maven:3.9.6-eclipse-temurin-17 as build
 ARG NEXUS_USERNAME
 ARG NEXUS_PASSWORD
 ARG MAGNOLIA_VERSION=6.1
