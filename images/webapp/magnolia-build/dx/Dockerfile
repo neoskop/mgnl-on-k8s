@@ -6,7 +6,7 @@ ARG MAGNOLIA_VERSION=6.1
 ARG PAPERBOY_VERSION=2.3.3
 RUN test -n "$NEXUS_USERNAME" && \
     test -n "$NEXUS_PASSWORD"
-COPY --from=neoskop/mgnl-deps:6.1 /root/.m2 /root/.m2
+COPY ./m2/ /root/.m2/repository
 RUN echo "<settings><servers><server><id>magnolia.enterprise</id><username>$NEXUS_USERNAME</username><password>$NEXUS_PASSWORD</password></server><server><id>magnolia.enterprise.releases</id><username>$NEXUS_USERNAME</username><password>$NEXUS_PASSWORD</password></server></servers></settings>" > /mvn-settings.xml
 COPY dx/pom.parent.xml ./pom.xml
 COPY dx/pom.webapp.xml ./webapp/pom.xml
