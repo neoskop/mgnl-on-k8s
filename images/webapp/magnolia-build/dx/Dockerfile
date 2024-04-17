@@ -13,7 +13,7 @@ COPY dx/pom.webapp.xml ./webapp/pom.xml
 RUN mvn -s /mvn-settings.xml \
     -DmagnoliaBundleVersion=$MAGNOLIA_VERSION \
     -DpaperboyVersion=$PAPERBOY_VERSION \
-    -T 1C \
+    -T 8 \
     compile
 RUN mkdir -p ./webapp/src/main/webapp/WEB-INF
 COPY WEB-INF ./webapp/src/main/webapp/WEB-INF
@@ -21,7 +21,7 @@ RUN sed -i s/MagnoliaWidgetSet/MagnoliaProWidgetSet/ ./webapp/src/main/webapp/WE
 RUN mvn -s /mvn-settings.xml \
     -DmagnoliaBundleVersion=$MAGNOLIA_VERSION \
     -DpaperboyVersion=$PAPERBOY_VERSION \
-    -T 1C \
+    -T 8 \
     package
 
 FROM busybox:1.36.1-musl
