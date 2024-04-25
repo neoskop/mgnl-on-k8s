@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:noble-20240423
 ENV GIT_BRANCH=master \
     CHECKOUT_TAG=false \
     POLL_INTERVAL=5 \
