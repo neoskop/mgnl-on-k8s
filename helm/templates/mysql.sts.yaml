@@ -35,7 +35,6 @@ spec:
           imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
           resources:
             {{- toYaml .Values.mysql.resources | nindent 12 }}
-          args: ["mysqld", "--ignore-db-dir=lost+found"]
           env:
             {{- if .Values.mysql.rootPassword }}
             - name: MYSQL_ROOT_PASSWORD
