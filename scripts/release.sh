@@ -58,6 +58,7 @@ sed -i "s/version: .*/version: $version/" $SCRIPT_DIR/../helm/Chart.yaml
 yq eval ".version=\"$version\"" -i $SCRIPT_DIR/../helm/Chart.yaml
 yq eval ".appVersion=\"$version\"" -i $SCRIPT_DIR/../helm/Chart.yaml
 yq eval ".magnoliaLightModuleUpdater.image.tag=\"$version\"" -i $SCRIPT_DIR/../helm/values.yaml
+yq eval ".magnoliaRuntime.image.tag=\"$version\"" -i $SCRIPT_DIR/../helm/values.yaml
 git add .
 git commit -m "chore: Bump version to ${version}."
 git push
