@@ -30,15 +30,14 @@ magnoliaRuntime:
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
-    tag: 6.2.44
+    tag: 6.2.45
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
     requests:
       memory: 100Mi
-      cpu: "0.1"
     limits:
-      memory: 100Mi
+      memory: 256Mi
 tmpInit:
   image:
     repository: busybox
