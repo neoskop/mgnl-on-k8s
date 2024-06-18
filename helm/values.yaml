@@ -90,14 +90,6 @@ magnoliaTmp:
 magnoliaActivation:
   privateKey: ""
   publicKey: ""
-paperboy:
-  token: ""
-  userPassword: ""
-  webhookUrl: http://paperboy-push-service.paperboy.svc.cluster.local:8080/
-paperboyPreview:
-  token: ""
-  userPassword: ""
-  webhookUrl: http://paperboy-preview-push-service.paperboy.svc.cluster.local:8080/
 magnoliaPublic:
   replicaCount: 1
   configName: livePublic

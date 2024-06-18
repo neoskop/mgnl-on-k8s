@@ -90,28 +90,6 @@ spec:
               value: "{{ .Values.magnoliaPublic.configName }}"
             - name: TZ
               value: "Europe/Berlin"
-            - name: PAPERBOY_ENABLED
-              value: "true"
-            - name: PAPERBOY_USER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "mgnl.public.name" . }}-paperboy-config
-                  key: userPassword
-            - name: PAPERBOY_WEBHOOK_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "mgnl.public.name" . }}-paperboy-config
-                  key: webhookUrl
-            - name: PAPERBOY_WEBHOOK_BEARER_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "mgnl.public.name" . }}-paperboy-config
-                  key: webhookBearerToken
-            - name: PAPERBOY_WEBHOOK_AUTHORIZATION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "mgnl.public.name" . }}-paperboy-config
-                  key: webhookAuthorization
 {{- with .Values.magnoliaPublic.customEnv }}
             - name: JDK_JAVA_OPTIONS
               value: "-Dmagnolia.yaml.envsubst=true"

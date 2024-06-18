@@ -32,11 +32,6 @@
     </dependency>
     <dependency>
       <groupId>com.github.neoskop</groupId>
-      <artifactId>paperboy</artifactId>
-      <version>${paperboy.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.neoskop</groupId>
       <artifactId>neoskop-magnolia-backup</artifactId>
       <version>${neoskop-magnolia-backup.version}</version>
     </dependency>

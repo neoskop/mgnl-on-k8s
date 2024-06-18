@@ -48,10 +48,6 @@ COMMAND=$(echo "helm upgrade --install \
     $NAMESPACE \
     $SCRIPT_DIR/../helm \
     -n $NAMESPACE \
-    --set paperboy.userPassword=$(pwgen 32 1) \
-    --set paperboy.token=$(pwgen 32 1) \
-    --set paperboyPreview.userPassword=$(pwgen 32 1) \
-    --set paperboyPreview.token=$(pwgen 32 1) \
     --set mysql.rootPassword=$(pwgen 32 1) \
     --set magnoliaActivation.privateKey=$ACTIVATION_PRIVATE_KEY \
     --set magnoliaActivation.publicKey=$ACTIVATION_PUBLIC_KEY")
