@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-17 as java-entrypoint
+FROM maven:3.9.9-eclipse-temurin-17 as java-entrypoint
 WORKDIR /root
 COPY entrypoint ./
 RUN mvn -T 1C package
