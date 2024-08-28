@@ -24,24 +24,6 @@
       <artifactId>magnolia-dx-core-webapp</artifactId>
       <version>${magnoliaBundleVersion}</version>
       <type>pom</type>
-      <exclusions>
-        <exclusion>
-          <groupId>info.magnolia.workflow</groupId>
-          <artifactId>magnolia-module-workflow</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>info.magnolia.workflow</groupId>
-          <artifactId>magnolia-module-workflow-jbpm</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>info.magnolia.workflow</groupId>
-          <artifactId>magnolia-workflow-compatibility</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>info.magnolia.workflow</groupId>
-          <artifactId>magnolia-module-workflow-pages</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>

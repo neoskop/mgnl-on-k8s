@@ -15,7 +15,7 @@ usage() {
   echo "  NEXUS_PASSWORD:      your password for the Magnolia CMS Nexus. $(bold "Required.")"
   echo "  DOCKERHUB_USERNAME:  your username for hub.docker.com. $(bold "Required.")"
   echo "  DOCKERHUB_PASSWORD:  your password for hub.docker.com. $(bold "Required.")"
-  echo "  FLAVORS:             a space-separated list of flavors to build. Can be one $(bold "dx"), $(bold "dx-workflow") or $(bold "ce")."
+  echo "  FLAVORS:             a space-separated list of flavors to build. Can be one $(bold "dx") or $(bold "ce")."
   echo "  VERSION:             a space-separated list of versions to build (e.g. 6.2.2)."
   exit 1
 }
@@ -167,7 +167,7 @@ if [ -z $DOCKERHUB_USERNAME ] || [ -z $DOCKERHUB_PASSWORD ]; then
 fi
 
 if [ -z $FLAVORS ]; then
-  FLAVORS=ce,dx,dx-workflow
+  FLAVORS=ce,dx
 fi
 
 FLAVORS=$(echo "$FLAVORS" | tr ',' ' ')
