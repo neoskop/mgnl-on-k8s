@@ -30,7 +30,7 @@ magnoliaRuntime:
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
-    tag: 6.2.45
+    tag: 6.3.0
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
