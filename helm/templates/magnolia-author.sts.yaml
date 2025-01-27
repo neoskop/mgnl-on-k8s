@@ -90,9 +90,9 @@ spec:
               value: "{{ .Values.magnoliaAuthor.configName }}"
             - name: TZ
               value: "Europe/Berlin"
-{{- with .Values.magnoliaAuthor.customEnv }}
             - name: JDK_JAVA_OPTIONS
-              value: "-Dmagnolia.yaml.envsubst=true"
+              value: "-Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
+{{- with .Values.magnoliaAuthor.customEnv }}
 {{- range $key, $value := . }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -112,6 +112,11 @@ spec:
               mountPath: /home/tomcat/magnolia-activation-keypair.properties
               subPath: magnolia-activation-keypair.properties
               readOnly: true
+            {{- if .Values.magnoliaAuthor.microprofileConfig }}
+            - name: microprofile-config
+              mountPath: /home/tomcat/config
+              readOnly: true
+            {{- end }}
         - name: light-module-updater
           image: "{{ .Values.magnoliaLightModuleUpdater.image.repository }}:{{ .Values.magnoliaLightModuleUpdater.image.tag }}"
           imagePullPolicy: {{ .Values.magnoliaLightModuleUpdater.image.pullPolicy }}
@@ -151,6 +156,11 @@ spec:
             items:
               - key: tag
                 path: tag
+        {{- if .Values.magnoliaAuthor.microprofileConfig }}
+        - name: microprofile-config
+          configMap:
+            name: {{ include "mgnl.author.name" . }}-microprofile-config
+        {{- end }}
         - name: activation-keypair
           secret:
             secretName: {{ include "mgnl.name" . }}-activation-keypair

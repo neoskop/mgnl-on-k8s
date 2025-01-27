@@ -1,0 +1,11 @@
+{{- if .Values.magnoliaPublic.microprofileConfig -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mgnl.public.name" . }}-microprofile-config
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+data:
+  microprofile-config.yaml: |
+    {{- toYaml .Values.magnoliaPublic.microprofileConfig | nindent 4 }}
+{{- end -}}

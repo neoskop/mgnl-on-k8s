@@ -93,6 +93,7 @@ magnoliaActivation:
 magnoliaPublic:
   replicaCount: 1
   configName: livePublic
+  microprofileConfig: {}
   customEnv: {}
   datasource:
     host: "" # If empty the created service is used
@@ -138,6 +139,7 @@ magnoliaPublic:
 magnoliaAuthor:
   replicaCount: 1
   configName: liveAuthor
+  microprofileConfig: {}
   customEnv: {}
   datasource:
     host: "" # If empty the created service is used

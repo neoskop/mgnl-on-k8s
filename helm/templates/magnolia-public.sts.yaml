@@ -90,9 +90,9 @@ spec:
               value: "{{ .Values.magnoliaPublic.configName }}"
             - name: TZ
               value: "Europe/Berlin"
-{{- with .Values.magnoliaPublic.customEnv }}
             - name: JDK_JAVA_OPTIONS
-              value: "-Dmagnolia.yaml.envsubst=true"
+              value: "-Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
+{{- with .Values.magnoliaPublic.customEnv }}
 {{- range $key, $value := . }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -112,6 +112,11 @@ spec:
               mountPath: /home/tomcat/magnolia-activation-keypair.properties
               subPath: magnolia-activation-keypair.properties
               readOnly: true
+            {{- if .Values.magnoliaPublic.microprofileConfig }}
+            - name: microprofile-config
+              mountPath: /home/tomcat/config
+              readOnly: true
+            {{- end }}
         - name: light-module-updater
           image: "{{ .Values.magnoliaLightModuleUpdater.image.repository }}:{{ .Values.magnoliaLightModuleUpdater.image.tag }}"
           imagePullPolicy: {{ .Values.magnoliaLightModuleUpdater.image.pullPolicy }}
@@ -153,6 +158,11 @@ spec:
             items:
               - key: tag
                 path: tag
+        {{- if .Values.magnoliaPublic.microprofileConfig }}
+        - name: microprofile-config
+          configMap:
+            name: {{ include "mgnl.public.name" . }}-microprofile-config
+        {{- end }}
       {{- with .Values.magnoliaPublic.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
