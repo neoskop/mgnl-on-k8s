@@ -2,7 +2,7 @@
 <!DOCTYPE Repository PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 2.0//EN" "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
 <Repository>
   <DataSources>
-    <DataSource name="magnolia">
+    <DataSource name="MagnoliaAuthor">
 			<param name="driver" value="javax.naming.InitialContext" />
 			<param name="url" value="java:comp/env/jdbc/MagnoliaAuthor" />
 			<param name="databaseType" value="mysql" />
@@ -29,7 +29,7 @@
       <param name="path" value="${wsp.home}/default" />
     </FileSystem>
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.MySqlPersistenceManager">
-      <param name="dataSourceName" value="magnolia"/>
+      <param name="dataSourceName" value="MagnoliaAuthor"/>
       <param name="schemaObjectPrefix" value="pm_${wsp.name}_" />
     </PersistenceManager>
     <SearchIndex class="info.magnolia.jackrabbit.lucene.SearchIndex">
@@ -66,7 +66,7 @@
       <param name="path" value="${rep.home}/workspaces/version" />
     </FileSystem>
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.MySqlPersistenceManager">
-      <param name="dataSourceName" value="magnolia"/>
+      <param name="dataSourceName" value="MagnoliaAuthor"/>
       <param name="schemaObjectPrefix" value="version_" />
     </PersistenceManager>
   </Versioning>
