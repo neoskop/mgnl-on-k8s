@@ -56,6 +56,7 @@
       <param name="supportHighlighting" value="true"/>
       <!-- custom provider for getting an HTML excerpt in a query result with rep:excerpt() -->
       <param name="excerptProviderClass" value="info.magnolia.jackrabbit.lucene.SearchHTMLExcerpt"/>
+      <param name="tikaConfigPath" value="/home/tomcat/tika-config.xml"/>
     </SearchIndex>
     <WorkspaceSecurity>
       <AccessControlProvider class="info.magnolia.cms.core.MagnoliaAccessProvider" />
