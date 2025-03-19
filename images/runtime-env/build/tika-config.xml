@@ -11,6 +11,31 @@
 
         <parser class="org.apache.tika.parser.DefaultParser"/>
 
+        <parser class="org.apache.tika.parser.DefaultParser">
+            <!-- Disable package extraction as it's too resource-intensive -->
+            <mime-exclude>application/x-archive</mime-exclude>
+            <mime-exclude>application/x-bzip</mime-exclude>
+            <mime-exclude>application/x-bzip2</mime-exclude>
+            <mime-exclude>application/x-cpio</mime-exclude>
+            <mime-exclude>application/x-gtar</mime-exclude>
+            <mime-exclude>application/x-gzip</mime-exclude>
+            <mime-exclude>application/x-tar</mime-exclude>
+            <mime-exclude>application/zip</mime-exclude>
+            <!-- Disable image extraction as there's no text to be found -->
+            <mime-exclude>image/bmp</mime-exclude>
+            <mime-exclude>image/gif</mime-exclude>
+            <mime-exclude>image/jpeg</mime-exclude>
+            <mime-exclude>image/png</mime-exclude>
+            <mime-exclude>image/vnd.wap.wbmp</mime-exclude>
+            <mime-exclude>image/x-icon</mime-exclude>
+            <mime-exclude>image/x-psd</mime-exclude>
+            <mime-exclude>image/x-xcf</mime-exclude>
+            <!-- Disable PDF -->
+            <mime-exclude>application/pdf</mime-exclude>
+            <mime-exclude>application/octet-stream</mime-exclude>
+            <parser-exclude class="org.apache.tika.parser.executable.ExecutableParser"/>
+        </parser>
+
         <parser class="org.apache.tika.parser.EmptyParser">
             <!-- Disable package extraction as it's too resource-intensive -->
             <mime>application/x-archive</mime>
