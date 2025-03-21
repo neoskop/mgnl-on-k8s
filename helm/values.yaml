@@ -86,7 +86,7 @@ magnoliaTmp:
   storage:
     resources:
       requests:
-        storage: 250m
+        storage: 1Gi
 magnoliaActivation:
   privateKey: ""
   publicKey: ""
