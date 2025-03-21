@@ -31,7 +31,7 @@ spec:
             [
               "sh",
               "-c",
-              "test -d /home/tomcat/magnolia_tmp/repositories || (mkdir -p /home/tomcat/magnolia_tmp/repositories && chown -R 1000 /home/tomcat/magnolia_tmp/repositories)",
+              "mkdir -p /home/tomcat/magnolia_tmp ; chown -R 1000 /home/tomcat/magnolia_tmp",
             ]
           resources:
             {{- toYaml .Values.tmpInit.resources | nindent 12 }}
