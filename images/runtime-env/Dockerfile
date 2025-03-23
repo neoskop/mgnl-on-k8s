@@ -29,9 +29,13 @@ USER tomcat
 COPY tika-config.xml /home/tomcat/
 ENV TIKA_CONFIG=/home/tomcat/tika-config.xml
 
-# Prepare repositories cache
-RUN mkdir -p /home/tomcat/magnolia_tmp/repositories && \
+# Prepare tmp dir
+RUN mkdir -p /home/tomcat/magnolia_tmp && \
     chmod -R 0777 /home/tomcat/magnolia_tmp
+
+# Prepare datastore dir
+RUN mkdir -p /home/tomcat/magnolia_datastore && \
+    chmod -R 0777 /home/tomcat/magnolia_datastore
 
 # Prepare light modules dir
 RUN mkdir -p /home/tomcat/light-modules
