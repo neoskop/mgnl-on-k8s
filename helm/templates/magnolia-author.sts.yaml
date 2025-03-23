@@ -24,6 +24,22 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       initContainers:
+        {{- if .Values.jackrabbit.fileDatastore.enabled }}
+        - name: datastore-init
+          image: "{{ .Values.datastoreInit.image.repository }}:{{ .Values.datastoreInit.image.tag }}"
+          imagePullPolicy: {{ .Values.datastoreInit.image.pullPolicy }}
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000 /home/tomcat/magnolia_datastore",
+            ]
+          resources:
+            {{- toYaml .Values.datastoreInit.resources | nindent 12 }}
+          volumeMounts:
+            - name: magnolia-datastore
+              mountPath: /home/tomcat/magnolia_datastore
+        {{- end }}
         - name: tmp-init
           image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
           imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}

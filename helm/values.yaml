@@ -56,6 +56,18 @@ tmpInit:
       cpu: 10m
     limits:
       memory: 20Mi
+datastoreInit:
+  image:
+    repository: busybox
+    tag: 1.36.1
+    pullPolicy: IfNotPresent
+    pullSecret: {}
+  resources:
+    requests:
+      memory: 20Mi
+      cpu: 10m
+    limits:
+      memory: 20Mi
 mysqlInit:
   image:
     repository: busybox
