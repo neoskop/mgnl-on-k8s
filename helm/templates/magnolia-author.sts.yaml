@@ -102,6 +102,10 @@ spec:
             - name: http
               containerPort: 8080
           volumeMounts:
+            {{- if .Values.jackrabbit.fileDatastore.enabled }}
+            - name: magnolia-datastore
+              mountPath: /home/tomcat/magnolia_datastore
+            {{- end }}
             - name: magnolia-tmp
               mountPath: /home/tomcat/magnolia_tmp
             - name: webapps
@@ -145,6 +149,9 @@ spec:
             {{- end }}
       imagePullSecrets: {{ include "mgnl.magnolia.pullSecrets" . }}
       volumes:
+        {{- if .Values.jackrabbit.fileDatastore.enabled }}
+        - name: magnolia-datastore
+        {{- end }}
         - name: magnolia-tmp
         - name: webapps
           emptyDir: {}
@@ -177,6 +184,14 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
   volumeClaimTemplates:
+    {{- if .Values.jackrabbit.fileDatastore.enabled }}
+    - metadata:
+        name: magnolia-datastore
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          {{- toYaml .Values.jackrabbit.fileDatastore.resources | nindent 10 }}
+    {{- end }}
     - metadata:
         name: magnolia-tmp
       spec:
