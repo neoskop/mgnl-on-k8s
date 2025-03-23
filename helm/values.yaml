@@ -6,7 +6,7 @@ magnoliaLightModuleUpdater:
   sourceDir: "/"
   image:
     repository: neoskop/mgnl-light-module-updater
-    tag: 0.26.1
+    tag: 0.26.2
     pullPolicy: Always
     pullSecret: {}
   resources:
@@ -24,7 +24,7 @@ jackrabbit:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 0.26.1
+    tag: 0.26.2
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
