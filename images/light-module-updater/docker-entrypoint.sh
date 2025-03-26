@@ -73,7 +73,7 @@ clone_repo() {
   git config core.sparseCheckout true
   echo "$SOURCE_DIR" >>.git/info/sparse-checkout
 
-  if ! executed_without_error "git pull origin $GIT_BRANCH"; then
+  if ! executed_without_error "git pull origin $GIT_BRANCH && git checkout $GIT_BRANCH"; then
     error "Initial clone failed ... Exiting."
     exit 1
   fi
