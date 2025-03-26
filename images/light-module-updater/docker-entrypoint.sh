@@ -63,24 +63,18 @@ update_tag() {
 
 clone_repo() {
   info "Cloning $(bold $GIT_REPO_URL) to $(bold $REPO_DIR)"
-  git init &>/dev/null
+  git clone --filter=blob:none --no-checkout --depth 1 --sparse $GIT_REPO_URL . &>/dev/null
 
-  if ! executed_without_error "git remote add -f origin $GIT_REPO_URL"; then
-    error "Setting up upstream failed ... Exiting."
-    exit 1
-  fi
+  git sparse-checkout add "$SOURCE_DIR"
 
-  git config core.sparseCheckout true
-  echo "$SOURCE_DIR" >>.git/info/sparse-checkout
-
-  if ! executed_without_error "git pull origin $GIT_BRANCH && git checkout $GIT_BRANCH"; then
-    error "Initial clone failed ... Exiting."
+  if ! executed_without_error "git checkout $GIT_BRANCH"; then
+    error "Checkout of branch $GIT_BRANCH failed ... Exiting."
     exit 1
   fi
 
   if [ -n "$GIT_TAG" ]; then
     info "Checking out tag $(bold $GIT_TAG)"
-    git -c advice.detachedHead=false checkout tags/$GIT_TAG &>/dev/null
+    git checkout tags/$GIT_TAG &>/dev/null
   fi
 }
 
@@ -113,6 +107,7 @@ git config --global pack.packSizeLimit $(expr $MEMORY_LIMIT / 4)m
 git config --global pack.windowMemory $(expr $MEMORY_LIMIT / 4)m
 git config --global pack.threads 1
 git config --global pull.ff only
+git config --global advice.detachedHead false
 
 if ! [ -f ~/.ssh/id_rsa ]; then
   info "Writing private key to to $(bold ~/.ssh/id_rsa)"
