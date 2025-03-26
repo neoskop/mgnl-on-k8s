@@ -64,7 +64,7 @@ update_tag() {
 clone_repo() {
   info "Cloning $(bold $GIT_REPO_URL) to $(bold $REPO_DIR)"
 
-  if ! executed_without_error "git clone --filter=blob:none --no-checkout --sparse $GIT_REPO_URL . &>/dev/null" ; then
+  if ! executed_without_error "git clone --filter=blob:none --no-checkout --sparse $GIT_REPO_URL ." ; then
     error "Clone of $(bold $GIT_REPO_URL) failed ... Exiting."
     exit 1
   fi
