@@ -36,7 +36,7 @@ magnoliaRuntime:
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
-    tag: 6.3.4
+    tag: 6.3.6
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -47,7 +47,7 @@ magnoliaWebapp:
 tmpInit:
   image:
     repository: busybox
-    tag: 1.36.1
+    tag: 1.37.0
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -71,7 +71,7 @@ datastoreInit:
 mysqlInit:
   image:
     repository: busybox
-    tag: 1.36.1
+    tag: 1.37.0
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -85,7 +85,7 @@ mysql:
   rootPassword: ""
   image:
     repository: mysql
-    tag: 8.4.0
+    tag: 9.2.0
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
