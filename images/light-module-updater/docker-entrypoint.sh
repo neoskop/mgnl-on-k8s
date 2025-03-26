@@ -63,12 +63,19 @@ update_tag() {
 
 clone_repo() {
   info "Cloning $(bold $GIT_REPO_URL) to $(bold $REPO_DIR)"
-  git clone --filter=blob:none --no-checkout --depth 1 --sparse $GIT_REPO_URL . &>/dev/null
 
-  git sparse-checkout add "$SOURCE_DIR"
+  if ! executed_without_error "git clone --filter=blob:none --no-checkout --sparse $GIT_REPO_URL . &>/dev/null" ; then
+    error "Clone of $(bold $GIT_REPO_URL) failed ... Exiting."
+    exit 1
+  fi
+
+  if ! executed_without_error "git sparse-checkout add $SOURCE_DIR" ; then
+    error "Sparse checkout of $(bold $SOURCE_DIR) failed ... Exiting."
+    exit 1
+  fi
 
   if ! executed_without_error "git checkout $GIT_BRANCH"; then
-    error "Checkout of branch $GIT_BRANCH failed ... Exiting."
+    error "Checkout of branch $(bold $GIT_BRANCH) failed ... Exiting."
     exit 1
   fi
 
