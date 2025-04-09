@@ -37,6 +37,7 @@ copy_modules() {
     $TARGET_DIR \
     --delete \
     &>/dev/null
+  find $TARGET_DIR -type f -name "*.yaml" -exec touch {} \;
   rm -rf $TEMP_DIR
 }
 
