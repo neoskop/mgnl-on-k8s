@@ -1,4 +1,4 @@
-FROM busybox:1.36.1-musl
+FROM busybox:1.37.0-musl
 ARG VERSION
 COPY --chown=1000 ./ce-damfs/webapp-${VERSION}.war /ROOT.war
 RUN mkdir -p /usr/local/tomcat/webapps && \
