@@ -26,21 +26,24 @@ jobs:
           versions=$(curl -s https://nexus.magnolia-cms.com/repository/public/info/magnolia/magnolia-empty-webapp/maven-metadata.xml \
             | xmlstarlet sel -t -v '//metadata/versioning/versions/version/text()' - \
             | sort -V -r)
-          result=""
+
+          result=()
           for v in $versions; do
             if [ "$(printf '%s\n' "$MIN_VERSION" "$v" | sort -V | head -n1)" = "$MIN_VERSION" ] \
               && ! echo "$v" | grep -Pqi 'snapshot|beta|alpha|rc'; then
-              result="$result $v"
+              result+=("\"$v\"")
             fi
           done
-          echo "versions=$result" >> $GITHUB_OUTPUT
+
+          json="[${result[*]}]"
+          echo "versions=$json" >> $GITHUB_OUTPUT
 
   build-wars:
     runs-on: ubuntu-latest
     needs: get-versions
     strategy:
       matrix:
-        version: ${{ fromJSON('["' + join(needs.get-versions.outputs.versions, '","') + '"]') }}
+        version: ${{ fromJSON(needs.get-versions.outputs.versions) }}
         flavor: [dx-damfs, ce-damfs, dx, ce]
     steps:
       - uses: actions/checkout@v4
@@ -129,7 +132,8 @@ jobs:
       - name: Build & push images
         run: |
           for flavor in dx-damfs ce-damfs dx ce; do
-            for version in $(ls artifacts/$flavor | sed 's/webapp-//; s/.war//'); do
+            for war in artifacts/$flavor/*.war; do
+              version=$(basename "$war" | sed 's/webapp-//; s/.war//')
               tag=docker.io/neoskop/mgnl-webapp-$flavor:$version
               docker buildx build \
                 --platform linux/amd64,linux/arm64 \
