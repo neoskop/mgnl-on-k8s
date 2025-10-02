@@ -58,8 +58,8 @@ jobs:
       - name: Configure Maven settings for Magnolia Nexus
         shell: bash
         run: |
-          mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml <<EOF
+          mkdir -p /root/.m2
+          cat > /root/.m2/settings.xml <<EOF
           <settings>
             <servers>
               <server>
@@ -75,12 +75,6 @@ jobs:
             </servers>
           </settings>
           EOF
-
-      - name: Test credentials
-        shell: bash
-        run: |
-          curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} \
-            https://nexus.magnolia-cms.com/content/groups/enterprise/info/magnolia/dx/magnolia-dx-core-parent/6.3.15/magnolia-dx-core-parent-6.3.15.pom -v
 
       - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
         shell: bash
