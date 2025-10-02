@@ -94,7 +94,7 @@
     </repository>
     <repository>
       <id>magnolia.public.maintenance.releases</id>
-      <url>https://nexus.magnolia-cms.com/content/repositories/magnolia.public.maintenance.releases/</url>
+      <url>https://nexus.magnolia-cms.com/repository/magnolia.public.maintenance.releases/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
