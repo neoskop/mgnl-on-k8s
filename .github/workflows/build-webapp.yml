@@ -5,7 +5,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '0 4 * * *'
+    - cron: "0 4 * * *"
 
 env:
   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
@@ -45,72 +45,49 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.get-versions.outputs.versions) }}
         flavor: [dx-damfs, ce-damfs, dx, ce]
+    container:
+      image: maven:3.9.6-eclipse-temurin-17
+      options: --user root
     steps:
-      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: apt-get update && apt-get install -y xmlstarlet curl
 
-      - name: Set up Maven
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-      - name: Configure Maven settings
-        run: |
-          mkdir -p ~/.m2
-          cat <<EOF > ~/.m2/settings.xml
-          <settings>
-            <localRepository>/home/runner/.m2/repository</localRepository>
-            <servers>
-              <server>
-                <id>magnolia.enterprise</id>
-                <username>${NEXUS_USERNAME}</username>
-                <password>${NEXUS_PASSWORD}</password>
-              </server>
-              <server>
-                <id>magnolia.enterprise.releases</id>
-                <username>${NEXUS_USERNAME}</username>
-                <password>${NEXUS_PASSWORD}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
-
-      - name: Build WAR for ${{ matrix.version }} ${{ matrix.flavor }}
+      - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
         run: |
           edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
-          mkdir build && cd build
-          cp $GITHUB_WORKSPACE/images/webapp/magnolia-build/$edition/pom.parent.xml pom.xml
+          cd $(mktemp -d)
+          cp /__w/${{ github.repository }}/__w/${{ github.repository }}/buddy/images/webapp/magnolia-build/$edition/pom.parent.xml pom.xml
           mkdir -p ./webapp/src/main/webapp
-          cp $GITHUB_WORKSPACE/images/webapp/magnolia-build/$edition/pom.webapp.xml webapp/pom.xml
-          cp -r $GITHUB_WORKSPACE/images/webapp/magnolia-build/WEB-INF ./webapp/src/main/webapp/WEB-INF
+          cp /__w/${{ github.repository }}/__w/${{ github.repository }}/buddy/images/webapp/magnolia-build/$edition/pom.webapp.xml webapp/pom.xml
+          cp -r /__w/${{ github.repository }}/__w/${{ github.repository }}/buddy/images/webapp/magnolia-build/WEB-INF ./webapp/src/main/webapp/WEB-INF
 
-          if [[ "$edition" == "ce" ]]; then
-            xmlstarlet ed -L -N p="http://maven.apache.org/POM/4.0.0" \
-              -d "//p:dependency[p:artifactId='magnolia-site-app']" webapp/pom.xml
+          if [[ $edition == ce ]]; then
+            xmlstarlet ed -L -N p="http://maven.apache.org/POM/4.0.0" -d "//p:dependency[p:artifactId='magnolia-site-app']" webapp/pom.xml
           else
             sed -i s/MagnoliaWidgetSet/MagnoliaProWidgetSet/ ./webapp/src/main/webapp/WEB-INF/config/default/magnolia.properties
           fi
 
           if [[ "${{ matrix.flavor }}" == *-damfs ]]; then
             find ./webapp/src/main/webapp/WEB-INF -name magnolia.properties \
-              -exec sed -i 's|repo-conf/author.xml|repo-conf/author-damfs.xml|g; s|repo-conf/public.xml|repo-conf/public-damfs.xml|g' {} \;
+              -exec sed -i 's|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author-damfs.xml|g; s|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public-damfs.xml|g' {} \;
           fi
 
-          mvn -DmagnoliaBundleVersion=${{ matrix.version }} -T 8 package
-          mkdir -p $GITHUB_WORKSPACE/artifacts/${{ matrix.flavor }}
-          mv ./webapp/target/webapp.war $GITHUB_WORKSPACE/artifacts/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
+          mvn \
+            -DmagnoliaBundleVersion=${{ matrix.version }} \
+            -T 8 \
+            package
 
-      - name: Upload WAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: war-${{ matrix.flavor }}-${{ matrix.version }}
-          path: artifacts/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
+          mv ./webapp/target/webapp.war /__w/${{ github.repository }}/__w/${{ github.repository }}/buddy/images/webapp/magnolia-build/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
 
   build-images:
     runs-on: ubuntu-latest
     needs: build-wars
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -124,26 +101,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Download WAR artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Build & push images
+      - name: Build and push Docker images
         run: |
-          for flavor in dx-damfs ce-damfs dx ce; do
-            for war in artifacts/$flavor/*.war; do
-              version=$(basename "$war" | sed 's/webapp-//; s/.war//')
+          for version in $(ls buddy/images/webapp/magnolia-build/dx/*.war | sed -E 's/.*webapp-([0-9.]+)\.war/\1/'); do
+            for flavor in dx-damfs ce-damfs dx ce; do
               tag=docker.io/neoskop/mgnl-webapp-$flavor:$version
               docker buildx build \
+                --cache-to=type=gha,mode=max \
+                --cache-from=type=gha \
                 --platform linux/amd64,linux/arm64 \
                 --build-arg VERSION=$version \
                 --build-arg NEXUS_USERNAME=$NEXUS_USERNAME \
                 --build-arg NEXUS_PASSWORD=$NEXUS_PASSWORD \
+                --push \
                 -t $tag \
-                -f ./images/webapp/magnolia-build/$flavor/Dockerfile \
-                ./images/webapp/magnolia-build \
-                --push
+                -f ./buddy/images/webapp/magnolia-build/$flavor/Dockerfile \
+                ./buddy/images/webapp/magnolia-build
             done
           done
 
@@ -151,12 +124,13 @@ jobs:
     runs-on: ubuntu-latest
     if: failure()
     steps:
-      - name: Send Slack notification
-        uses: slackapi/slack-github-action@v1
+      - name: Notify Slack on failure
+        uses: slackapi/slack-github-action@v1.24.0
         with:
-          payload: |
-            {
-              "text": "*[mgnl-on-k8s]:* Bauen der Webapp-Images ist fehlgeschlagen"
-            }
+          channel-id: U0Q3KU9EC
+          slack-message: |
+            *[mgnl-on-k8s]:* Bauen der Webapp-Images ist fehlgeschlagen
+            *Pipeline:* ${{ github.workflow }}
+            *Run:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
