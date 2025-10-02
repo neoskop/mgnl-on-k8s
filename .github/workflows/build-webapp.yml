@@ -61,10 +61,10 @@ jobs:
           edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
           cd $(mktemp -d)
 
-          cp $repo_root/buddy/images/webapp/magnolia-build/$edition/pom.parent.xml pom.xml
+          cp $repo_root/images/webapp/magnolia-build/$edition/pom.parent.xml pom.xml
           mkdir -p ./webapp/src/main/webapp
-          cp $repo_root/buddy/images/webapp/magnolia-build/$edition/pom.webapp.xml webapp/pom.xml
-          cp -r $repo_root/buddy/images/webapp/magnolia-build/WEB-INF ./webapp/src/main/webapp/WEB-INF
+          cp $repo_root/images/webapp/magnolia-build/$edition/pom.webapp.xml webapp/pom.xml
+          cp -r $repo_root/images/webapp/magnolia-build/WEB-INF ./webapp/src/main/webapp/WEB-INF
 
           if [[ $edition == ce ]]; then
             xmlstarlet ed -L -N p="http://maven.apache.org/POM/4.0.0" -d "//p:dependency[p:artifactId='magnolia-site-app']" webapp/pom.xml
@@ -82,7 +82,7 @@ jobs:
             -T 8 \
             package
 
-          mv ./webapp/target/webapp.war $repo_root/buddy/images/webapp/magnolia-build/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
+          mv ./webapp/target/webapp.war $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
 
   build-images:
     runs-on: ubuntu-latest
@@ -106,7 +106,7 @@ jobs:
       - name: Build and push Docker images
         run: |
           repo_root="${GITHUB_WORKSPACE}"
-          for version in $(ls $repo_root/buddy/images/webapp/magnolia-build/dx/*.war | sed -E 's/.*webapp-([0-9.]+)\.war/\1/'); do
+          for version in $(ls $repo_root/images/webapp/magnolia-build/dx/*.war | sed -E 's/.*webapp-([0-9.]+)\.war/\1/'); do
             for flavor in dx-damfs ce-damfs dx ce; do
               tag=docker.io/neoskop/mgnl-webapp-$flavor:$version
               docker buildx build \
@@ -118,8 +118,8 @@ jobs:
                 --build-arg NEXUS_PASSWORD=$NEXUS_PASSWORD \
                 --push \
                 -t $tag \
-                -f $repo_root/buddy/images/webapp/magnolia-build/$flavor/Dockerfile \
-                $repo_root/buddy/images/webapp/magnolia-build
+                -f $repo_root/images/webapp/magnolia-build/$flavor/Dockerfile \
+                $repo_root/images/webapp/magnolia-build
             done
           done
 
