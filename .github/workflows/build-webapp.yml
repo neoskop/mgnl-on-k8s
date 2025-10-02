@@ -22,21 +22,41 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y xmlstarlet curl
 
       - id: set-versions
+        shell: bash
         run: |
-          versions=$(curl -s https://nexus.magnolia-cms.com/repository/public/info/magnolia/magnolia-empty-webapp/maven-metadata.xml \
-            | xmlstarlet sel -t -v '//metadata/versioning/versions/version/text()' - \
-            | sort -V -r)
+          get_versions() {
+            local url="https://nexus.magnolia-cms.com/repository/public/info/magnolia/magnolia-empty-webapp/maven-metadata.xml"
+            local versions=$(curl -s "$url" \
+              | xmlstarlet sel -t -v '//metadata/versioning/versions/version/text()' -)
 
-          result=()
-          for v in $versions; do
-            if [ "$(printf '%s\n' "$MIN_VERSION" "$v" | sort -V | head -n1)" = "$MIN_VERSION" ] \
-              && ! echo "$v" | grep -Pqi 'snapshot|beta|alpha|rc'; then
-              result+=("\"$v\"")
-            fi
-          done
+            echo "$versions"
+          }
 
-          json="[${result[*]}]"
-          echo "versions=$json" >> $GITHUB_OUTPUT
+          filter_versions() {
+            local min_version="$1"
+            local versions="$2"
+
+            local filtered_versions=$(echo "$versions" \
+              | grep -viE "alpha|beta|snapshot" \
+              | awk -v min_version="$min_version" 'BEGIN { split(min_version, min_version_arr, "."); } { split($0, version_arr, "."); if (version_arr[1] >= min_version_arr[1] && version_arr[2] >= min_version_arr[2] && version_arr[3] >= min_version_arr[3]) print $0; }' \
+              | sort -V -r)
+
+            echo "$filtered_versions"
+          }
+
+          format_versions() {
+            local versions="$1"
+            # Turn into JSON array format
+            local formatted_versions="["$(echo "$versions" | awk '{printf "\"%s\"\n", $0}' | awk '{printf "%s%s", sep ? sep : "", $0; sep=","}')"]"
+            echo "$formatted_versions"
+          }
+
+          MIN_VERSION="6.2.15"  # Replace with your desired minimum version
+
+          versions=$(get_versions)
+          filtered_versions=$(filter_versions "$MIN_VERSION" "$versions")
+          formatted_versions=$(format_versions "$filtered_versions")
+          echo "versions=$formatted_versions" >> $GITHUB_OUTPUT
 
   build-wars:
     runs-on: ubuntu-latest
@@ -100,7 +120,6 @@ jobs:
           fi
 
           mvn \
-            -X \
             -DmagnoliaBundleVersion=${{ matrix.version }} \
             -T 8 \
             package
@@ -129,8 +148,8 @@ jobs:
       - name: Build and push Docker images
         run: |
           repo_root="${GITHUB_WORKSPACE}"
-          for version in $(ls $repo_root/images/webapp/magnolia-build/dx/*.war | sed -E 's/.*webapp-([0-9.]+)\.war/\1/'); do
-            for flavor in dx-damfs ce-damfs dx ce; do
+          for flavor in dx-damfs ce-damfs dx ce; do
+            for version in $(ls $repo_root/images/webapp/magnolia-build/$flavor/*.war | sed -E 's/.*webapp-([0-9.]+)\.war/\1/'); do
               tag=docker.io/neoskop/mgnl-webapp-$flavor:$version
               docker buildx build \
                 --cache-to=type=gha,mode=max \
