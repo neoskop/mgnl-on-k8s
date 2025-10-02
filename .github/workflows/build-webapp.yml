@@ -56,6 +56,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure Maven settings for Magnolia Nexus
+        shell: bash
         run: |
           mkdir -p ~/.m2
           cat > ~/.m2/settings.xml <<EOF
@@ -74,6 +75,12 @@ jobs:
             </servers>
           </settings>
           EOF
+
+      - name: Test credentials
+        shell: bash
+        run: |
+          curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} \
+            https://nexus.magnolia-cms.com/content/groups/enterprise/info/magnolia/dx/magnolia-dx-core-parent/6.3.15/magnolia-dx-core-parent-6.3.15.pom -v
 
       - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
         shell: bash
@@ -97,8 +104,6 @@ jobs:
             find ./webapp/src/main/webapp/WEB-INF -name magnolia.properties \
               -exec sed -i 's|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author-damfs.xml|g; s|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public-damfs.xml|g' {} \;
           fi
-
-          cat ~/.m2/settings.xml
 
           mvn \
             -X \
