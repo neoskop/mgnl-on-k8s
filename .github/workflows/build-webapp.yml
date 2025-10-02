@@ -101,6 +101,7 @@ jobs:
           cat ~/.m2/settings.xml
 
           mvn \
+            -X \
             -DmagnoliaBundleVersion=${{ matrix.version }} \
             -T 8 \
             package
