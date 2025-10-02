@@ -46,7 +46,7 @@ jobs:
         version: ${{ fromJSON(needs.get-versions.outputs.versions) }}
         flavor: [dx-damfs, ce-damfs, dx, ce]
     container:
-      image: maven:3.9.6-eclipse-temurin-17
+      image: maven:3.9.11-eclipse-temurin-17
       options: --user root
     steps:
       - name: Install dependencies
