@@ -57,7 +57,7 @@ jobs:
 
       - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
         run: |
-          repo_root="/__w/${GITHUB_REPOSITORY}/$(basename $GITHUB_REPOSITORY)"
+          repo_root="${GITHUB_WORKSPACE}"
           edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
           cd $(mktemp -d)
 
