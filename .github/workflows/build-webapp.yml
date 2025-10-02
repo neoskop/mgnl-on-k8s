@@ -105,7 +105,7 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          repo_root="/__w/${GITHUB_REPOSITORY}/$(basename $GITHUB_REPOSITORY)"
+          repo_root="${GITHUB_WORKSPACE}"
           for version in $(ls $repo_root/buddy/images/webapp/magnolia-build/dx/*.war | sed -E 's/.*webapp-([0-9.]+)\.war/\1/'); do
             for flavor in dx-damfs ce-damfs dx ce; do
               tag=docker.io/neoskop/mgnl-webapp-$flavor:$version
