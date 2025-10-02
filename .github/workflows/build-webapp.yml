@@ -76,6 +76,7 @@ jobs:
           EOF
 
       - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
+        shell: bash
         run: |
           repo_root="${GITHUB_WORKSPACE}"
           edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
@@ -96,6 +97,8 @@ jobs:
             find ./webapp/src/main/webapp/WEB-INF -name magnolia.properties \
               -exec sed -i 's|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author-damfs.xml|g; s|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public-damfs.xml|g' {} \;
           fi
+
+          cat ~/.m2/settings.xml
 
           mvn \
             -DmagnoliaBundleVersion=${{ matrix.version }} \
@@ -134,8 +137,6 @@ jobs:
                 --cache-from=type=gha \
                 --platform linux/amd64,linux/arm64 \
                 --build-arg VERSION=$version \
-                --build-arg NEXUS_USERNAME=$NEXUS_USERNAME \
-                --build-arg NEXUS_PASSWORD=$NEXUS_PASSWORD \
                 --push \
                 -t $tag \
                 -f $repo_root/images/webapp/magnolia-build/$flavor/Dockerfile \
