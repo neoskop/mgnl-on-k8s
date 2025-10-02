@@ -55,6 +55,26 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Configure Maven settings for Magnolia Nexus
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>magnolia.enterprise</id>
+                <username>${NEXUS_USERNAME}</username>
+                <password>${NEXUS_PASSWORD}</password>
+              </server>
+              <server>
+                <id>magnolia.enterprise.releases</id>
+                <username>${NEXUS_USERNAME}</username>
+                <password>${NEXUS_PASSWORD}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
       - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
         run: |
           repo_root="${GITHUB_WORKSPACE}"
