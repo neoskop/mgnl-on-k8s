@@ -98,6 +98,9 @@ jobs:
 
       - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
         shell: bash
+        retries: 5
+        retry-strategy: exponential
+        retry-max-delay: 5m
         run: |
           repo_root="${GITHUB_WORKSPACE}"
           edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
