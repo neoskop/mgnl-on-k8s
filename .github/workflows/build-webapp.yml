@@ -51,8 +51,6 @@ jobs:
             echo "$formatted_versions"
           }
 
-          MIN_VERSION="6.2.15"  # Replace with your desired minimum version
-
           versions=$(get_versions)
           filtered_versions=$(filter_versions "$MIN_VERSION" "$versions")
           formatted_versions=$(format_versions "$filtered_versions")
