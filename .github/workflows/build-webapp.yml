@@ -98,9 +98,6 @@ jobs:
 
       - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
         shell: bash
-        retries: 5
-        retry-strategy: exponential
-        retry-max-delay: 5m
         run: |
           repo_root="${GITHUB_WORKSPACE}"
           edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
@@ -122,10 +119,19 @@ jobs:
               -exec sed -i 's|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author-damfs.xml|g; s|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public-damfs.xml|g' {} \;
           fi
 
-          mvn \
-            -DmagnoliaBundleVersion=${{ matrix.version }} \
-            -T 8 \
-            package
+          retry_count=0
+          max_retries=5
+          while [ $retry_count -lt $max_retries ]; do
+            if mvn \
+              -DmagnoliaBundleVersion=${{ matrix.version }} \
+              -T 8 \
+              package; then
+              break
+            fi
+            retry_count=$((retry_count + 1))
+            echo "Failed to package, retrying ($retry_count/$max_retries)"
+            sleep 10
+          done
 
           mv ./webapp/target/webapp.war $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
 
