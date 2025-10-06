@@ -175,7 +175,7 @@ jobs:
     if: failure()
     steps:
       - name: Notify Slack on failure
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.27.1
         with:
           channel-id: U0Q3KU9EC
           slack-message: |
