@@ -85,8 +85,30 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Configure Maven settings for Magnolia Nexus
+        shell: bash
+        run: |
+          mkdir -p /root/.m2
+          cat > /root/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>magnolia.enterprise</id>
+                <username>${NEXUS_USERNAME}</username>
+                <password>${NEXUS_PASSWORD}</password>
+              </server>
+              <server>
+                <id>magnolia.enterprise.releases</id>
+                <username>${NEXUS_USERNAME}</username>
+                <password>${NEXUS_PASSWORD}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
       - name: Check if image already exists
         id: check-image
+        if: ${{ github.event_name == 'schedule' }}
         run: |
           tag="docker.io/${DOCKER_ORG}/${IMAGE_PREFIX}-${{ matrix.flavor }}:${{ matrix.version }}"
           if docker manifest inspect "$tag" > /dev/null 2>&1; then
