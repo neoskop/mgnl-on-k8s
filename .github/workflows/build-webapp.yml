@@ -88,8 +88,8 @@ jobs:
       - name: Configure Maven settings for Magnolia Nexus
         shell: bash
         run: |
-          mkdir -p /root/.m2
-          cat > /root/.m2/settings.xml <<EOF
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
           <settings>
             <servers>
               <server>
