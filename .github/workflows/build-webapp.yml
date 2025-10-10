@@ -129,6 +129,10 @@ jobs:
           path: ~/.m2/repository
           key: maven-${{ matrix.flavor }}
 
+      - name: Set MAVEN_OPTS
+        if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
+        run: echo "MAVEN_OPTS=-Xmx2g -XX:MaxPermSize=512m" >> $GITHUB_ENV
+
       - name: Build WAR and Docker image
         if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
         run: |
@@ -158,7 +162,23 @@ jobs:
               -exec sed -i 's|author.xml|author-damfs.xml|g; s|public.xml|public-damfs.xml|g' {} \;
           fi
 
-          mvn -DmagnoliaBundleVersion=${{ matrix.version }} -T 8 package
+          RETRIES=3
+          COUNT=0
+          DELAY=10
+
+          until [ $COUNT -ge $RETRIES ]
+          do
+            mvn -DmagnoliaBundleVersion=${{ matrix.version }} -T 8 package && break
+            COUNT=$((COUNT+1))
+            echo "Build failed. Retrying in $DELAY seconds..."
+            sleep $DELAY
+            DELAY=$((DELAY*2))
+          done
+
+          if [ $COUNT -eq $RETRIES ]; then
+            echo "Build failed after $RETRIES attempts."
+            exit 1
+          fi
 
           mkdir -p $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}
           mv ./webapp/target/webapp.war $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
