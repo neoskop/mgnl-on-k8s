@@ -108,7 +108,6 @@ jobs:
 
       - name: Check if image already exists
         id: check-image
-        if: ${{ github.event_name == 'schedule' }}
         run: |
           tag="docker.io/${DOCKER_ORG}/${IMAGE_PREFIX}-${{ matrix.flavor }}:${{ matrix.version }}"
           if docker manifest inspect "$tag" > /dev/null 2>&1; then
@@ -120,18 +119,18 @@ jobs:
           fi
 
       - name: Install build dependencies
-        if: steps.check-image.outputs.exists == 'false'
+        if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
         run: sudo apt-get update && sudo apt-get install -y xmlstarlet curl maven
 
       - name: Cache Maven repository
-        if: steps.check-image.outputs.exists == 'false'
+        if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: maven-${{ matrix.flavor }}
 
       - name: Build WAR and Docker image
-        if: steps.check-image.outputs.exists == 'false'
+        if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
         run: |
           set -e
           repo_root="${GITHUB_WORKSPACE}"
