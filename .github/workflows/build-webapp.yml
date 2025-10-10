@@ -132,6 +132,7 @@ jobs:
           done
 
           mv ./webapp/target/webapp.war $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
+          ls -lha $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}
 
   build-images:
     runs-on: ubuntu-latest
