@@ -31,30 +31,29 @@ jobs:
 
           get_versions() {
             local url="https://nexus.magnolia-cms.com/repository/public/info/magnolia/magnolia-empty-webapp/maven-metadata.xml"
-            curl -s "$url" | xmlstarlet sel -t -v '//metadata/versioning/versions/version/text()' -
+            local versions=$(curl -s "$url" \
+              | xmlstarlet sel -t -v '//metadata/versioning/versions/version/text()' -)
+
+            echo "$versions"
           }
 
           filter_versions() {
             local min_version="$1"
             local versions="$2"
-            echo "$versions" \
+
+            local filtered_versions=$(echo "$versions" \
               | grep -viE "alpha|beta|snapshot" \
-              | awk -v min_version="$min_version" '
-                  BEGIN { split(min_version, min_version_arr, "."); }
-                  {
-                    split($0, version_arr, ".");
-                    if (version_arr[1] > min_version_arr[1]
-                        || (version_arr[1] == min_version_arr[1] && version_arr[2] > min_version_arr[2])
-                        || (version_arr[1] == min_version_arr[1] && version_arr[2] == min_version_arr[2] && version_arr[3] >= min_version_arr[3]))
-                      print $0;
-                  }' \
-              | sort -V -r
+              | awk -v min_version="$min_version" 'BEGIN { split(min_version, min_version_arr, "."); } { split($0, version_arr, "."); if (version_arr[1] >= min_version_arr[1] && version_arr[2] >= min_version_arr[2] && version_arr[3] >= min_version_arr[3]) print $0; }' \
+              | sort -V -r)
+
+            echo "$filtered_versions"
           }
 
           format_versions() {
             local versions="$1"
-            local formatted="["$(echo "$versions" | awk '{printf "\"%s\"", $0}' | paste -sd, -)"]"
-            echo "$formatted"
+            # Turn into JSON array format
+            local formatted_versions="["$(echo "$versions" | awk '{printf "\"%s\"\n", $0}' | awk '{printf "%s%s", sep ? sep : "", $0; sep=","}')"]"
+            echo "$formatted_versions"
           }
 
           versions=$(get_versions)
