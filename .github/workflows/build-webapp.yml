@@ -1,4 +1,4 @@
-name: Build webapp images
+name: Build Magnolia webapp images
 
 on:
   push:
@@ -6,11 +6,14 @@ on:
       - master
   schedule:
     - cron: "0 4 * * *"
+  workflow_dispatch:
 
 env:
   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
   NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
   MIN_VERSION: 6.3.15
+  DOCKER_ORG: neoskop
+  IMAGE_PREFIX: mgnl-webapp
 
 jobs:
   get-versions:
@@ -24,31 +27,34 @@ jobs:
       - id: set-versions
         shell: bash
         run: |
+          set -e
+
           get_versions() {
             local url="https://nexus.magnolia-cms.com/repository/public/info/magnolia/magnolia-empty-webapp/maven-metadata.xml"
-            local versions=$(curl -s "$url" \
-              | xmlstarlet sel -t -v '//metadata/versioning/versions/version/text()' -)
-
-            echo "$versions"
+            curl -s "$url" | xmlstarlet sel -t -v '//metadata/versioning/versions/version/text()' -
           }
 
           filter_versions() {
             local min_version="$1"
             local versions="$2"
-
-            local filtered_versions=$(echo "$versions" \
+            echo "$versions" \
               | grep -viE "alpha|beta|snapshot" \
-              | awk -v min_version="$min_version" 'BEGIN { split(min_version, min_version_arr, "."); } { split($0, version_arr, "."); if (version_arr[1] >= min_version_arr[1] && version_arr[2] >= min_version_arr[2] && version_arr[3] >= min_version_arr[3]) print $0; }' \
-              | sort -V -r)
-
-            echo "$filtered_versions"
+              | awk -v min_version="$min_version" '
+                  BEGIN { split(min_version, min_version_arr, "."); }
+                  {
+                    split($0, version_arr, ".");
+                    if (version_arr[1] > min_version_arr[1]
+                        || (version_arr[1] == min_version_arr[1] && version_arr[2] > min_version_arr[2])
+                        || (version_arr[1] == min_version_arr[1] && version_arr[2] == min_version_arr[2] && version_arr[3] >= min_version_arr[3]))
+                      print $0;
+                  }' \
+              | sort -V -r
           }
 
           format_versions() {
             local versions="$1"
-            # Turn into JSON array format
-            local formatted_versions="["$(echo "$versions" | awk '{printf "\"%s\"\n", $0}' | awk '{printf "%s%s", sep ? sep : "", $0; sep=","}')"]"
-            echo "$formatted_versions"
+            local formatted="["$(echo "$versions" | awk '{printf "\"%s\"", $0}' | paste -sd, -)"]"
+            echo "$formatted"
           }
 
           versions=$(get_versions)
@@ -56,90 +62,17 @@ jobs:
           formatted_versions=$(format_versions "$filtered_versions")
           echo "versions=$formatted_versions" >> $GITHUB_OUTPUT
 
-  build-wars:
-    runs-on: ubuntu-latest
+  build-and-push:
     needs: get-versions
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         version: ${{ fromJSON(needs.get-versions.outputs.versions) }}
         flavor: [dx-damfs, ce-damfs, dx, ce]
-    container:
-      image: maven:3.9.11-eclipse-temurin-17
-      options: --user root
+      fail-fast: false
+
     steps:
-      - name: Install dependencies
-        run: apt-get update && apt-get install -y xmlstarlet curl
-
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Configure Maven settings for Magnolia Nexus
-        shell: bash
-        run: |
-          mkdir -p /root/.m2
-          cat > /root/.m2/settings.xml <<EOF
-          <settings>
-            <servers>
-              <server>
-                <id>magnolia.enterprise</id>
-                <username>${NEXUS_USERNAME}</username>
-                <password>${NEXUS_PASSWORD}</password>
-              </server>
-              <server>
-                <id>magnolia.enterprise.releases</id>
-                <username>${NEXUS_USERNAME}</username>
-                <password>${NEXUS_PASSWORD}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
-
-      - name: Build WAR for ${{ matrix.flavor }} ${{ matrix.version }}
-        shell: bash
-        run: |
-          repo_root="${GITHUB_WORKSPACE}"
-          edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
-          cd $(mktemp -d)
-
-          cp $repo_root/images/webapp/magnolia-build/$edition/pom.parent.xml pom.xml
-          mkdir -p ./webapp/src/main/webapp
-          cp $repo_root/images/webapp/magnolia-build/$edition/pom.webapp.xml webapp/pom.xml
-          cp -r $repo_root/images/webapp/magnolia-build/WEB-INF ./webapp/src/main/webapp/WEB-INF
-
-          if [[ $edition == ce ]]; then
-            xmlstarlet ed -L -N p="http://maven.apache.org/POM/4.0.0" -d "//p:dependency[p:artifactId='magnolia-site-app']" webapp/pom.xml
-          else
-            sed -i s/MagnoliaWidgetSet/MagnoliaProWidgetSet/ ./webapp/src/main/webapp/WEB-INF/config/default/magnolia.properties
-          fi
-
-          if [[ "${{ matrix.flavor }}" == *-damfs ]]; then
-            find ./webapp/src/main/webapp/WEB-INF -name magnolia.properties \
-              -exec sed -i 's|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/author-damfs.xml|g; s|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public.xml|magnolia.repositories.jackrabbit.config=WEB-INF/config/repo-conf/public-damfs.xml|g' {} \;
-          fi
-
-          retry_count=0
-          max_retries=5
-          while [ $retry_count -lt $max_retries ]; do
-            if mvn \
-              -DmagnoliaBundleVersion=${{ matrix.version }} \
-              -T 8 \
-              package; then
-              break
-            fi
-            retry_count=$((retry_count + 1))
-            echo "Failed to package, retrying ($retry_count/$max_retries)"
-            sleep 10
-          done
-
-          mv ./webapp/target/webapp.war $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
-          ls -lha $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}
-
-  build-images:
-    runs-on: ubuntu-latest
-    needs: build-wars
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -153,23 +86,79 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker images
+      - name: Check if image already exists
+        id: check-image
         run: |
+          tag="docker.io/${DOCKER_ORG}/${IMAGE_PREFIX}-${{ matrix.flavor }}:${{ matrix.version }}"
+          if docker manifest inspect "$tag" > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Image already exists: $tag"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Image missing: $tag will be built."
+          fi
+
+      - name: Install build dependencies
+        if: steps.check-image.outputs.exists == 'false'
+        run: sudo apt-get update && sudo apt-get install -y xmlstarlet curl maven
+
+      - name: Cache Maven repository
+        if: steps.check-image.outputs.exists == 'false'
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ matrix.flavor }}
+
+      - name: Build WAR and Docker image
+        if: steps.check-image.outputs.exists == 'false'
+        run: |
+          set -e
           repo_root="${GITHUB_WORKSPACE}"
-          for flavor in dx-damfs ce-damfs dx ce; do
-            for version in $(ls $repo_root/images/webapp/magnolia-build/$flavor/*.war | sed -E 's/.*webapp-([0-9.]+)\.war/\1/'); do
-              tag=docker.io/neoskop/mgnl-webapp-$flavor:$version
-              docker buildx build \
-                --cache-to=type=gha,mode=max \
-                --cache-from=type=gha \
-                --platform linux/amd64,linux/arm64 \
-                --build-arg VERSION=$version \
-                --push \
-                -t $tag \
-                -f $repo_root/images/webapp/magnolia-build/$flavor/Dockerfile \
-                $repo_root/images/webapp/magnolia-build
-            done
-          done
+          edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
+          build_dir=$(mktemp -d)
+          cd "$build_dir"
+
+          echo "Building WAR for $edition ${{ matrix.version }}..."
+
+          # --- Build WAR ---
+          cp $repo_root/images/webapp/magnolia-build/$edition/pom.parent.xml pom.xml
+          mkdir -p ./webapp/src/main/webapp
+          cp $repo_root/images/webapp/magnolia-build/$edition/pom.webapp.xml webapp/pom.xml
+          cp -r $repo_root/images/webapp/magnolia-build/WEB-INF ./webapp/src/main/webapp/WEB-INF
+
+          if [[ $edition == ce ]]; then
+            xmlstarlet ed -L -N p="http://maven.apache.org/POM/4.0.0" \
+              -d "//p:dependency[p:artifactId='magnolia-site-app']" webapp/pom.xml
+          else
+            sed -i s/MagnoliaWidgetSet/MagnoliaProWidgetSet/ ./webapp/src/main/webapp/WEB-INF/config/default/magnolia.properties
+          fi
+
+          if [[ "${{ matrix.flavor }}" == *-damfs ]]; then
+            find ./webapp/src/main/webapp/WEB-INF -name magnolia.properties \
+              -exec sed -i 's|author.xml|author-damfs.xml|g; s|public.xml|public-damfs.xml|g' {} \;
+          fi
+
+          mvn -DmagnoliaBundleVersion=${{ matrix.version }} -T 8 package
+
+          mkdir -p $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}
+          mv ./webapp/target/webapp.war $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/webapp-${{ matrix.version }}.war
+
+          # --- Build and Push Docker Image ---
+          echo "Building Docker image for ${{ matrix.flavor }}:${{ matrix.version }}"
+          docker buildx build \
+            --cache-to=type=gha,mode=max \
+            --cache-from=type=gha \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg VERSION=${{ matrix.version }} \
+            --push \
+            -t docker.io/${DOCKER_ORG}/${IMAGE_PREFIX}-${{ matrix.flavor }}:${{ matrix.version }} \
+            -f $repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/Dockerfile \
+            $repo_root/images/webapp/magnolia-build
+
+      - name: Skip log
+        if: steps.check-image.outputs.exists == 'true'
+        run: echo "✅ Image already exists, skipping build for ${{ matrix.flavor }}:${{ matrix.version }}."
+
 
   notify-failure:
     runs-on: ubuntu-latest
@@ -185,3 +174,4 @@ jobs:
             *Run:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
