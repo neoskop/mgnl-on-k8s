@@ -14,6 +14,7 @@ env:
   MIN_VERSION: 6.3.15
   DOCKER_ORG: neoskop
   IMAGE_PREFIX: mgnl-webapp
+  MAVEN_OPTS: -Xmx2g
 
 jobs:
   get-versions:
@@ -128,10 +129,6 @@ jobs:
         with:
           path: ~/.m2/repository
           key: maven-${{ matrix.flavor }}
-
-      - name: Set MAVEN_OPTS
-        if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
-        run: echo "MAVEN_OPTS=-Xmx2g -XX:MaxPermSize=512m" >> $GITHUB_ENV
 
       - name: Build WAR and Docker image
         if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
