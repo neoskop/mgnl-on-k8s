@@ -11,7 +11,7 @@ on:
 env:
   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
   NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-  MIN_VERSION: 6.3.15
+  MIN_VERSION: 6.4.0
   DOCKER_ORG: neoskop
   IMAGE_PREFIX: mgnl-webapp
   MAVEN_OPTS: -Xmx2g
@@ -196,7 +196,6 @@ jobs:
         if: steps.check-image.outputs.exists == 'true'
         run: echo "✅ Image already exists, skipping build for ${{ matrix.flavor }}:${{ matrix.version }}."
 
-
   notify-failure:
     runs-on: ubuntu-latest
     if: failure()
@@ -211,4 +210,3 @@ jobs:
             *Run:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
