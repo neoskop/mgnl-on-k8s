@@ -43,7 +43,7 @@ jobs:
             local versions="$2"
 
             local filtered_versions=$(echo "$versions" \
-              | grep -viE "alpha|beta|snapshot" \
+              | grep -viE "alpha|beta|rc|snapshot" \
               | awk -v min_version="$min_version" 'BEGIN { split(min_version, min_version_arr, "."); } { split($0, version_arr, "."); if (version_arr[1] >= min_version_arr[1] && version_arr[2] >= min_version_arr[2] && version_arr[3] >= min_version_arr[3]) print $0; }' \
               | sort -V -r)
 
