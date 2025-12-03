@@ -21,6 +21,14 @@ jackrabbit:
     resources:
       requests:
         storage: 64Gi
+license:
+  enabled: false
+  key: ""
+  email: ""
+  onePassword:
+    enabled: false
+    vault: ""
+    item: ""
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env

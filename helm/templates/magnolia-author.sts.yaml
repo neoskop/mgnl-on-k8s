@@ -107,7 +107,7 @@ spec:
             - name: TZ
               value: "Europe/Berlin"
             - name: JDK_JAVA_OPTIONS
-              value: "-Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
+              value: "-Dmagnolia.license.location=/home/tomcat/magnolia-license -Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
 {{- with .Values.magnoliaAuthor.customEnv }}
 {{- range $key, $value := . }}
             - name: {{ $key }}
@@ -132,6 +132,12 @@ spec:
               mountPath: /home/tomcat/magnolia-activation-keypair.properties
               subPath: magnolia-activation-keypair.properties
               readOnly: true
+            {{- if .Values.license.enabled }}
+            - name: license
+              mountPath: /home/tomcat/magnolia-license/license.key
+              subPath: license.key
+              readOnly: true
+            {{- end }}
             {{- if .Values.magnoliaAuthor.microprofileConfig }}
             - name: microprofile-config
               mountPath: /home/tomcat/config
@@ -179,6 +185,11 @@ spec:
             items:
               - key: tag
                 path: tag
+        {{- if .Values.license.enabled }}
+        - name: license
+          secret:
+            secretName: {{ include "mgnl.name" . }}-license
+        {{- end }}
         {{- if .Values.magnoliaAuthor.microprofileConfig }}
         - name: microprofile-config
           configMap:
