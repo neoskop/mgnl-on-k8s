@@ -3,7 +3,7 @@ WORKDIR /root
 COPY entrypoint ./
 RUN mvn -T 1C package
 
-FROM tomcat:11.0.14-jdk17-temurin-jammy
+FROM tomcat:11.0.15-jdk17-temurin-jammy
 LABEL maintainer="Neoskop DevOps <devops@neoskop.de>"
 
 # Setup custom entrypoint
