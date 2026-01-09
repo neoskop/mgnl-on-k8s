@@ -117,7 +117,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mgnl.author.name" . }}-datasource-password
-                  key: password
+                  key: MGNL_AUTHOR_DB_PASSWORD
             {{- end }}
 {{- $mergedCustomEnv := include "mgnl.author.customEnv" . | fromYaml }}
 {{- range $key, $value := $mergedCustomEnv }}
