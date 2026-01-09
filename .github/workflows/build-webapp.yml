@@ -125,7 +125,7 @@ jobs:
 
       - name: Cache Maven repository
         if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: maven-${{ matrix.flavor }}
