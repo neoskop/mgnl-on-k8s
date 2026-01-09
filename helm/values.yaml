@@ -12,7 +12,7 @@ magnoliaLightModuleUpdater:
   sourceDir: "/"
   image:
     repository: neoskop/mgnl-light-module-updater
-    tag: 1.3.1
+    tag: 1.3.2
     pullPolicy: Always
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
@@ -39,7 +39,7 @@ license:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 1.3.1
+    tag: 1.3.2
     pullPolicy: IfNotPresent
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
