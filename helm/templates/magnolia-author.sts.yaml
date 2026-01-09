@@ -124,6 +124,11 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
 {{- end }}
+          {{- if .Values.magnolia.onePassword.enabled }}
+          envFrom:
+            - secretRef:
+                name: {{ include "mgnl.name" . }}-custom-env-secrets
+          {{- end }}
           ports:
             - name: http
               containerPort: 8080
@@ -173,12 +178,12 @@ spec:
               value: "{{- if typeIs "string" .Values.magnoliaLightModuleUpdater.tag }}true{{ else }}{{ .Values.magnoliaLightModuleUpdater.tag }}{{ end }}"
             - name: GIT_REPO_URL
               value: {{ .Values.magnoliaLightModuleUpdater.repoUrl }}
-            {{- if .Values.magnoliaLightModuleUpdater.privateKey }}
+            {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
             - name: GIT_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mgnl.name" . }}-light-module-updater
-                  key: privateKey
+                  key: private-key
             {{- end }}
       imagePullSecrets: {{ include "mgnl.magnolia.pullSecrets" . }}
       volumes:

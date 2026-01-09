@@ -47,16 +47,30 @@ Mysql instance name
 
 {{/*
 Mysql author host name
+Uses instance-specific host if set, otherwise shared host, otherwise default MySQL service
 */}}
 {{- define "mgnl.mysql.author.host" -}}
-{{- default (printf "%s-mysql" (include "mgnl.name" .)) .Values.magnoliaAuthor.datasource.host -}}
+{{- if .Values.magnoliaAuthor.datasource.host -}}
+{{- .Values.magnoliaAuthor.datasource.host -}}
+{{- else if .Values.magnolia.datasource.host -}}
+{{- .Values.magnolia.datasource.host -}}
+{{- else -}}
+{{- printf "%s-mysql" (include "mgnl.name" .) -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
 Mysql public host name
+Uses instance-specific host if set, otherwise shared host, otherwise default MySQL service
 */}}
 {{- define "mgnl.mysql.public.host" -}}
-{{- default (printf "%s-mysql" (include "mgnl.name" .)) .Values.magnoliaPublic.datasource.host -}}
+{{- if .Values.magnoliaPublic.datasource.host -}}
+{{- .Values.magnoliaPublic.datasource.host -}}
+{{- else if .Values.magnolia.datasource.host -}}
+{{- .Values.magnolia.datasource.host -}}
+{{- else -}}
+{{- printf "%s-mysql" (include "mgnl.name" .) -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -91,8 +105,10 @@ Mysql public instance user name
 {{- $ := . -}}
 {{- $result := dict "secrets" (list) -}}
 {{- range list "magnoliaLightModuleUpdater" "magnoliaRuntime" "magnoliaWebapp" "tmpInit" -}}
-{{- $pullSecret := (get $.Values .).image.pullSecret -}}
-{{- if $pullSecret }}
+{{- $imageConfig := (get $.Values .).image -}}
+{{- if $imageConfig.existingPullSecret }}
+{{- $noop := printf "{ name: %s }" $imageConfig.existingPullSecret | append $result.secrets | set $result "secrets" -}}
+{{- else if $imageConfig.pullSecret }}
 {{- $noop := printf "{ name: %s }" (printf "%s-%s-pull-secret" (include "mgnl.name" $) (. | lower)) | append $result.secrets | set $result "secrets" -}}
 {{- end -}}
 {{- end -}}

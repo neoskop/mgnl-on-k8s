@@ -1,5 +1,11 @@
 magnoliaLightModuleUpdater:
   privateKey: "" # Pass this base64 encoded
+  # 1Password integration for light module updater private key
+  # Item must have field: "private-key" (base64 encoded)
+  onePassword:
+    enabled: false
+    vault: ""
+    item: ""
   repoUrl: ""
   tag: false # change this to true to checkout a tag from the coresponding config map or to a specific version to hardcode that
   branch: "master"
@@ -9,6 +15,7 @@ magnoliaLightModuleUpdater:
     tag: 1.2.0
     pullPolicy: Always
     pullSecret: {}
+    existingPullSecret: "" # Name of existing pull secret in namespace
   resources:
     requests:
       memory: 50M
@@ -35,6 +42,7 @@ magnoliaRuntime:
     tag: 1.2.0
     pullPolicy: IfNotPresent
     pullSecret: {}
+    existingPullSecret: "" # Name of existing pull secret in namespace
   resources:
     requests:
       memory: 2560M
@@ -47,6 +55,7 @@ magnoliaWebapp:
     tag: 6.4.1
     pullPolicy: IfNotPresent
     pullSecret: {}
+    existingPullSecret: "" # Name of existing pull secret in namespace
   resources:
     requests:
       memory: 100Mi
@@ -58,6 +67,7 @@ tmpInit:
     tag: 1.37.0
     pullPolicy: IfNotPresent
     pullSecret: {}
+    existingPullSecret: "" # Name of existing pull secret in namespace
   resources:
     requests:
       memory: 20Mi
@@ -123,10 +133,17 @@ magnoliaTmp:
 magnolia:
   # Shared custom environment variables (merged with instance-specific)
   customEnv: {}
+  # 1Password integration for secrets injected as environment variables
+  # Item fields are mapped directly to env var names (e.g., field "MY_SECRET" becomes env var MY_SECRET)
+  onePassword:
+    enabled: false
+    vault: ""
+    item: ""
   # Shared microprofile configuration (merged with instance-specific)
   microprofileConfig: {}
   # Shared datasource defaults
   datasource:
+    host: "" # If empty the created MySQL service is used
     port: 3306
   # Shared ingress defaults (merged with instance-specific)
   ingress:
