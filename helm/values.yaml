@@ -91,6 +91,11 @@ mysqlInit:
 mysql:
   enabled: true
   rootPassword: ""
+  # 1Password integration for MySQL root password
+  onePassword:
+    enabled: false
+    vault: ""
+    item: ""
   image:
     repository: mysql
     tag: 9.2.0
@@ -113,9 +118,36 @@ magnoliaTmp:
     resources:
       requests:
         storage: 1Gi
+# Shared Magnolia configuration - values here apply to both author and public instances
+# Instance-specific values in magnoliaAuthor/magnoliaPublic override these
+magnolia:
+  # Shared custom environment variables (merged with instance-specific)
+  customEnv: {}
+  # Shared microprofile configuration (merged with instance-specific)
+  microprofileConfig: {}
+  # Shared datasource defaults
+  datasource:
+    port: 3306
+  # Shared ingress defaults (merged with instance-specific)
+  ingress:
+    annotations: {}
+    labels: {}
+  # Shared asset ingress defaults (merged with instance-specific)
+  assetIngress:
+    annotations: {}
+  # Shared node scheduling (used if instance-specific is empty)
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 magnoliaActivation:
   privateKey: ""
   publicKey: ""
+  # 1Password integration for activation keypair
+  # Item must have fields: "key.private" and "key.public"
+  onePassword:
+    enabled: false
+    vault: ""
+    item: ""
 magnoliaPublic:
   replicaCount: 1
   configName: livePublic
@@ -128,6 +160,11 @@ magnoliaPublic:
     password: ""
     database: "" # If empty the value is derived automatically
     name: MagnoliaPublic
+    # 1Password integration for datasource password
+    onePassword:
+      enabled: false
+      vault: ""
+      item: ""
   assetIngress:
     enabled: false
     hostname: magnolia-public-assets.local
@@ -174,6 +211,11 @@ magnoliaAuthor:
     password: ""
     database: "" # If empty the value is derived automatically
     name: MagnoliaAuthor
+    # 1Password integration for datasource password
+    onePassword:
+      enabled: false
+      vault: ""
+      item: ""
   assetIngress:
     enabled: false
     hostname: magnolia-author-assets.local

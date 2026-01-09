@@ -18,7 +18,11 @@ spec:
   template:
     metadata:
       annotations:
+        {{- if .Values.magnoliaAuthor.datasource.onePassword.enabled }}
+        app.kubernetes.io/datasource-checksum: {{ tpl (.Files.Get "datasource-author-1password.json") . | sha256sum }}
+        {{- else }}
         app.kubernetes.io/datasource-checksum: {{ tpl (.Files.Get "datasource-author.json") . | sha256sum }}
+        {{- end }}
       labels:
         app.kubernetes.io/name: magnolia-author
         app.kubernetes.io/instance: {{ .Release.Name }}
@@ -108,11 +112,17 @@ spec:
               value: "Europe/Berlin"
             - name: JDK_JAVA_OPTIONS
               value: "-Dmagnolia.license.location=/home/tomcat/license.key -Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
-{{- with .Values.magnoliaAuthor.customEnv }}
-{{- range $key, $value := . }}
+            {{- if .Values.magnoliaAuthor.datasource.onePassword.enabled }}
+            - name: MGNL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mgnl.author.name" . }}-datasource-password
+                  key: password
+            {{- end }}
+{{- $mergedCustomEnv := include "mgnl.author.customEnv" . | fromYaml }}
+{{- range $key, $value := $mergedCustomEnv }}
             - name: {{ $key }}
               value: {{ $value | quote }}
-{{- end }}
 {{- end }}
           ports:
             - name: http
@@ -138,7 +148,8 @@ spec:
               subPath: license.key
               readOnly: true
             {{- end }}
-            {{- if .Values.magnoliaAuthor.microprofileConfig }}
+            {{- $mergedMicroprofileConfig := include "mgnl.author.microprofileConfig" . | fromYaml }}
+            {{- if $mergedMicroprofileConfig }}
             - name: microprofile-config
               mountPath: /home/tomcat/config
               readOnly: true
@@ -190,7 +201,8 @@ spec:
           secret:
             secretName: {{ include "mgnl.name" . }}-license
         {{- end }}
-        {{- if .Values.magnoliaAuthor.microprofileConfig }}
+        {{- $mergedMicroprofileConfigVol := include "mgnl.author.microprofileConfig" . | fromYaml }}
+        {{- if $mergedMicroprofileConfigVol }}
         - name: microprofile-config
           configMap:
             name: {{ include "mgnl.author.name" . }}-microprofile-config
@@ -198,18 +210,21 @@ spec:
         - name: activation-keypair
           secret:
             secretName: {{ include "mgnl.name" . }}-activation-keypair
-      {{- with .Values.magnoliaAuthor.nodeSelector }}
+      {{- $nodeSelector := include "mgnl.author.nodeSelector" . | fromYaml }}
+      {{- if $nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml $nodeSelector | nindent 8 }}
       {{- end }}
-    {{- with .Values.magnoliaAuthor.affinity }}
+      {{- $affinity := include "mgnl.author.affinity" . | fromYaml }}
+      {{- if $affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
-    {{- with .Values.magnoliaAuthor.tolerations }}
+        {{- toYaml $affinity | nindent 8 }}
+      {{- end }}
+      {{- $tolerations := include "mgnl.author.tolerations" . | fromYaml }}
+      {{- if $tolerations }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+        {{- toYaml $tolerations | nindent 8 }}
+      {{- end }}
   volumeClaimTemplates:
     {{- if .Values.jackrabbit.fileDatastore.enabled }}
     - metadata:

@@ -10,12 +10,16 @@ kind: Ingress
 metadata:
   name: {{ include "mgnl.author.name" . }}
   labels:
-    {{- with .Values.magnoliaAuthor.ingress.labels }}
-      {{- toYaml . | nindent 4 }}
+    {{- $mergedLabels := include "mgnl.author.ingress.labels" . | fromYaml }}
+    {{- if $mergedLabels }}
+      {{- toYaml $mergedLabels | nindent 4 }}
     {{- end }}
     {{- include "mgnl.labels" . | nindent 4 }}
+  {{- $mergedAnnotations := include "mgnl.author.ingress.annotations" . | fromYaml }}
+  {{- if $mergedAnnotations }}
   annotations:
-    {{- toYaml .Values.magnoliaAuthor.ingress.annotations | nindent 4 }}
+    {{- toYaml $mergedAnnotations | nindent 4 }}
+  {{- end }}
 spec:
   tls:
     - hosts:

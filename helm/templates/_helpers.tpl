@@ -149,3 +149,189 @@ Create the name of the service account to use
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+=============================================================================
+Merge helpers for shared magnolia configuration
+=============================================================================
+*/}}
+
+{{/*
+Get effective customEnv for author (merged shared + instance-specific)
+Instance-specific values override shared values
+*/}}
+{{- define "mgnl.author.customEnv" -}}
+{{- $shared := .Values.magnolia.customEnv | default dict -}}
+{{- $instance := .Values.magnoliaAuthor.customEnv | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective customEnv for public (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.public.customEnv" -}}
+{{- $shared := .Values.magnolia.customEnv | default dict -}}
+{{- $instance := .Values.magnoliaPublic.customEnv | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective microprofileConfig for author (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.author.microprofileConfig" -}}
+{{- $shared := .Values.magnolia.microprofileConfig | default dict -}}
+{{- $instance := .Values.magnoliaAuthor.microprofileConfig | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective microprofileConfig for public (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.public.microprofileConfig" -}}
+{{- $shared := .Values.magnolia.microprofileConfig | default dict -}}
+{{- $instance := .Values.magnoliaPublic.microprofileConfig | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective ingress annotations for author (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.author.ingress.annotations" -}}
+{{- $shared := .Values.magnolia.ingress.annotations | default dict -}}
+{{- $instance := .Values.magnoliaAuthor.ingress.annotations | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective ingress annotations for public (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.public.ingress.annotations" -}}
+{{- $shared := .Values.magnolia.ingress.annotations | default dict -}}
+{{- $instance := .Values.magnoliaPublic.ingress.annotations | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective ingress labels for author (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.author.ingress.labels" -}}
+{{- $shared := .Values.magnolia.ingress.labels | default dict -}}
+{{- $instance := .Values.magnoliaAuthor.ingress.labels | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective ingress labels for public (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.public.ingress.labels" -}}
+{{- $shared := .Values.magnolia.ingress.labels | default dict -}}
+{{- $instance := .Values.magnoliaPublic.ingress.labels | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective assetIngress annotations for author (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.author.assetIngress.annotations" -}}
+{{- $shared := .Values.magnolia.assetIngress.annotations | default dict -}}
+{{- $instance := .Values.magnoliaAuthor.assetIngress.annotations | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective assetIngress annotations for public (merged shared + instance-specific)
+*/}}
+{{- define "mgnl.public.assetIngress.annotations" -}}
+{{- $shared := .Values.magnolia.assetIngress.annotations | default dict -}}
+{{- $instance := .Values.magnoliaPublic.assetIngress.annotations | default dict -}}
+{{- merge $instance $shared | toYaml -}}
+{{- end -}}
+
+{{/*
+Get effective nodeSelector for author
+Returns instance-specific if non-empty, otherwise shared
+*/}}
+{{- define "mgnl.author.nodeSelector" -}}
+{{- if .Values.magnoliaAuthor.nodeSelector -}}
+{{- toYaml .Values.magnoliaAuthor.nodeSelector -}}
+{{- else -}}
+{{- toYaml (.Values.magnolia.nodeSelector | default dict) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get effective nodeSelector for public
+*/}}
+{{- define "mgnl.public.nodeSelector" -}}
+{{- if .Values.magnoliaPublic.nodeSelector -}}
+{{- toYaml .Values.magnoliaPublic.nodeSelector -}}
+{{- else -}}
+{{- toYaml (.Values.magnolia.nodeSelector | default dict) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get effective tolerations for author
+*/}}
+{{- define "mgnl.author.tolerations" -}}
+{{- if .Values.magnoliaAuthor.tolerations -}}
+{{- toYaml .Values.magnoliaAuthor.tolerations -}}
+{{- else -}}
+{{- toYaml (.Values.magnolia.tolerations | default list) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get effective tolerations for public
+*/}}
+{{- define "mgnl.public.tolerations" -}}
+{{- if .Values.magnoliaPublic.tolerations -}}
+{{- toYaml .Values.magnoliaPublic.tolerations -}}
+{{- else -}}
+{{- toYaml (.Values.magnolia.tolerations | default list) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get effective affinity for author
+*/}}
+{{- define "mgnl.author.affinity" -}}
+{{- if .Values.magnoliaAuthor.affinity -}}
+{{- toYaml .Values.magnoliaAuthor.affinity -}}
+{{- else -}}
+{{- toYaml (.Values.magnolia.affinity | default dict) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get effective affinity for public
+*/}}
+{{- define "mgnl.public.affinity" -}}
+{{- if .Values.magnoliaPublic.affinity -}}
+{{- toYaml .Values.magnoliaPublic.affinity -}}
+{{- else -}}
+{{- toYaml (.Values.magnolia.affinity | default dict) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get effective datasource port for author
+*/}}
+{{- define "mgnl.author.datasource.port" -}}
+{{- if .Values.magnoliaAuthor.datasource.port -}}
+{{- .Values.magnoliaAuthor.datasource.port -}}
+{{- else -}}
+{{- .Values.magnolia.datasource.port | default 3306 -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get effective datasource port for public
+*/}}
+{{- define "mgnl.public.datasource.port" -}}
+{{- if .Values.magnoliaPublic.datasource.port -}}
+{{- .Values.magnoliaPublic.datasource.port -}}
+{{- else -}}
+{{- .Values.magnolia.datasource.port | default 3306 -}}
+{{- end -}}
+{{- end -}}

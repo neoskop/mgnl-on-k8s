@@ -1,4 +1,5 @@
-{{- if .Values.magnoliaAuthor.microprofileConfig -}}
+{{- $mergedConfig := include "mgnl.author.microprofileConfig" . | fromYaml -}}
+{{- if $mergedConfig -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,5 +8,5 @@ metadata:
     {{- include "mgnl.labels" . | nindent 4 }}
 data:
   microprofile-config.yaml: |
-    {{- toYaml .Values.magnoliaAuthor.microprofileConfig | nindent 4 }}
+    {{- toYaml $mergedConfig | nindent 4 }}
 {{- end -}}
