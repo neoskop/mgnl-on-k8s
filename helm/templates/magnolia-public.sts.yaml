@@ -225,10 +225,10 @@ spec:
       affinity:
         {{- toYaml $affinity | nindent 8 }}
       {{- end }}
-      {{- $tolerations := include "mgnl.public.tolerations" . | fromYaml }}
-      {{- if $tolerations }}
+      {{- $tolerations := include "mgnl.public.tolerations" . }}
+      {{- if and $tolerations (ne $tolerations "[]") (ne $tolerations "null") }}
       tolerations:
-        {{- toYaml $tolerations | nindent 8 }}
+        {{- $tolerations | nindent 8 }}
       {{- end }}
   volumeClaimTemplates:
     {{- if .Values.jackrabbit.fileDatastore.enabled }}
