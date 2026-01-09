@@ -113,7 +113,7 @@ spec:
             - name: JDK_JAVA_OPTIONS
               value: "-Dmagnolia.license.location=/home/tomcat/license.key -Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
             {{- if .Values.magnoliaPublic.datasource.onePassword.enabled }}
-            - name: MGNL_DB_PASSWORD
+            - name: MGNL_PUBLIC_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mgnl.public.name" . }}-datasource-password

@@ -9,15 +9,22 @@ import de.neoskop.model.Datasource;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 class DatasourceParserService {
+    private static final Pattern ENV_VAR_PATTERN = Pattern.compile("\\$\\{([A-Za-z_][A-Za-z0-9_]*)\\}");
+
     public static List<Datasource> getDatasources() {
-        final String json = System.getenv("DATASOURCES");
+        String json = System.getenv("DATASOURCES");
 
         if (json == null || json.equals("")) {
             return null;
         }
+
+        // Perform environment variable substitution (replace ${VAR} with env value)
+        json = substituteEnvVars(json);
 
         final JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
         final JsonArray datasources = jsonObject.get("datasources").getAsJsonArray();
@@ -65,5 +72,32 @@ class DatasourceParserService {
         }
 
         return defaultValue;
+    }
+
+    /**
+     * Substitutes environment variable references in the input string.
+     * Replaces ${VAR_NAME} patterns with the corresponding environment variable value.
+     * If an environment variable is not set, the placeholder is replaced with an empty string.
+     *
+     * @param input the string containing ${VAR} placeholders
+     * @return the string with placeholders replaced by environment variable values
+     */
+    private static String substituteEnvVars(String input) {
+        if (input == null) {
+            return null;
+        }
+
+        Matcher matcher = ENV_VAR_PATTERN.matcher(input);
+        StringBuilder result = new StringBuilder();
+
+        while (matcher.find()) {
+            String varName = matcher.group(1);
+            String envValue = System.getenv(varName);
+            // Replace with env value, or empty string if not set
+            matcher.appendReplacement(result, Matcher.quoteReplacement(envValue != null ? envValue : ""));
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
     }
 }
