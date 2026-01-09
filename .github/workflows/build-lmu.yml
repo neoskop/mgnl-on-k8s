@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     if: failure()
     steps:
-      - uses: slackapi/slack-github-action@v1
+      - uses: slackapi/slack-github-action@v2
         with:
           payload: '{"text": "*[mgnl-on-k8s]:* Bauen des LMU-Images ist fehlgeschlagen"}'
         env:
