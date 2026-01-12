@@ -19,6 +19,9 @@ metadata:
   {{- if $mergedAnnotations }}
   annotations:
     {{- toYaml $mergedAnnotations | nindent 4 }}
+    {{- if .Values.ipWhitelist }}
+    nginx.ingress.kubernetes.io/whitelist-source-range: "{{ join "," .Values.ipWhitelist }}"
+    {{- end }}
   {{- end }}
 spec:
   tls:
