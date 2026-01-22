@@ -108,7 +108,7 @@ mysql:
     item: ""
   image:
     repository: mysql
-    tag: 9.2.0
+    tag: 9.6.0
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
