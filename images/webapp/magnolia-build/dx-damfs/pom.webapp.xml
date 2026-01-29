@@ -35,6 +35,10 @@
       <artifactId>neoskop-magnolia-backup</artifactId>
       <version>${neoskop-magnolia-backup.version}</version>
     </dependency>
+    <dependency>
+      <groupId>info.magnolia</groupId>
+      <artifactId>magnolia-module-observation</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
