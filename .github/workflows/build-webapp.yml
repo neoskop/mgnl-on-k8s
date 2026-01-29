@@ -11,7 +11,7 @@ on:
 env:
   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
   NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-  MIN_VERSION: 6.4.0
+  MIN_VERSION: 6.4.2
   DOCKER_ORG: neoskop
   IMAGE_PREFIX: mgnl-webapp
   MAVEN_OPTS: -Xmx2g
