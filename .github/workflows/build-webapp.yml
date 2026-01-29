@@ -111,13 +111,13 @@ jobs:
         id: check-image
         run: |
           tag="docker.io/${DOCKER_ORG}/${IMAGE_PREFIX}-${{ matrix.flavor }}:${{ matrix.version }}"
-          # if docker manifest inspect "$tag" > /dev/null 2>&1; then
-          #   echo "exists=true" >> $GITHUB_OUTPUT
-          #   echo "Image already exists: $tag"
-          # else
+          if docker manifest inspect "$tag" > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Image already exists: $tag"
+          else
             echo "exists=false" >> $GITHUB_OUTPUT
             echo "Image missing: $tag will be built."
-          # fi
+          fi
 
       - name: Install build dependencies
         if: github.event_name != 'schedule' || steps.check-image.outputs.exists == 'false'
