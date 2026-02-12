@@ -1,27 +1,37 @@
-FROM ubuntu:24.04
+FROM node:22-alpine AS builder
+
+RUN corepack enable pnpm
+
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile --prod
+
+FROM node:22-alpine
+
+ARG GIT_HOSTS="bitbucket.org github.com"
+
+RUN apk add --no-cache git openssh-client && \
+    mkdir -p /home/node/repo /home/tomcat/light-modules && \
+    chown node /home/node/repo /home/tomcat/light-modules
+
+USER node
+WORKDIR /home/node
+
+RUN mkdir -p ~/.ssh && \
+    for host in $GIT_HOSTS; do \
+      ssh-keyscan "$host" >> ~/.ssh/known_hosts 2>/dev/null; \
+    done
+
 ENV GIT_BRANCH=master \
     CHECKOUT_TAG=false \
     POLL_INTERVAL=5 \
-    REPO_DIR=/home/ubuntu/repo \
-    TARGET_DIR="/home/tomcat/light-modules"
-RUN apt-get update -qq && \
-    apt-get install -qq -y software-properties-common && \
-    add-apt-repository -y ppa:git-core/ppa && \
-    apt-get update -qq && \
-    apt-get install -qq -y git openssh-client rsync && \
-    id "1000" ||useradd -m --uid 1000 ubuntu && \
-    mkdir -p "$TARGET_DIR" && \
-    chown ubuntu "$TARGET_DIR" && \
-    mkdir -p "$REPO_DIR" && \
-    chown ubuntu "$REPO_DIR" && \
-    rm -rf /var/lib/apt/lists/*
-USER ubuntu
-WORKDIR /home/ubuntu
-ARG GIT_HOSTS="bitbucket.org github.com"
-RUN mkdir -p ~/.ssh && \
-    for host in $GIT_HOSTS ; do \
-    ssh-keyscan "$host" >> ~/.ssh/known_hosts ; \
-    done
-COPY docker-entrypoint.sh /
-VOLUME ["$TARGET_DIR", "/home/ubuntu/repo"]
-CMD ["/docker-entrypoint.sh"]
+    REPO_DIR=/home/node/repo \
+    TARGET_DIR=/home/tomcat/light-modules \
+    NODE_ENV=production
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --chown=node:node src ./src
+COPY --chown=node:node package.json ./
+
+CMD ["node", "src/index.js"]

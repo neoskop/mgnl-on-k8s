@@ -1,0 +1,18 @@
+services:
+  light-module-updater:
+    build: .
+    environment:
+      GIT_REPO_URL: git@github.com:neoskop/example.git
+      SOURCE_DIR: backend/magnolia/light-modules
+      GIT_BRANCH: develop
+      POLL_INTERVAL: 5
+    volumes:
+      - ~/.ssh/id_rsa:/home/node/.ssh/id_rsa:ro
+      - light-modules:/home/tomcat/light-modules
+      - repo:/home/node/repo
+    ports:
+      - "8081:8081"
+
+volumes:
+  light-modules:
+  repo:

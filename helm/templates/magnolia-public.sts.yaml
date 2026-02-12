@@ -44,6 +44,20 @@ spec:
             - name: magnolia-datastore
               mountPath: /home/tomcat/magnolia_datastore
         {{- end }}
+        - name: light-modules-init
+          image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
+          imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000 /home/tomcat/light-modules",
+            ]
+          resources:
+            {{- toYaml .Values.tmpInit.resources | nindent 12 }}
+          volumeMounts:
+            - name: light-modules
+              mountPath: /home/tomcat/light-modules
         - name: tmp-init
           image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
           imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
@@ -164,11 +178,29 @@ spec:
           imagePullPolicy: {{ .Values.magnoliaLightModuleUpdater.image.pullPolicy }}
           resources:
             {{- toYaml .Values.magnoliaLightModuleUpdater.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            periodSeconds: 10
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8081
+            periodSeconds: 5
+            failureThreshold: 60
           volumeMounts:
             - name: light-modules
               mountPath: /home/tomcat/light-modules
             - name: light-module-updater-config
               mountPath: /home/docker/config
+            {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
+            - name: ssh-key
+              mountPath: /home/node/.ssh/id_rsa
+              subPath: id_rsa
+              readOnly: true
+            {{- end }}
           env:
             - name: SOURCE_DIR
               value: {{ .Values.magnoliaLightModuleUpdater.sourceDir }}
@@ -178,13 +210,6 @@ spec:
               value: "{{- if typeIs "string" .Values.magnoliaLightModuleUpdater.tag }}true{{ else }}{{ .Values.magnoliaLightModuleUpdater.tag }}{{ end }}"
             - name: GIT_REPO_URL
               value: {{ .Values.magnoliaLightModuleUpdater.repoUrl }}
-            {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
-            - name: GIT_PRIVATE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "mgnl.name" . }}-light-module-updater
-                  key: private-key
-            {{- end }}
       imagePullSecrets: {{ include "mgnl.magnolia.pullSecrets" . }}
       volumes:
         {{- if .Values.jackrabbit.fileDatastore.enabled }}
@@ -194,7 +219,6 @@ spec:
         - name: webapps
           emptyDir: {}
         - name: light-modules
-          emptyDir: {}
         - name: activation-keypair
           secret:
             secretName: {{ include "mgnl.name" . }}-activation-keypair
@@ -214,6 +238,15 @@ spec:
         - name: microprofile-config
           configMap:
             name: {{ include "mgnl.public.name" . }}-microprofile-config
+        {{- end }}
+        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
+        - name: ssh-key
+          secret:
+            secretName: {{ include "mgnl.name" . }}-light-module-updater
+            defaultMode: 0400
+            items:
+              - key: private-key
+                path: id_rsa
         {{- end }}
       {{- $nodeSelector := include "mgnl.public.nodeSelector" . | fromYaml }}
       {{- if $nodeSelector }}
@@ -245,4 +278,10 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           {{- toYaml .Values.magnoliaTmp.storage.resources | nindent 10 }}
+    - metadata:
+        name: light-modules
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          {{- toYaml .Values.magnoliaLightModuleUpdater.storage.resources | nindent 10 }}
 

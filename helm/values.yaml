@@ -22,6 +22,10 @@ magnoliaLightModuleUpdater:
       cpu: 0.1
     limits:
       memory: 250M
+  storage:
+    resources:
+      requests:
+        storage: 1Gi
 jackrabbit:
   fileDatastore:
     enabled: false
