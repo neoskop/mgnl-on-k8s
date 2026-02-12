@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 RUN corepack enable pnpm
 
@@ -7,7 +7,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile --prod
 
-FROM node:22-alpine
+FROM node:24-alpine
 
 ARG GIT_HOSTS="bitbucket.org github.com"
 
