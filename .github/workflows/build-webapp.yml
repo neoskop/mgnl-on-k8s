@@ -135,19 +135,18 @@ jobs:
         run: |
           set -e
           repo_root="${GITHUB_WORKSPACE}"
-          edition=$(echo "${{ matrix.flavor }}" | cut -c 1-2)
           build_dir=$(mktemp -d)
           cd "$build_dir"
 
-          echo "Building WAR for $edition ${{ matrix.version }}..."
+          echo "Building WAR for ${{ matrix.flavor }} ${{ matrix.version }}..."
 
           # --- Build WAR ---
-          cp $repo_root/images/webapp/magnolia-build/$edition/pom.parent.xml pom.xml
+          cp "$repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/pom.parent.xml" pom.xml
           mkdir -p ./webapp/src/main/webapp
-          cp $repo_root/images/webapp/magnolia-build/$edition/pom.webapp.xml webapp/pom.xml
+          cp "$repo_root/images/webapp/magnolia-build/${{ matrix.flavor }}/pom.webapp.xml" webapp/pom.xml
           cp -r $repo_root/images/webapp/magnolia-build/WEB-INF ./webapp/src/main/webapp/WEB-INF
 
-          if [[ $edition == ce ]]; then
+          if [[ "${{ matrix.flavor }}" == ce* ]]; then
             xmlstarlet ed -L -N p="http://maven.apache.org/POM/4.0.0" \
               -d "//p:dependency[p:artifactId='magnolia-site-app']" webapp/pom.xml
           else
