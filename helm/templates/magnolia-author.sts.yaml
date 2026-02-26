@@ -80,6 +80,25 @@ spec:
           volumeMounts:
             - name: webapps
               mountPath: /usr/local/tomcat/webapps
+        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
+        - name: light-module-updater-ssh-key-init
+          image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
+          imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
+          command:
+            [
+              "sh",
+              "-c",
+              "cp /tmp/ssh-key/id_rsa /tmp/ssh-key-copy/id_rsa && chown 1000:1000 /tmp/ssh-key-copy/id_rsa && chmod 600 /tmp/ssh-key-copy/id_rsa",
+            ]
+          resources:
+            {{- toYaml .Values.tmpInit.resources | nindent 12 }}
+          volumeMounts:
+            - name: ssh-key
+              mountPath: /tmp/ssh-key
+              readOnly: true
+            - name: ssh-key-copy
+              mountPath: /tmp/ssh-key-copy
+        {{- end }}
       containers:
         - name: magnolia
           image: "{{ .Values.magnoliaRuntime.image.repository }}:{{ .Values.magnoliaRuntime.image.tag }}"
@@ -196,7 +215,7 @@ spec:
             - name: light-module-updater-config
               mountPath: /home/docker/config
             {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
-            - name: ssh-key
+            - name: ssh-key-copy
               mountPath: /home/node/.ssh/id_rsa
               subPath: id_rsa
               readOnly: true
@@ -225,6 +244,10 @@ spec:
             items:
               - key: tag
                 path: tag
+        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
+        - name: ssh-key-copy
+          emptyDir: {}
+        {{- end }}
         {{- if .Values.license.enabled }}
         - name: license
           secret:
@@ -284,4 +307,3 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           {{- toYaml .Values.magnoliaLightModuleUpdater.storage.resources | nindent 10 }}
-
