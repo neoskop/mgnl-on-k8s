@@ -15,8 +15,9 @@ export async function withRetry(operation, options = {}) {
     const result = await pRetry(operation, {
       retries: maxRetries,
       onFailedAttempt: (error) => {
+        const detail = error.message || error.git?.message || String(error);
         logger.warn(
-          `${operationName} attempt ${error.attemptNumber}/${maxRetries + 1} failed: ${error.message}`
+          `${operationName} attempt ${error.attemptNumber}/${maxRetries + 1} failed: ${detail}`
         );
       },
     });
@@ -37,8 +38,9 @@ export async function retryForever(operation, options = {}) {
       const result = await pRetry(operation, {
         retries: 5,
         onFailedAttempt: (error) => {
+          const detail = error.message || error.git?.message || String(error);
           logger.warn(
-            `${operationName} attempt ${error.attemptNumber}/6 failed: ${error.message}`
+            `${operationName} attempt ${error.attemptNumber}/6 failed: ${detail}`
           );
         },
       });
