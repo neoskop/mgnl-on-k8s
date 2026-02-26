@@ -15,7 +15,12 @@ export async function withRetry(operation, options = {}) {
     const result = await pRetry(operation, {
       retries: maxRetries,
       onFailedAttempt: (error) => {
-        const detail = error.message || error.git?.message || String(error);
+        const detail =
+          typeof error === 'object' && error !== null
+            ? JSON.stringify(error, null, 2)
+            : typeof error.message === 'object' && error.message !== null
+            ? JSON.stringify(error.message, null, 2)
+            : String(error) || String(error?.message);
         logger.warn(
           `${operationName} attempt ${error.attemptNumber}/${maxRetries + 1} failed: ${detail}`
         );

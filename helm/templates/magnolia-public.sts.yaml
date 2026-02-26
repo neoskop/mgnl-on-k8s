@@ -88,7 +88,7 @@ spec:
             [
               "sh",
               "-c",
-              "cp /tmp/ssh-key/id_rsa /tmp/ssh-key-copy/id_rsa && chown 1000:1000 /tmp/ssh-key-copy/id_rsa && chmod 600 /tmp/ssh-key-copy/id_rsa",
+              "cat /tmp/ssh-key/id_rsa > /tmp/ssh-key-copy/id_rsa && echo >> /tmp/ssh-key-copy/id_rsa && chown 1000:1000 /tmp/ssh-key-copy/id_rsa && chmod 600 /tmp/ssh-key-copy/id_rsa",
             ]
           resources:
             {{- toYaml .Values.tmpInit.resources | nindent 12 }}
