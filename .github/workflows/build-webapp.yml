@@ -68,7 +68,7 @@ jobs:
     strategy:
       matrix:
         version: ${{ fromJSON(needs.get-versions.outputs.versions) }}
-        flavor: [dx-damfs, ce-damfs, dx, ce]
+        flavor: [dx, ce]
       fail-fast: false
 
     steps:
@@ -151,11 +151,6 @@ jobs:
               -d "//p:dependency[p:artifactId='magnolia-site-app']" webapp/pom.xml
           else
             sed -i s/MagnoliaWidgetSet/MagnoliaProWidgetSet/ ./webapp/src/main/webapp/WEB-INF/config/default/magnolia.properties
-          fi
-
-          if [[ "${{ matrix.flavor }}" == *-damfs ]]; then
-            find ./webapp/src/main/webapp/WEB-INF -name magnolia.properties \
-              -exec sed -i 's|author.xml|author-damfs.xml|g; s|public.xml|public-damfs.xml|g' {} \;
           fi
 
           RETRIES=3

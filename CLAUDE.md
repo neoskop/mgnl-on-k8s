@@ -29,7 +29,7 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 
 **Magnolia Webapp Images** (builds WAR from Magnolia Nexus):
 ```bash
-cd images/webapp/magnolia-build/ce  # or ce-damfs, dx, dx-damfs
+cd images/webapp/magnolia-build/ce  # or dx
 mvn -DmagnoliaBundleVersion=6.4.0 package
 docker buildx build --build-arg VERSION=6.4.0 -t neoskop/mgnl-webapp-ce:6.4.0 --push .
 ```
@@ -86,7 +86,7 @@ External Git Repo (Light Modules)
    - Exposes port 8080 (HTTP) and 5005 (debug)
 
 3. **magnolia-webapp** (`images/webapp/magnolia-build/`)
-   - Four variants: ce, ce-damfs, dx, dx-damfs
+   - Four variants: ce, dx
    - Dynamically builds WAR files from Magnolia Nexus (min version 6.4.0)
 
 ### Helm Chart (`helm/`)
