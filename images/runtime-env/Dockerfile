@@ -1,9 +1,9 @@
-FROM maven:3.9.12-eclipse-temurin-17 as java-entrypoint
+FROM maven:3.9.12-eclipse-temurin-25-alpine as java-entrypoint
 WORKDIR /root
 COPY entrypoint ./
 RUN mvn -T 1C package
 
-FROM tomcat:11.0.18-jdk17-temurin-jammy
+FROM tomcat:11.0.18-jdk25-temurin-noble
 LABEL maintainer="Neoskop DevOps <devops@neoskop.de>"
 
 # Setup custom entrypoint
