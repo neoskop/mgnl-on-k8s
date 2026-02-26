@@ -36,7 +36,7 @@ spec:
             [
               "sh",
               "-c",
-              "chown -R 1000 /home/tomcat/magnolia_datastore",
+              "chown -R 1001:1001 /home/tomcat/magnolia_datastore",
             ]
           resources:
             {{- toYaml .Values.datastoreInit.resources | nindent 12 }}
@@ -51,7 +51,7 @@ spec:
             [
               "sh",
               "-c",
-              "mkdir -p /home/tomcat/light-modules/modules && chown -R 1000 /home/tomcat/light-modules/modules",
+              "mkdir -p /home/tomcat/light-modules/modules && chown -R 1001:1001 /home/tomcat/light-modules/modules",
             ]
           resources:
             {{- toYaml .Values.tmpInit.resources | nindent 12 }}
@@ -65,7 +65,7 @@ spec:
             [
               "sh",
               "-c",
-              "mkdir -p /home/tomcat/magnolia_tmp ; chown -R 1000 /home/tomcat/magnolia_tmp",
+              "mkdir -p /home/tomcat/magnolia_tmp/runtime && chmod 0777 /home/tomcat/magnolia_tmp/runtime",
             ]
           resources:
             {{- toYaml .Values.tmpInit.resources | nindent 12 }}
@@ -88,7 +88,7 @@ spec:
             [
               "sh",
               "-c",
-              "cat /tmp/ssh-key/id_rsa > /tmp/ssh-key-copy/id_rsa && echo >> /tmp/ssh-key-copy/id_rsa && chown 1000:1000 /tmp/ssh-key-copy/id_rsa && chmod 600 /tmp/ssh-key-copy/id_rsa",
+              "cat /tmp/ssh-key/id_rsa > /tmp/ssh-key-copy/id_rsa && echo >> /tmp/ssh-key-copy/id_rsa && chown 1001:1001 /tmp/ssh-key-copy/id_rsa && chmod 600 /tmp/ssh-key-copy/id_rsa",
             ]
           resources:
             {{- toYaml .Values.tmpInit.resources | nindent 12 }}
@@ -172,6 +172,7 @@ spec:
             {{- end }}
             - name: magnolia-tmp
               mountPath: /home/tomcat/magnolia_tmp
+              subPath: runtime
             - name: webapps
               mountPath: /usr/local/tomcat/webapps
             - name: light-modules
