@@ -51,7 +51,7 @@ spec:
             [
               "sh",
               "-c",
-              "chown -R 1000 /home/tomcat/light-modules",
+              "mkdir -p /home/tomcat/light-modules/modules && chown -R 1000 /home/tomcat/light-modules/modules",
             ]
           resources:
             {{- toYaml .Values.tmpInit.resources | nindent 12 }}
@@ -176,6 +176,7 @@ spec:
               mountPath: /usr/local/tomcat/webapps
             - name: light-modules
               mountPath: /home/tomcat/light-modules
+              subPath: modules
             - name: activation-keypair
               mountPath: /home/tomcat/magnolia-activation-keypair.properties
               subPath: magnolia-activation-keypair.properties
@@ -212,6 +213,7 @@ spec:
           volumeMounts:
             - name: light-modules
               mountPath: /home/tomcat/light-modules
+              subPath: modules
             - name: light-module-updater-config
               mountPath: /home/docker/config
             {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
