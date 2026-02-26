@@ -6,6 +6,19 @@ RUN mvn -T 1C package
 FROM tomcat:11.0.18-jdk25-temurin-noble
 LABEL maintainer="Neoskop DevOps <devops@neoskop.de>"
 
+# Ensure probe dependencies exist across Debian/Ubuntu and Alpine-based variants.
+RUN set -eux; \
+    if command -v apt-get >/dev/null 2>&1; then \
+      apt-get update; \
+      apt-get install -y --no-install-recommends curl; \
+      rm -rf /var/lib/apt/lists/*; \
+    elif command -v apk >/dev/null 2>&1; then \
+      apk add --no-cache curl; \
+    else \
+      echo "No supported package manager found to install curl" >&2; \
+      exit 1; \
+    fi
+
 # Setup custom entrypoint
 COPY --from=java-entrypoint /root/target/docker-entrypoint.jar /usr/local/bin
 

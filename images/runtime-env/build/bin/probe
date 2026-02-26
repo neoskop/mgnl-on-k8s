@@ -1,11 +1,20 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-WEB_XML_BACKUP_PATH=$HOME/web.xml.unchanged
+WEB_XML_BACKUP_PATH="${HOME}/web.xml.unchanged"
+PROBE_URL="${PROBE_URL:-http://localhost:8080/.resources/defaultMagnoliaLoginForm/login.css}"
+PROBE_TIMEOUT_SECONDS="${PROBE_TIMEOUT_SECONDS:-5}"
 
-if [ -f $WEB_XML_BACKUP_PATH ]; then
+if [ -f "$WEB_XML_BACKUP_PATH" ]; then
   echo "Rescue app is active"!
   exit 0
+fi
+
+if command -v curl >/dev/null 2>&1; then
+  curl -m "$PROBE_TIMEOUT_SECONDS" -sf "$PROBE_URL" >/dev/null
+elif command -v wget >/dev/null 2>&1; then
+  wget -T "$PROBE_TIMEOUT_SECONDS" -q -O /dev/null "$PROBE_URL"
 else
-  curl -m 5 -sf http://localhost:8080/.resources/defaultMagnoliaLoginForm/login.css
+  echo "No supported HTTP client found for probe (need curl or wget)." >&2
+  exit 1
 fi
