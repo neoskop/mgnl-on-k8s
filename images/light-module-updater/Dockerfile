@@ -12,6 +12,8 @@ FROM node:24-alpine
 ARG GIT_HOSTS="bitbucket.org github.com"
 
 RUN apk add --no-cache git openssh-client && \
+    addgroup -g 1001 -S mgnl && \
+    adduser -u 1001 -S -D -h /home/node -G mgnl mgnl && \
     mkdir -p /home/node/repo /home/node/.ssh /home/tomcat/light-modules && \
     for host in $GIT_HOSTS; do \
       ssh-keyscan "$host" >> /home/node/.ssh/known_hosts 2>/dev/null; \
@@ -34,6 +36,6 @@ COPY --from=builder --chown=1001:1001 /app/node_modules ./node_modules
 COPY --chown=1001:1001 src ./src
 COPY --chown=1001:1001 package.json ./
 
-USER 1001:1001
+USER mgnl
 
 CMD ["node", "src/index.js"]

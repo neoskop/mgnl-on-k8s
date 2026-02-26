@@ -197,6 +197,10 @@ spec:
         - name: light-module-updater
           image: "{{ .Values.magnoliaLightModuleUpdater.image.repository }}:{{ .Values.magnoliaLightModuleUpdater.image.tag }}"
           imagePullPolicy: {{ .Values.magnoliaLightModuleUpdater.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1001
+            runAsGroup: 1001
+            runAsNonRoot: true
           resources:
             {{- toYaml .Values.magnoliaLightModuleUpdater.resources | nindent 12 }}
           livenessProbe:
