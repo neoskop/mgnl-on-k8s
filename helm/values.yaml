@@ -18,10 +18,10 @@ magnoliaLightModuleUpdater:
     existingPullSecret: "" # Name of existing pull secret in namespace
   resources:
     requests:
-      memory: 50M
+      memory: 128M
       cpu: 0.1
     limits:
-      memory: 250M
+      memory: 512M
   storage:
     resources:
       requests:
