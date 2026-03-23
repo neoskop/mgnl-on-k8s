@@ -60,4 +60,3 @@ WORKDIR /home/tomcat
 EXPOSE 8080 5005
 
 CMD ["/usr/local/bin/run.sh"]
-VOLUME [ "/home/tomcat/magnolia_tmp", "/home/tomcat/magnolia_datastore" ]
