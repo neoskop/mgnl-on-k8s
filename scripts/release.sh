@@ -64,7 +64,7 @@ git commit -m "chore: Bump version to ${version}."
 git push
 
 helm package helm --destination .deploy
-cr upload -o neoskop -r mgnl-on-k8s -p .deploy
+cr --config ~/.cr.yaml upload -o neoskop -r mgnl-on-k8s -p .deploy
 git checkout gh-pages
 cr index -i ./index.yaml -p .deploy -o neoskop -r mgnl-on-k8s -c https://neoskop.github.io/mgnl-on-k8s/
 git add index.yaml
