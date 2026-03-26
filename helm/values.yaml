@@ -259,6 +259,25 @@ magnoliaAuthor:
       key: ""
     annotations: {}
     labels: {}
+  previewRedirect:
+    enabled: false
+    authorPrefix: author
+    baseDomain: ""
+    permanent: false
+    routes:
+      - pathPrefix: ""
+        targetSubdomain: ""
+    image:
+      repository: nginx
+      tag: 1.27-alpine
+    resources:
+      requests:
+        memory: 16Mi
+        cpu: 10m
+      limits:
+        memory: 32Mi
+    ingress:
+      annotations: {}
   nodeSelector: {}
   tolerations: []
   affinity:
