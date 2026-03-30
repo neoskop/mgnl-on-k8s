@@ -18,6 +18,8 @@ spec:
         app.kubernetes.io/name: magnolia-author-preview-redirect
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: magnolia-author-preview-redirect
+      annotations:
+        checksum/nginx-config: {{ tpl (.Files.Get "author-preview-redirect-nginx.conf") . | sha256sum }}
     spec:
       containers:
         - name: nginx
