@@ -1,0 +1,51 @@
+{{- if and .Values.magnoliaAuthor.ingress.enabled .Values.magnoliaAuthor.previewRedirect.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mgnl.author.previewRedirect.name" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+    app.kubernetes.io/component: magnolia-author-preview-redirect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: magnolia-author-preview-redirect
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: magnolia-author-preview-redirect
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: magnolia-author-preview-redirect
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.magnoliaAuthor.previewRedirect.image.repository }}:{{ .Values.magnoliaAuthor.previewRedirect.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.magnoliaAuthor.previewRedirect.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "mgnl.author.previewRedirect.name" . }}
+{{- end }}

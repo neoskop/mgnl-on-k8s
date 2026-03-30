@@ -1,0 +1,12 @@
+{{- if and .Values.magnoliaAuthor.ingress.enabled .Values.magnoliaAuthor.previewRedirect.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mgnl.author.previewRedirect.name" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+    app.kubernetes.io/component: magnolia-author-preview-redirect
+data:
+  nginx.conf: |
+{{- tpl (.Files.Get "author-preview-redirect-nginx.conf") . | trim | nindent 4 }}
+{{- end }}

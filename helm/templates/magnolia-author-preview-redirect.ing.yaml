@@ -1,0 +1,49 @@
+{{- if and .Values.magnoliaAuthor.ingress.enabled .Values.magnoliaAuthor.previewRedirect.enabled }}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ include "mgnl.author.previewRedirect.name" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+    app.kubernetes.io/component: magnolia-author-preview-redirect
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    {{- $extra := .Values.magnoliaAuthor.previewRedirect.ingress.annotations | default dict }}
+    {{- if $extra }}
+    {{- toYaml $extra | nindent 4 }}
+    {{- end }}
+    {{- if .Values.ipWhitelist }}
+    nginx.ingress.kubernetes.io/whitelist-source-range: "{{ join "," .Values.ipWhitelist }}"
+    {{- end }}
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.magnoliaAuthor.ingress.hostname }}
+      secretName: {{ include "mgnl.author.name" . }}-tls
+  rules:
+    - host: {{ .Values.magnoliaAuthor.ingress.hostname }}
+      http:
+        paths:
+          {{- range .Values.magnoliaAuthor.previewRedirect.routes }}
+          - path: /{{ .pathPrefix }}(?:/.+)?\.html
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: ImplementationSpecific
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "mgnl.author.previewRedirect.name" $ }}
+                port:
+                  name: http
+              {{- else }}
+              serviceName: {{ include "mgnl.author.previewRedirect.name" $ }}
+              servicePort: http
+              {{- end }}
+          {{- end }}
+{{- end }}

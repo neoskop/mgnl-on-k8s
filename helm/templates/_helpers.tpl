@@ -32,6 +32,13 @@ Author instance name
 {{- end -}}
 
 {{/*
+Author preview redirect sidecar (HTML path → preview host)
+*/}}
+{{- define "mgnl.author.previewRedirect.name" -}}
+{{- printf "%s-preview-redirect" (include "mgnl.author.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Public instance name
 */}}
 {{- define "mgnl.public.name" -}}
