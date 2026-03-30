@@ -1,0 +1,136 @@
+name: Release Helm Chart
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_PAT }}
+
+      - name: Install tools
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+          CR_VERSION=$(curl -s https://api.github.com/repos/helm/chart-releaser/releases/latest | jq -r .tag_name | sed 's/^v//')
+          curl -sSLo cr.tar.gz "https://github.com/helm/chart-releaser/releases/download/v${CR_VERSION}/chart-releaser_${CR_VERSION}_linux_amd64.tar.gz"
+          tar xzf cr.tar.gz cr
+          sudo mv cr /usr/local/bin/cr
+
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: bump
+        run: |
+          current_version=$(yq eval .version helm/Chart.yaml)
+          IFS='.' read -r major minor patch <<< "$current_version"
+
+          case "${{ github.event.inputs.bump }}" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+          esac
+
+          version="${major}.${minor}.${patch}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=mgnl-${version}" >> "$GITHUB_OUTPUT"
+
+          yq eval ".version=\"$version\"" -i helm/Chart.yaml
+          yq eval ".appVersion=\"$version\"" -i helm/Chart.yaml
+          yq eval ".magnoliaLightModuleUpdater.image.tag=\"$version\"" -i helm/values.yaml
+          yq eval ".magnoliaRuntime.image.tag=\"$version\"" -i helm/values.yaml
+
+      - name: Commit and push version bump
+        run: |
+          git add helm/Chart.yaml helm/values.yaml
+          git commit -m "chore: Bump version to ${{ steps.bump.outputs.version }}."
+          git push origin master
+
+      - name: Package chart
+        run: helm package helm --destination .deploy
+
+      - name: Upload chart to GitHub Releases
+        run: cr upload -o neoskop -r mgnl-on-k8s -p .deploy --token "${{ secrets.RELEASE_PAT }}"
+
+      - name: Verify GitHub Release exists
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+        run: |
+          tag="${{ steps.bump.outputs.tag }}"
+          for i in $(seq 1 10); do
+            if gh release view "$tag" --json tagName -q .tagName 2>/dev/null; then
+              echo "Release $tag confirmed."
+              exit 0
+            fi
+            echo "Waiting for release $tag... (attempt $i)"
+            sleep 3
+          done
+          echo "::error::Release $tag not found after 30 seconds"
+          exit 1
+
+      - name: Update gh-pages index
+        run: |
+          git checkout gh-pages
+          cr index -i ./index.yaml -p .deploy -o neoskop -r mgnl-on-k8s \
+            -c https://neoskop.github.io/mgnl-on-k8s/ --token "${{ secrets.RELEASE_PAT }}"
+          git add index.yaml
+          git commit -m "chore: Bump version to ${{ steps.bump.outputs.version }}."
+          git push origin gh-pages
+
+      - name: Wait for GitHub Pages deployment
+        run: |
+          for i in $(seq 1 30); do
+            live_version=$(curl -sf "https://neoskop.github.io/mgnl-on-k8s/index.yaml" | yq eval '.entries.mgnl[0].version' - 2>/dev/null || echo "")
+            if [ "$live_version" = "${{ steps.bump.outputs.version }}" ]; then
+              echo "GitHub Pages index confirmed with version $live_version"
+              exit 0
+            fi
+            echo "Pages shows version '$live_version', waiting for ${{ steps.bump.outputs.version }}... (attempt $i)"
+            sleep 10
+          done
+          echo "::warning::GitHub Pages may not have updated yet, triggering global index anyway"
+
+      - name: Switch back to master
+        run: git checkout master
+
+      - name: Trigger global index update
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+        run: |
+          gh api repos/neoskop/helm-charts/dispatches \
+            -f event_type=update-index \
+            -f "client_payload[repo]=mgnl-on-k8s" \
+            -f "client_payload[version]=${{ steps.bump.outputs.version }}"
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    needs: release
+    if: failure()
+    steps:
+      - uses: slackapi/slack-github-action@v3
+        with:
+          payload: '{"text": "*[mgnl-on-k8s]:* Release failed. Check: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
