@@ -30,11 +30,13 @@ spec:
     - host: {{ .Values.magnoliaAuthor.ingress.hostname }}
       http:
         paths:
-          - path: /(?:/.+)?\.html
+          {{- range .Values.magnoliaAuthor.previewRedirect.routes }}
+          - path: /{{ .pathPrefix }}(?:/.+)?\.html
             pathType: ImplementationSpecific
             backend:
               service:
                 name: {{ include "mgnl.author.previewRedirect.name" $ }}
                 port:
                   name: http
+          {{- end }}
 {{- end }}

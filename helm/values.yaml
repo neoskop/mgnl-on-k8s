@@ -261,8 +261,12 @@ magnoliaAuthor:
     labels: {}
   previewRedirect:
     enabled: false
+    authorPrefix: author
+    baseDomain: ""
     permanent: false
-    targetHostname: "magnolia-preview.local"
+    routes:
+      - pathPrefix: ""
+        targetSubdomain: ""
     image:
       repository: nginx
       tag: 1.27-alpine
