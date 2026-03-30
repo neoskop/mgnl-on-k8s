@@ -262,11 +262,10 @@ magnoliaAuthor:
   previewRedirect:
     enabled: false
     authorPrefix: author
-    baseDomain: ""
     permanent: false
     routes:
       - pathPrefix: ""
-        targetSubdomain: ""
+        target: ""
     image:
       repository: nginx
       tag: 1.27-alpine
