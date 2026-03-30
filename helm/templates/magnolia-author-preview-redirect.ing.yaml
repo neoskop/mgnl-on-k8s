@@ -30,20 +30,11 @@ spec:
     - host: {{ .Values.magnoliaAuthor.ingress.hostname }}
       http:
         paths:
-          {{- range .Values.magnoliaAuthor.previewRedirect.routes }}
           - path: /(?:/.+)?\.html
-            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
             pathType: ImplementationSpecific
-            {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
                 name: {{ include "mgnl.author.previewRedirect.name" $ }}
                 port:
                   name: http
-              {{- else }}
-              serviceName: {{ include "mgnl.author.previewRedirect.name" $ }}
-              servicePort: http
-              {{- end }}
-          {{- end }}
 {{- end }}
