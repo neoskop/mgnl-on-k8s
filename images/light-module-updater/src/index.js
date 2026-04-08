@@ -203,4 +203,12 @@ async function run() {
   }
 }
 
+// Graceful shutdown when tini forwards signals from Kubernetes
+const shutdown = (signal) => {
+  logger.info(`Received ${signal}, shutting down`);
+  process.exit(0);
+};
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 run();

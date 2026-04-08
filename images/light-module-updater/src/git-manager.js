@@ -11,13 +11,13 @@ export class GitManager {
   }
 
   async initialize() {
-    await this.configureGitMemory();
-
     this.git = simpleGit({
       baseDir: this.config.repoDir,
       binary: 'git',
       maxConcurrentProcesses: 1,
     });
+
+    await this.configureGitMemory();
 
     // Configure git settings
     await this.git.addConfig('pull.ff', 'only', false, 'global');
@@ -51,13 +51,12 @@ export class GitManager {
 
     logger.info(`Configuring Git for memory limit of ${bold(`${memoryLimitMb} MiB`)}`);
 
-    const git = simpleGit();
-    await git.addConfig('core.packedGitWindowSize', `${Math.floor(memoryLimitMb / 10)}m`, false, 'global');
-    await git.addConfig('core.packedGitLimit', `${Math.floor(memoryLimitMb / 2)}m`, false, 'global');
-    await git.addConfig('pack.deltaCacheSize', `${Math.floor(memoryLimitMb / 4)}m`, false, 'global');
-    await git.addConfig('pack.packSizeLimit', `${Math.floor(memoryLimitMb / 4)}m`, false, 'global');
-    await git.addConfig('pack.windowMemory', `${Math.floor(memoryLimitMb / 4)}m`, false, 'global');
-    await git.addConfig('pack.threads', '1', false, 'global');
+    await this.git.addConfig('core.packedGitWindowSize', `${Math.floor(memoryLimitMb / 10)}m`, false, 'global');
+    await this.git.addConfig('core.packedGitLimit', `${Math.floor(memoryLimitMb / 2)}m`, false, 'global');
+    await this.git.addConfig('pack.deltaCacheSize', `${Math.floor(memoryLimitMb / 4)}m`, false, 'global');
+    await this.git.addConfig('pack.packSizeLimit', `${Math.floor(memoryLimitMb / 4)}m`, false, 'global');
+    await this.git.addConfig('pack.windowMemory', `${Math.floor(memoryLimitMb / 4)}m`, false, 'global');
+    await this.git.addConfig('pack.threads', '1', false, 'global');
   }
 
   async clone() {

@@ -11,7 +11,7 @@ FROM node:24-alpine
 
 ARG GIT_HOSTS="bitbucket.org github.com"
 
-RUN apk add --no-cache git openssh-client && \
+RUN apk add --no-cache git openssh-client tini && \
     addgroup -g 1001 -S mgnl && \
     adduser -u 1001 -S -D -h /home/node -G mgnl mgnl && \
     mkdir -p /home/node/repo /home/node/.ssh /home/tomcat/light-modules && \
@@ -38,4 +38,5 @@ COPY --chown=1001:1001 package.json ./
 
 USER mgnl
 
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "src/index.js"]
