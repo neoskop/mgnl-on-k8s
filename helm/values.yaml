@@ -20,7 +20,7 @@ magnoliaLightModuleUpdater:
   sourceDir: "/"
   image:
     repository: neoskop/mgnl-light-module-updater
-    tag: 3.0.0
+    tag: 3.0.0@sha256:5e10800e40201e7322bc72b3d6597a0770270a18d417a92da6af5e4fc0c75541
     pullPolicy: Always
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
@@ -55,7 +55,7 @@ license:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 3.0.0
+    tag: 3.0.0@sha256:a0a454bee16df21ca7d7babf332e311ae0bd551e09e5c5a3ef6565508a484426
     pullPolicy: IfNotPresent
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
@@ -80,7 +80,7 @@ magnoliaWebapp:
 tmpInit:
   image:
     repository: busybox
-    tag: 1.37.0
+    tag: 1.37.0@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028
     pullPolicy: IfNotPresent
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
@@ -93,7 +93,7 @@ tmpInit:
 datastoreInit:
   image:
     repository: busybox
-    tag: 1.37.0
+    tag: 1.37.0@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -105,7 +105,7 @@ datastoreInit:
 mysqlInit:
   image:
     repository: busybox
-    tag: 1.37.0
+    tag: 1.37.0@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
@@ -126,7 +126,7 @@ mysql:
       root: "" # Backend field name; defaults to "root"
   image:
     repository: mysql
-    tag: 9.6.0
+    tag: 9.6.0@sha256:c5df04bee1a42b74a5841c6409e669cf62126cd0416f00c1cea8ab933b9361b9
     pullPolicy: IfNotPresent
     pullSecret: {}
   resources:
