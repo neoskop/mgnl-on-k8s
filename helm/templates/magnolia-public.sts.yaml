@@ -14,8 +14,8 @@ spec:
   template:
     metadata:
       annotations:
-        {{- if .Values.magnoliaPublic.datasource.onePassword.enabled }}
-        app.kubernetes.io/datasource-checksum: {{ tpl (.Files.Get "datasource-public-1password.json") . | sha256sum }}
+        {{- if .Values.magnoliaPublic.datasource.externalSecret.enabled }}
+        app.kubernetes.io/datasource-checksum: {{ tpl (.Files.Get "datasource-public-external.json") . | sha256sum }}
         {{- else }}
         app.kubernetes.io/datasource-checksum: {{ tpl (.Files.Get "datasource-public.json") . | sha256sum }}
         {{- end }}
@@ -76,7 +76,7 @@ spec:
           volumeMounts:
             - name: webapps
               mountPath: /usr/local/tomcat/webapps
-        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
+        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.externalSecret.enabled }}
         - name: light-module-updater-ssh-key-init
           image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
           imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
@@ -141,7 +141,7 @@ spec:
               value: "Europe/Berlin"
             - name: JDK_JAVA_OPTIONS
               value: "-Dmagnolia.license.location=/home/tomcat/license.key -Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
-            {{- if .Values.magnoliaPublic.datasource.onePassword.enabled }}
+            {{- if .Values.magnoliaPublic.datasource.externalSecret.enabled }}
             - name: MGNL_PUBLIC_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -153,7 +153,7 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
 {{- end }}
-          {{- if .Values.magnolia.onePassword.enabled }}
+          {{- if .Values.magnolia.externalSecret.enabled }}
           envFrom:
             - secretRef:
                 name: {{ include "mgnl.name" . }}-custom-env-secrets
@@ -217,7 +217,7 @@ spec:
               subPath: modules
             - name: light-module-updater-config
               mountPath: /home/docker/config
-            {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
+            {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.externalSecret.enabled }}
             - name: ssh-key-copy
               mountPath: /home/node/.ssh/id_rsa
               subPath: id_rsa
@@ -250,7 +250,7 @@ spec:
             items:
               - key: tag
                 path: tag
-        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
+        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.externalSecret.enabled }}
         - name: ssh-key-copy
           emptyDir: {}
         {{- end }}
@@ -265,7 +265,7 @@ spec:
           configMap:
             name: {{ include "mgnl.public.name" . }}-microprofile-config
         {{- end }}
-        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.onePassword.enabled }}
+        {{- if or .Values.magnoliaLightModuleUpdater.privateKey .Values.magnoliaLightModuleUpdater.externalSecret.enabled }}
         - name: ssh-key
           secret:
             secretName: {{ include "mgnl.name" . }}-light-module-updater

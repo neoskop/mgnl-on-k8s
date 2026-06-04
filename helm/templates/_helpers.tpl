@@ -358,3 +358,25 @@ Get effective datasource port for public
 {{- .Values.magnolia.datasource.port | default 3306 -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+ExternalSecret boilerplate (apiVersion, metadata, store ref, target).
+Expects a dict: "name" (secret/ES name), "es" (the .externalSecret values block), "root" (the top context).
+Caller appends the spec.data list.
+*/}}
+{{- define "mgnl.externalSecret.head" -}}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: {{ .name }}
+  labels:
+{{ include "mgnl.labels" .root | indent 4 }}
+spec:
+  refreshInterval: {{ .es.refreshInterval | default "1h" }}
+  secretStoreRef:
+    name: {{ required "externalSecrets.secretStoreRef.name is required when any externalSecret is enabled" .root.Values.externalSecrets.secretStoreRef.name }}
+    kind: {{ .root.Values.externalSecrets.secretStoreRef.kind | default "ClusterSecretStore" }}
+  target:
+    name: {{ .name }}
+    creationPolicy: Owner
+{{- end -}}

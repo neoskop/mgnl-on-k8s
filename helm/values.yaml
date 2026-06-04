@@ -1,11 +1,19 @@
+# Global External Secrets Operator settings shared by every ExternalSecret this chart renders.
+# Per-secret blocks only toggle `enabled`, the `remoteKey`, and field mappings.
+externalSecrets:
+  secretStoreRef:
+    name: onepassword
+    kind: ClusterSecretStore
 magnoliaLightModuleUpdater:
   privateKey: "" # Pass this base64 encoded
-  # 1Password integration for light module updater private key
-  # Item must have field: "private-key" (base64 encoded)
-  onePassword:
+  # External Secrets Operator integration for the light module updater private key.
+  # Pulls field "private-key" (base64 encoded) from the configured secret backend.
+  externalSecret:
     enabled: false
-    vault: ""
-    item: ""
+    refreshInterval: 1h
+    remoteKey: "" # Key/path of the item in the secret backend
+    properties:
+      privateKey: "" # Backend field name; defaults to "private-key"
   repoUrl: ""
   tag: false # change this to true to checkout a tag from the coresponding config map or to a specific version to hardcode that
   branch: "master"
@@ -36,10 +44,14 @@ license:
   enabled: false
   key: ""
   email: ""
-  onePassword:
+  # External Secrets Operator integration for the Magnolia license.
+  externalSecret:
     enabled: false
-    vault: ""
-    item: ""
+    refreshInterval: 1h
+    remoteKey: "" # Key/path of the item in the secret backend
+    properties:
+      licenseKey: "" # Backend field name; defaults to "license.key"
+      email: "" # Backend field name; defaults to "email"
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
@@ -105,11 +117,13 @@ mysqlInit:
 mysql:
   enabled: true
   rootPassword: ""
-  # 1Password integration for MySQL root password
-  onePassword:
+  # External Secrets Operator integration for the MySQL root password.
+  externalSecret:
     enabled: false
-    vault: ""
-    item: ""
+    refreshInterval: 1h
+    remoteKey: "" # Key/path of the item in the secret backend
+    properties:
+      root: "" # Backend field name; defaults to "root"
   image:
     repository: mysql
     tag: 9.6.0
@@ -137,12 +151,16 @@ magnoliaTmp:
 magnolia:
   # Shared custom environment variables (merged with instance-specific)
   customEnv: {}
-  # 1Password integration for secrets injected as environment variables
-  # Item fields are mapped directly to env var names (e.g., field "MY_SECRET" becomes env var MY_SECRET)
-  onePassword:
+  # External Secrets Operator integration for secrets injected as environment variables.
+  # Each entry's secretKey becomes the env var name; property is the backend field
+  # (defaults to secretKey). The resulting Secret is consumed via envFrom.
+  externalSecret:
     enabled: false
-    vault: ""
-    item: ""
+    refreshInterval: 1h
+    remoteKey: "" # Key/path of the item in the secret backend
+    data: []
+    # - secretKey: MY_SECRET   # env var name
+    #   property: my-secret    # backend field name (defaults to secretKey)
   # Shared microprofile configuration (merged with instance-specific)
   microprofileConfig: {}
   # Shared datasource defaults
@@ -163,12 +181,14 @@ magnolia:
 magnoliaActivation:
   privateKey: ""
   publicKey: ""
-  # 1Password integration for activation keypair
-  # Item must have fields: "key.private" and "key.public"
-  onePassword:
+  # External Secrets Operator integration for the activation keypair.
+  # Pulls the keypair properties file from the configured secret backend.
+  externalSecret:
     enabled: false
-    vault: ""
-    item: ""
+    refreshInterval: 1h
+    remoteKey: "" # Key/path of the item in the secret backend
+    properties:
+      properties: "" # Backend field name; defaults to "magnolia-activation-keypair.properties"
 magnoliaPublic:
   replicaCount: 1
   configName: livePublic
@@ -181,11 +201,13 @@ magnoliaPublic:
     password: ""
     database: "" # If empty the value is derived automatically
     name: MagnoliaPublic
-    # 1Password integration for datasource password
-    onePassword:
+    # External Secrets Operator integration for the datasource password.
+    externalSecret:
       enabled: false
-      vault: ""
-      item: ""
+      refreshInterval: 1h
+      remoteKey: "" # Key/path of the item in the secret backend
+      properties:
+        password: "" # Backend field name; defaults to the DB password env var name
   assetIngress:
     enabled: false
     hostname: magnolia-public-assets.local
@@ -232,11 +254,13 @@ magnoliaAuthor:
     password: ""
     database: "" # If empty the value is derived automatically
     name: MagnoliaAuthor
-    # 1Password integration for datasource password
-    onePassword:
+    # External Secrets Operator integration for the datasource password.
+    externalSecret:
       enabled: false
-      vault: ""
-      item: ""
+      refreshInterval: 1h
+      remoteKey: "" # Key/path of the item in the secret backend
+      properties:
+        password: "" # Backend field name; defaults to the DB password env var name
   assetIngress:
     enabled: false
     hostname: magnolia-author-assets.local
