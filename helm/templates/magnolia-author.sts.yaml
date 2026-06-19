@@ -140,7 +140,7 @@ spec:
             - name: TZ
               value: "Europe/Berlin"
             - name: JDK_JAVA_OPTIONS
-              value: "-Dmagnolia.license.location=/home/tomcat/license.key -Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
+              value: "-Dmagnolia.license.location=/home/tomcat/license/license.key -Dmagnolia.config.locations=/home/tomcat/config/microprofile-config.yaml -Dmagnolia.yaml.envsubst=true"
             {{- if .Values.magnoliaAuthor.datasource.externalSecret.enabled }}
             - name: MGNL_AUTHOR_DB_PASSWORD
               valueFrom:
@@ -180,8 +180,7 @@ spec:
               readOnly: true
             {{- if .Values.license.enabled }}
             - name: license
-              mountPath: /home/tomcat/license.key
-              subPath: license.key
+              mountPath: /home/tomcat/license
               readOnly: true
             {{- end }}
             {{- $mergedMicroprofileConfig := include "mgnl.author.microprofileConfig" . | fromYaml }}
