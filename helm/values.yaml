@@ -292,7 +292,7 @@ magnoliaAuthor:
         target: ""
     image:
       repository: nginx
-      tag: 1.31-alpine@sha256:d565d19ef132a5834f5897f602831ad2e40a36c26c625f2f94f9b3fdf0ed292d
+      tag: 1.31-alpine@sha256:54f2a904c251d5a34adf545a72d32515a15e08418dae0266e23be2e18c66fefa
     resources:
       requests:
         memory: 16Mi
