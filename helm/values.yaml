@@ -20,7 +20,7 @@ magnoliaLightModuleUpdater:
   sourceDir: "/"
   image:
     repository: neoskop/mgnl-light-module-updater
-    tag: 3.0.3
+    tag: 4.0.0
     pullPolicy: Always
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
@@ -55,7 +55,7 @@ license:
 magnoliaRuntime:
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 3.0.3
+    tag: 4.0.0
     pullPolicy: IfNotPresent
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
@@ -304,11 +304,11 @@ magnoliaAuthor:
     authorPrefix: author
     permanent: false
     routes:
-        # path/pathType are optional per-route overrides for the ingress match.
-        # nginx: omit to use the regex match /<pathPrefix>(?:/.+)?\.html.
-        # traefik: cannot do regex paths in a plain Ingress — set an explicit
-        # path (e.g. /author) and pathType (Prefix); the sidecar's own nginx
-        # config still performs the real .html match and redirect.
+      # path/pathType are optional per-route overrides for the ingress match.
+      # nginx: omit to use the regex match /<pathPrefix>(?:/.+)?\.html.
+      # traefik: cannot do regex paths in a plain Ingress — set an explicit
+      # path (e.g. /author) and pathType (Prefix); the sidecar's own nginx
+      # config still performs the real .html match and redirect.
       - pathPrefix: ""
         target: ""
         path: ""
