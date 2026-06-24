@@ -217,6 +217,25 @@ Get effective microprofileConfig for public (merged shared + instance-specific)
 {{- end -}}
 
 {{/*
+Ingress controller type (nginx | traefik).
+Drives path syntax and which built-in controller annotations are emitted.
+*/}}
+{{- define "mgnl.ingress.controller" -}}
+{{- .Values.magnolia.ingress.controller | default "nginx" -}}
+{{- end -}}
+
+{{/*
+Resolve the effective ingressClassName for an ingress object.
+Usage: include "mgnl.ingressClassName" (dict "instance" $instanceClassName "ctx" $)
+Returns the instance override if set, otherwise the shared className, otherwise empty.
+*/}}
+{{- define "mgnl.ingressClassName" -}}
+{{- $instance := .instance | default "" -}}
+{{- $shared := .ctx.Values.magnolia.ingress.className | default "" -}}
+{{- $instance | default $shared -}}
+{{- end -}}
+
+{{/*
 Get effective ingress annotations for author (merged shared + instance-specific)
 */}}
 {{- define "mgnl.author.ingress.annotations" -}}

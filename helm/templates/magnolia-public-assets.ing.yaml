@@ -11,12 +11,25 @@ metadata:
   name: {{ include "mgnl.public.name" . }}-assets
   labels:
     {{- include "mgnl.labels" . | nindent 4 }}
-  {{- $mergedAnnotations := include "mgnl.public.assetIngress.annotations" . | fromYaml }}
+  {{- $controller := include "mgnl.ingress.controller" . }}
+  {{- $userAnnotations := include "mgnl.public.assetIngress.annotations" . | fromYaml }}
+  {{- $builtin := dict }}
+  {{- if eq $controller "nginx" }}
+  {{- $builtin = `nginx.ingress.kubernetes.io/rewrite-target: /dam/$1
+nginx.ingress.kubernetes.io/configuration-snippet: |
+  more_set_headers "X-Robots-Tag: noindex";
+` | fromYaml }}
+  {{- end }}
+  {{- $mergedAnnotations := merge $userAnnotations $builtin }}
   {{- if $mergedAnnotations }}
   annotations:
     {{- toYaml $mergedAnnotations | nindent 4 }}
   {{- end }}
 spec:
+  {{- $className := include "mgnl.ingressClassName" (dict "instance" .Values.magnoliaPublic.assetIngress.className "ctx" $) }}
+  {{- if $className }}
+  ingressClassName: {{ $className }}
+  {{- end }}
   tls:
     - hosts:
         - {{ .Values.magnoliaPublic.assetIngress.hostname }}
@@ -25,8 +38,10 @@ spec:
     - host: {{ .Values.magnoliaPublic.assetIngress.hostname }}
       http:
         paths:
-          - path: /(.*)
-            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+          - path: {{ if eq $controller "traefik" }}/{{ else }}/(.*){{ end }}
+            {{- if eq $controller "traefik" }}
+            pathType: Prefix
+            {{- else if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
             pathType: ImplementationSpecific
             {{- end }}
             backend:
