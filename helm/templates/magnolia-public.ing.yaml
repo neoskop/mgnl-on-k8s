@@ -15,15 +15,22 @@ metadata:
       {{- toYaml $mergedLabels | nindent 4 }}
     {{- end }}
     {{- include "mgnl.labels" . | nindent 4 }}
+  {{- $controller := include "mgnl.ingress.controller" . }}
   {{- $mergedAnnotations := include "mgnl.public.ingress.annotations" . | fromYaml }}
-  {{- if $mergedAnnotations }}
+  {{- if or $mergedAnnotations (and .Values.ipWhitelist (eq $controller "nginx")) }}
   annotations:
-    {{- toYaml $mergedAnnotations | nindent 4 }}
-    {{- if .Values.ipWhitelist }}
+    {{- with $mergedAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if and .Values.ipWhitelist (eq $controller "nginx") }}
     nginx.ingress.kubernetes.io/whitelist-source-range: "{{ join "," .Values.ipWhitelist }}"
     {{- end }}
   {{- end }}
 spec:
+  {{- $className := include "mgnl.ingressClassName" (dict "instance" .Values.magnoliaPublic.ingress.className "ctx" $) }}
+  {{- if $className }}
+  ingressClassName: {{ $className }}
+  {{- end }}
   tls:
     - hosts:
         - {{ .Values.magnoliaPublic.ingress.hostname }}

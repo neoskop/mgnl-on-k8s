@@ -169,6 +169,12 @@ magnolia:
     port: 3306
   # Shared ingress defaults (merged with instance-specific)
   ingress:
+    # Ingress controller type: nginx | traefik.
+    # Drives path syntax and which built-in controller annotations are emitted.
+    controller: nginx
+    # ingressClassName applied to every Ingress (empty = omit, use cluster default class).
+    # Can be overridden per-ingress via the instance-level `className`.
+    className: ""
     annotations: {}
     labels: {}
   # Shared asset ingress defaults (merged with instance-specific)
@@ -211,18 +217,23 @@ magnoliaPublic:
   assetIngress:
     enabled: false
     hostname: magnolia-public-assets.local
+    # Override the shared ingressClassName for this ingress (empty = use shared).
+    className: ""
     secret:
       enabled: false
       ca: ""
       cert: ""
       key: ""
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /dam/$1
-      nginx.ingress.kubernetes.io/configuration-snippet: |
-        more_set_headers "X-Robots-Tag: noindex";
+    # Extra annotations. The /dam rewrite and X-Robots-Tag header are emitted
+    # automatically for controller=nginx. For controller=traefik, supply a
+    # Middleware (addPrefix /dam + customResponseHeaders) via:
+    #   traefik.ingress.kubernetes.io/router.middlewares: <ns>-<mw>@kubernetescrd
+    annotations: {}
   ingress:
     enabled: true
     hostname: magnolia-public.local
+    # Override the shared ingressClassName for this ingress (empty = use shared).
+    className: ""
     secret:
       enabled: false
       ca: ""
@@ -264,18 +275,23 @@ magnoliaAuthor:
   assetIngress:
     enabled: false
     hostname: magnolia-author-assets.local
+    # Override the shared ingressClassName for this ingress (empty = use shared).
+    className: ""
     secret:
       enabled: false
       ca: ""
       cert: ""
       key: ""
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /dam/$1
-      nginx.ingress.kubernetes.io/configuration-snippet: |
-        more_set_headers "X-Robots-Tag: noindex";
+    # Extra annotations. The /dam rewrite and X-Robots-Tag header are emitted
+    # automatically for controller=nginx. For controller=traefik, supply a
+    # Middleware (addPrefix /dam + customResponseHeaders) via:
+    #   traefik.ingress.kubernetes.io/router.middlewares: <ns>-<mw>@kubernetescrd
+    annotations: {}
   ingress:
     enabled: true
     hostname: magnolia-author.local
+    # Override the shared ingressClassName for this ingress (empty = use shared).
+    className: ""
     secret:
       enabled: false
       ca: ""
@@ -288,8 +304,15 @@ magnoliaAuthor:
     authorPrefix: author
     permanent: false
     routes:
+        # path/pathType are optional per-route overrides for the ingress match.
+        # nginx: omit to use the regex match /<pathPrefix>(?:/.+)?\.html.
+        # traefik: cannot do regex paths in a plain Ingress — set an explicit
+        # path (e.g. /author) and pathType (Prefix); the sidecar's own nginx
+        # config still performs the real .html match and redirect.
       - pathPrefix: ""
         target: ""
+        path: ""
+        pathType: ""
     image:
       repository: nginx
       tag: 1.31-alpine@sha256:d565d19ef132a5834f5897f602831ad2e40a36c26c625f2f94f9b3fdf0ed292d
@@ -300,6 +323,8 @@ magnoliaAuthor:
       limits:
         memory: 32Mi
     ingress:
+      # Override the shared ingressClassName for this ingress (empty = use shared).
+      className: ""
       annotations: {}
   nodeSelector: {}
   tolerations: []
