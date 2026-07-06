@@ -4,5 +4,10 @@
   ],
   "maven": {
     "managerFilePatterns": ["/(^|/)pom\\.(parent|webapp)\\.xml$/"]
-  }
+  },
+  "ignoreDeps": [
+    "de.neoskop.magnolia:magnolia-cloud-ce",
+    "de.neoskop.magnolia:magnolia-cloud-dx",
+    "info.magnolia.dx:magnolia-dx-core-parent"
+  ]
 }

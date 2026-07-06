@@ -12,6 +12,10 @@
   <artifactId>webapp</artifactId>
   <name>Magnolia Cloud CE Webapp</name>
   <packaging>war</packaging>
+  <properties>
+    <mysql-connector-java.version>8.0.27</mysql-connector-java.version>
+    <neoskop-magnolia-backup.version>0.3.6</neoskop-magnolia-backup.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>info.magnolia</groupId>
@@ -90,4 +94,36 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>Maven Repository Switchboard</name>
+      <url>https://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>magnolia.public</id>
+      <url>https://nexus.magnolia-cms.com/repository/public/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>magnolia.public.maintenance.releases</id>
+      <url>https://nexus.magnolia-cms.com/repository/magnolia.public.maintenance.releases/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>vaadin-addons</id>
+      <url>https://maven.vaadin.com/vaadin-addons</url>
+    </repository>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
 </project>
