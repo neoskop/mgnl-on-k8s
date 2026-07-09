@@ -16,7 +16,12 @@ metadata:
     {{- end }}
     {{- include "mgnl.labels" . | nindent 4 }}
   {{- $controller := include "mgnl.ingress.controller" . }}
-  {{- $mergedAnnotations := include "mgnl.public.ingress.annotations" . | fromYaml }}
+  {{- $userAnnotations := include "mgnl.public.ingress.annotations" . | fromYaml }}
+  {{- $builtin := dict }}
+  {{- if eq $controller "traefik" }}
+  {{- $builtin = dict "traefik.ingress.kubernetes.io/router.entrypoints" "web,websecure" }}
+  {{- end }}
+  {{- $mergedAnnotations := merge $userAnnotations $builtin }}
   {{- if or $mergedAnnotations (and .Values.ipWhitelist (eq $controller "nginx")) }}
   annotations:
     {{- with $mergedAnnotations }}

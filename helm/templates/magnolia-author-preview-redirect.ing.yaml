@@ -11,6 +11,8 @@ metadata:
   {{- $builtin := dict }}
   {{- if eq $controller "nginx" }}
   {{- $builtin = dict "nginx.ingress.kubernetes.io/use-regex" "true" }}
+  {{- else if eq $controller "traefik" }}
+  {{- $builtin = dict "traefik.ingress.kubernetes.io/router.entrypoints" "web,websecure" }}
   {{- end }}
   {{- $mergedAnnotations := merge $extra $builtin }}
   {{- if or $mergedAnnotations (and .Values.ipWhitelist (eq $controller "nginx")) }}

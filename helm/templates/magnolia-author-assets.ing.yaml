@@ -19,6 +19,8 @@ metadata:
 nginx.ingress.kubernetes.io/configuration-snippet: |
   more_set_headers "X-Robots-Tag: noindex";
 ` | fromYaml }}
+  {{- else if eq $controller "traefik" }}
+  {{- $builtin = dict "traefik.ingress.kubernetes.io/router.entrypoints" "web,websecure" }}
   {{- end }}
   {{- $mergedAnnotations := merge $userAnnotations $builtin }}
   {{- if $mergedAnnotations }}
