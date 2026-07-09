@@ -22,7 +22,7 @@ nginx.ingress.kubernetes.io/configuration-snippet: |
   {{- else if eq $controller "traefik" }}
   {{- $builtin = dict "traefik.ingress.kubernetes.io/router.entrypoints" "web,websecure" "traefik.ingress.kubernetes.io/router.middlewares" (printf "%s-%s-assets@kubernetescrd" .Release.Namespace (include "mgnl.name" .)) }}
   {{- end }}
-  {{- $mergedAnnotations := merge $userAnnotations $builtin }}
+  {{- $mergedAnnotations := mergeOverwrite $userAnnotations $builtin }}
   {{- if $mergedAnnotations }}
   annotations:
     {{- toYaml $mergedAnnotations | nindent 4 }}
