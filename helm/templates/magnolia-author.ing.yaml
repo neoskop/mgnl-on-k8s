@@ -19,9 +19,11 @@ metadata:
   {{- $userAnnotations := include "mgnl.author.ingress.annotations" . | fromYaml }}
   {{- $builtin := dict }}
   {{- if eq $controller "traefik" }}
-  {{- $builtin = dict "traefik.ingress.kubernetes.io/router.entrypoints" "web,websecure" }}
+  {{- $middlewares := get $userAnnotations "traefik.ingress.kubernetes.io/router.middlewares" -}}
+  {{- $buffering := printf "%s-%s-buffering@kubernetescrd" .Release.Namespace (include "mgnl.name" .) -}}
+  {{- $builtin = dict "traefik.ingress.kubernetes.io/router.entrypoints" "web,websecure" "traefik.ingress.kubernetes.io/router.middlewares" (ternary (printf "%s,%s" $middlewares $buffering) $buffering (ne $middlewares "")) }}
   {{- end }}
-  {{- $mergedAnnotations := merge $userAnnotations $builtin }}
+  {{- $mergedAnnotations := mergeOverwrite $userAnnotations $builtin }}
   {{- if or $mergedAnnotations (and .Values.ipWhitelist (eq $controller "nginx")) }}
   annotations:
     {{- with $mergedAnnotations }}

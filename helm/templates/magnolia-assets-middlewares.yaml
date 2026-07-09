@@ -1,4 +1,18 @@
-{{- if and (eq (include "mgnl.ingress.controller" .) "traefik") (or .Values.magnoliaAuthor.assetIngress.enabled .Values.magnoliaPublic.assetIngress.enabled) -}}
+{{- if eq (include "mgnl.ingress.controller" .) "traefik" -}}
+{{- if .Values.magnoliaAuthor.ingress.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "mgnl.name" . }}-buffering
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+spec:
+  buffering:
+    maxRequestBodyBytes: 52428800
+    memRequestBodyBytes: 52428800
+{{- end }}
+{{- if or .Values.magnoliaAuthor.assetIngress.enabled .Values.magnoliaPublic.assetIngress.enabled }}
+---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -31,4 +45,5 @@ spec:
     middlewares:
       - name: {{ include "mgnl.name" . }}-assets-add-dam-prefix
       - name: {{ include "mgnl.name" . }}-assets-robots
+{{- end }}
 {{- end }}
