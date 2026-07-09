@@ -225,9 +225,8 @@ magnoliaPublic:
       cert: ""
       key: ""
     # Extra annotations. The /dam rewrite and X-Robots-Tag header are emitted
-    # automatically for controller=nginx. For controller=traefik, supply a
-    # Middleware (addPrefix /dam + customResponseHeaders) via:
-    #   traefik.ingress.kubernetes.io/router.middlewares: <ns>-<mw>@kubernetescrd
+    # automatically for controller=nginx. For controller=traefik, same-namespace
+    # Middleware resources are created automatically.
     annotations: {}
   ingress:
     enabled: true
@@ -283,9 +282,8 @@ magnoliaAuthor:
       cert: ""
       key: ""
     # Extra annotations. The /dam rewrite and X-Robots-Tag header are emitted
-    # automatically for controller=nginx. For controller=traefik, supply a
-    # Middleware (addPrefix /dam + customResponseHeaders) via:
-    #   traefik.ingress.kubernetes.io/router.middlewares: <ns>-<mw>@kubernetescrd
+    # automatically for controller=nginx. For controller=traefik, same-namespace
+    # Middleware resources are created automatically.
     annotations: {}
   ingress:
     enabled: true

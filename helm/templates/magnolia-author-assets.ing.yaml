@@ -20,7 +20,7 @@ nginx.ingress.kubernetes.io/configuration-snippet: |
   more_set_headers "X-Robots-Tag: noindex";
 ` | fromYaml }}
   {{- else if eq $controller "traefik" }}
-  {{- $builtin = dict "traefik.ingress.kubernetes.io/router.entrypoints" "web,websecure" }}
+  {{- $builtin = dict "traefik.ingress.kubernetes.io/router.entrypoints" "web,websecure" "traefik.ingress.kubernetes.io/router.middlewares" (printf "%s-%s-assets@kubernetescrd" .Release.Namespace (include "mgnl.name" .)) }}
   {{- end }}
   {{- $mergedAnnotations := merge $userAnnotations $builtin }}
   {{- if $mergedAnnotations }}
