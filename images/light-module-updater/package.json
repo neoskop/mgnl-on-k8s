@@ -11,7 +11,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "fastify": "^5.8.3",
+    "fastify": "^5.12.1",
     "p-retry": "^8.0.0",
     "simple-git": "^3.27.0"
   },
