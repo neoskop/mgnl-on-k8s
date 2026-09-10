@@ -5,7 +5,7 @@ services:
       GIT_REPO_URL: git@github.com:neoskop/example.git
       SOURCE_DIR: backend/magnolia/light-modules
       GIT_BRANCH: develop
-      POLL_INTERVAL: 5
+      POLL_INTERVAL: 30
     volumes:
       - ~/.ssh/id_rsa:/home/node/.ssh/id_rsa:ro
       - light-modules:/home/tomcat/light-modules

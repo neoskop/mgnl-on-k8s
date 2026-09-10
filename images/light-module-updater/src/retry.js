@@ -5,6 +5,18 @@ export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * p-retry v8 hands `onFailedAttempt` a context object (`{error, attemptNumber,
+ * retriesLeft}`), not the error itself, so neither `error.message` nor
+ * `JSON.stringify(error)` ever produced a usable reason — the latter logged the
+ * context's shape with the Error, which has no enumerable own properties,
+ * rendered as `{}`. Unwrap the context first.
+ */
+function formatError(failure) {
+  const error = failure?.error ?? failure;
+  return error?.message || error?.git?.message || String(error);
+}
+
 export async function withRetry(operation, options = {}) {
   const {
     maxRetries = 5,
@@ -15,14 +27,8 @@ export async function withRetry(operation, options = {}) {
     const result = await pRetry(operation, {
       retries: maxRetries,
       onFailedAttempt: (error) => {
-        const detail =
-          typeof error === 'object' && error !== null
-            ? JSON.stringify(error, null, 2)
-            : typeof error.message === 'object' && error.message !== null
-            ? JSON.stringify(error.message, null, 2)
-            : String(error) || String(error?.message);
         logger.warn(
-          `${operationName} attempt ${error.attemptNumber}/${maxRetries + 1} failed: ${detail}`
+          `${operationName} attempt ${error.attemptNumber}/${maxRetries + 1} failed: ${formatError(error)}`
         );
       },
     });
@@ -43,9 +49,8 @@ export async function retryForever(operation, options = {}) {
       const result = await pRetry(operation, {
         retries: 5,
         onFailedAttempt: (error) => {
-          const detail = error.message || error.git?.message || String(error);
           logger.warn(
-            `${operationName} attempt ${error.attemptNumber}/6 failed: ${detail}`
+            `${operationName} attempt ${error.attemptNumber}/6 failed: ${formatError(error)}`
           );
         },
       });

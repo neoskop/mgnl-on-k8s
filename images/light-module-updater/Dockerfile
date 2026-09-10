@@ -27,7 +27,7 @@ WORKDIR /home/node
 ENV HOME=/home/node \
     GIT_BRANCH=master \
     CHECKOUT_TAG=false \
-    POLL_INTERVAL=5 \
+    POLL_INTERVAL=30 \
     REPO_DIR=/home/node/repo \
     TARGET_DIR=/home/tomcat/light-modules \
     NODE_ENV=production
