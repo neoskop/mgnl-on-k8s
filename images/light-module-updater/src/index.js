@@ -60,7 +60,12 @@ async function handleBranchMode(git, config) {
   );
 
   if (!fetchResult.success) {
-    logger.warn(`${bold('git fetch')} failed ... will try to clone from scratch`);
+    if (await git.isHealthy()) {
+      logger.warn(`${bold('git fetch')} failed, keeping the existing checkout and retrying next cycle`);
+      return;
+    }
+
+    logger.warn(`${bold('git fetch')} failed and the local checkout is unusable ... will try to clone from scratch`);
     await cloneFromScratch(git, config);
     return;
   }

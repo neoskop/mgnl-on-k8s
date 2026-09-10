@@ -1,5 +1,5 @@
-import { readdir, rm, utimes, cp, access } from 'node:fs/promises';
-import { join, basename, relative } from 'node:path';
+import { readdir, rm, mkdir, copyFile, stat, readFile, access } from 'node:fs/promises';
+import { join, relative, dirname } from 'node:path';
 import { logger, bold } from './logger.js';
 
 const EXCLUDE_DIRS = new Set(['.git', 'mtk']);
@@ -39,53 +39,95 @@ async function getAllFiles(dir, baseDir = dir) {
   return files;
 }
 
-async function removeDeletedFiles(sourceDir, targetDir) {
+async function removeDeletedFiles(sourceFiles, targetDir) {
   if (!(await pathExists(targetDir))) {
-    return;
+    return 0;
   }
 
-  const sourceFiles = new Set(await getAllFiles(sourceDir));
   const targetFiles = await getAllFiles(targetDir);
+  let removed = 0;
 
   for (const file of targetFiles) {
     if (!sourceFiles.has(file)) {
       await rm(join(targetDir, file), { force: true });
+      removed++;
     }
   }
+
+  return removed;
 }
 
-async function touchYamlFiles(dir) {
-  if (!(await pathExists(dir))) {
-    return;
+/**
+ * Whether the target copy already has the exact content of the source file.
+ *
+ * Deliberately ignores mtime: a `git clone` from scratch produces a fresh
+ * checkout with all-new mtimes, so an mtime comparison would report every
+ * single file as changed. Size is the cheap pre-filter, content the verdict.
+ *
+ * Equal-sized files are read whole — bounded by the largest light module asset
+ * (tens of MB), one pair at a time. Switch to streamed chunk comparison if
+ * light modules ever carry files that do not fit the container's memory limit.
+ */
+async function isUpToDate(sourcePath, targetPath) {
+  let sourceStat;
+  let targetStat;
+
+  try {
+    [sourceStat, targetStat] = await Promise.all([stat(sourcePath), stat(targetPath)]);
+  } catch {
+    return false;
   }
 
-  const entries = await readdir(dir, { withFileTypes: true });
+  if (sourceStat.size !== targetStat.size) {
+    return false;
+  }
 
-  for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
+  const [sourceContent, targetContent] = await Promise.all([
+    readFile(sourcePath),
+    readFile(targetPath),
+  ]);
 
-    if (entry.isDirectory()) {
-      await touchYamlFiles(fullPath);
-    } else if (entry.name.endsWith('.yaml') || entry.name.endsWith('.yml')) {
-      const now = new Date();
-      await utimes(fullPath, now, now);
+  return sourceContent.equals(targetContent);
+}
+
+async function copyChangedFiles(sourceDir, targetDir, sourceFiles) {
+  let copied = 0;
+
+  for (const file of sourceFiles) {
+    const sourcePath = join(sourceDir, file);
+    const targetPath = join(targetDir, file);
+
+    if (await isUpToDate(sourcePath, targetPath)) {
+      continue;
     }
+
+    await mkdir(dirname(targetPath), { recursive: true });
+    await copyFile(sourcePath, targetPath);
+    copied++;
   }
+
+  return copied;
 }
 
+/**
+ * Mirror the light modules from the checkout into the directory Magnolia watches.
+ *
+ * Only files whose content actually differs are written. Magnolia watches the
+ * target through inotify and Java caps a WatchKey at 512 pending events per
+ * directory (`jdk.nio.file.WatchService.maxEventsPerPoll`); past that the JVM
+ * replaces the events with a single OVERFLOW, which Magnolia logs but does not
+ * act on, so the changed definition is silently never reloaded. Rewriting the
+ * whole tree on every sync blew through that cap and lost the one change that
+ * mattered.
+ */
 export async function syncModules(sourceDir, targetDir) {
-  logger.info(`Copying ${bold(sourceDir)} to ${bold(targetDir)}`);
+  logger.info(`Syncing ${bold(sourceDir)} to ${bold(targetDir)}`);
 
-  // Remove files that no longer exist in source
-  await removeDeletedFiles(sourceDir, targetDir);
+  const sourceFiles = await getAllFiles(sourceDir);
+  const removed = await removeDeletedFiles(new Set(sourceFiles), targetDir);
+  const copied = await copyChangedFiles(sourceDir, targetDir, sourceFiles);
 
-  // Copy all files from source to target, excluding .git and mtk
-  await cp(sourceDir, targetDir, {
-    recursive: true,
-    force: true,
-    filter: (src) => !EXCLUDE_DIRS.has(basename(src)),
-  });
-
-  // Touch all yaml files to trigger Magnolia reload
-  await touchYamlFiles(targetDir);
+  logger.info(
+    `Synced ${bold(`${copied} changed`)} and ${bold(`${removed} deleted`)} of ${bold(sourceFiles.length)} files`
+  );
 }

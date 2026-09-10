@@ -123,6 +123,24 @@ export class GitManager {
     return existsSync(join(this.config.repoDir, '.git'));
   }
 
+  /**
+   * Whether the local checkout is usable, i.e. worth keeping around when a
+   * network operation fails. A transient `git fetch` failure says nothing about
+   * the checkout, so it must not trigger a wipe-and-clone.
+   */
+  async isHealthy() {
+    if (!this.isCloned()) {
+      return false;
+    }
+
+    try {
+      await this.git.revparse(['HEAD']);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async cloneFromScratch() {
     await this.clone();
   }

@@ -6,7 +6,7 @@ export function loadConfig() {
     sourceDir: process.env.SOURCE_DIR || '',
     gitBranch: process.env.GIT_BRANCH || 'master',
     checkoutTag: process.env.CHECKOUT_TAG === 'true',
-    pollInterval: parseInt(process.env.POLL_INTERVAL, 10) || 5,
+    pollInterval: parseInt(process.env.POLL_INTERVAL, 10) || 30,
     repoDir: process.env.REPO_DIR || '/home/node/repo',
     targetDir: process.env.TARGET_DIR || '/home/tomcat/light-modules',
     tagFilePath: '/home/docker/config/tag',

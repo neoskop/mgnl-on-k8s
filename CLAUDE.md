@@ -76,9 +76,12 @@ External Git Repo (Light Modules)
 ### Core Images
 
 1. **light-module-updater** (`images/light-module-updater/`)
-   - Ubuntu 24.04 base, polls Git repository on interval
-   - Syncs modules via rsync to shared volume
+   - node:24-alpine base, polls Git repository on interval (`POLL_INTERVAL`, default 30s)
+   - Mirrors modules into the shared volume, writing only files whose content changed
+     (Magnolia watches the target via inotify and silently drops reloads once a
+     directory exceeds Java's 512-event WatchKey cap)
    - Supports SSH key authentication for private repos
+   - `npm test` in `images/light-module-updater/` runs the sync self-checks
 
 2. **runtime-env** (`images/runtime-env/`)
    - Multi-stage build: Maven compiles Java entrypoint -> Tomcat base
