@@ -18,6 +18,7 @@ magnoliaLightModuleUpdater:
   tag: false # change this to true to checkout a tag from the coresponding config map or to a specific version to hardcode that
   branch: "master"
   sourceDir: "/"
+  pollInterval: 30 # Seconds between `git fetch` runs against the light module repository
   image:
     repository: neoskop/mgnl-light-module-updater
     tag: 4.0.3
@@ -53,6 +54,13 @@ license:
       licenseKey: "" # Backend field name; defaults to "license.key"
       email: "" # Backend field name; defaults to "email"
 magnoliaRuntime:
+  # Appended to the JDK_JAVA_OPTIONS the chart sets. The default raises Java's
+  # per-directory inotify event cap (512): once a WatchKey exceeds it the JVM
+  # replaces the pending events with a single OVERFLOW, which Magnolia logs as
+  # "WatchEvent OVERFLOWN" but does not act on, so a light module change in a
+  # large directory is silently never reloaded. No fs.inotify sysctl affects
+  # this cap.
+  extraJavaOpts: "-Djdk.nio.file.WatchService.maxEventsPerPoll=8192"
   image:
     repository: neoskop/mgnl-runtime-env
     tag: 4.0.3
