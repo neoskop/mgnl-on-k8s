@@ -157,6 +157,17 @@ magnoliaTmp:
 # Shared Magnolia configuration - values here apply to both author and public instances
 # Instance-specific values in magnoliaAuthor/magnoliaPublic override these
 magnolia:
+  # Pod dnsConfig for both instances, rendered verbatim. The default lowers ndots
+  # from the cluster's usual 5: at ndots:5 a name like github.com is first tried
+  # against every search domain, so one external lookup costs four pointless
+  # queries and four chances to time out. The light module updater resolves the
+  # git forge on every poll, and `Could not resolve hostname <forge>: Try again`
+  # was by far its most common failure. In-cluster short names (0 dots) still go
+  # through the search domains.
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "1"
   # Shared custom environment variables (merged with instance-specific)
   customEnv: {}
   # External Secrets Operator integration for secrets injected as environment variables.
