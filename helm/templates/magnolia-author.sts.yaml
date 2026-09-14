@@ -290,6 +290,10 @@ spec:
       tolerations:
         {{- $tolerations | nindent 8 }}
       {{- end }}
+      {{- with .Values.magnolia.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   volumeClaimTemplates:
     {{- if .Values.jackrabbit.fileDatastore.enabled }}
     - metadata:
