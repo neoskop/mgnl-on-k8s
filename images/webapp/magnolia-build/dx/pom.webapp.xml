@@ -13,7 +13,7 @@
   <name>Magnolia Cloud DX Webapp</name>
   <packaging>war</packaging>
   <properties>
-    <mysql-connector-java.version>8.0.27</mysql-connector-java.version>
+    <mysql-connector-java.version>8.0.33</mysql-connector-java.version>
     <neoskop-magnolia-backup.version>0.4.0</neoskop-magnolia-backup.version>
   </properties>
   <dependencies>
