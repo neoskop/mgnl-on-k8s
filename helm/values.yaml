@@ -154,6 +154,32 @@ magnoliaTmp:
     resources:
       requests:
         storage: 1Gi
+# Pod hardening, applied to every pod the chart renders (Magnolia author/public,
+# MySQL, author preview redirect). Set a block to null to drop it; keys you
+# set are merged into the defaults.
+security:
+  # No pod talks to the Kubernetes API; the pods run with the namespace's
+  # default ServiceAccount, whose token is not mounted.
+  automountServiceAccountToken: false
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  # magnolia (runtime-env, user tomcat) and light-module-updater (user mgnl)
+  # both run as 1001:1001; the init containers chown the volumes to that id.
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  # Containers that still need root: the busybox init containers (chown/chmod
+  # on volumes, moving the WAR out of /), the author preview redirect nginx
+  # and MySQL (both drop privileges themselves).
+  rootContainerSecurityContext:
+    allowPrivilegeEscalation: false
+
 # Shared Magnolia configuration - values here apply to both author and public instances
 # Instance-specific values in magnoliaAuthor/magnoliaPublic override these
 magnolia:

@@ -23,11 +23,13 @@ spec:
         app.kubernetes.io/name: magnolia-public
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- include "mgnl.podSecurity" . | nindent 6 }}
       initContainers:
         {{- if .Values.jackrabbit.fileDatastore.enabled }}
         - name: datastore-init
           image: "{{ .Values.datastoreInit.image.repository }}:{{ .Values.datastoreInit.image.tag }}"
           imagePullPolicy: {{ .Values.datastoreInit.image.pullPolicy }}
+          {{- include "mgnl.rootContainerSecurityContext" . | nindent 10 }}
           command:
             [
               "sh",
@@ -43,6 +45,7 @@ spec:
         - name: light-modules-init
           image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
           imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
+          {{- include "mgnl.rootContainerSecurityContext" . | nindent 10 }}
           command:
             [
               "sh",
@@ -57,6 +60,7 @@ spec:
         - name: tmp-init
           image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
           imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
+          {{- include "mgnl.rootContainerSecurityContext" . | nindent 10 }}
           command:
             [
               "sh",
@@ -71,6 +75,7 @@ spec:
         - name: war-copy
           image: "{{ .Values.magnoliaWebapp.image.repository }}:{{ .Values.magnoliaWebapp.image.tag }}"
           imagePullPolicy: {{ .Values.magnoliaWebapp.image.pullPolicy }}
+          {{- include "mgnl.rootContainerSecurityContext" . | nindent 10 }}
           resources:
             {{- toYaml .Values.magnoliaWebapp.resources | nindent 12 }}
           volumeMounts:
@@ -80,6 +85,7 @@ spec:
         - name: light-module-updater-ssh-key-init
           image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
           imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
+          {{- include "mgnl.rootContainerSecurityContext" . | nindent 10 }}
           command:
             [
               "sh",
@@ -99,6 +105,7 @@ spec:
         - name: magnolia
           image: "{{ .Values.magnoliaRuntime.image.repository }}:{{ .Values.magnoliaRuntime.image.tag }}"
           imagePullPolicy: {{ .Values.magnoliaRuntime.image.pullPolicy }}
+          {{- include "mgnl.containerSecurityContext" . | nindent 10 }}
           lifecycle:
             preStop:
               exec:
@@ -192,10 +199,7 @@ spec:
         - name: light-module-updater
           image: "{{ .Values.magnoliaLightModuleUpdater.image.repository }}:{{ .Values.magnoliaLightModuleUpdater.image.tag }}"
           imagePullPolicy: {{ .Values.magnoliaLightModuleUpdater.image.pullPolicy }}
-          securityContext:
-            runAsUser: 1001
-            runAsGroup: 1001
-            runAsNonRoot: true
+          {{- include "mgnl.containerSecurityContext" . | nindent 10 }}
           resources:
             {{- toYaml .Values.magnoliaLightModuleUpdater.resources | nindent 12 }}
           livenessProbe:

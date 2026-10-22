@@ -399,3 +399,36 @@ spec:
     name: {{ .name }}
     creationPolicy: Owner
 {{- end -}}
+
+{{/*
+Pod-level hardening; include with nindent under the pod spec.
+*/}}
+{{- define "mgnl.podSecurity" -}}
+{{- if hasKey .Values.security "automountServiceAccountToken" -}}
+automountServiceAccountToken: {{ .Values.security.automountServiceAccountToken }}
+{{ end -}}
+{{- with .Values.security.podSecurityContext -}}
+securityContext:
+  {{- toYaml . | nindent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Container securityContext for the non-root containers (magnolia, light-module-updater).
+*/}}
+{{- define "mgnl.containerSecurityContext" -}}
+{{- with .Values.security.containerSecurityContext -}}
+securityContext:
+  {{- toYaml . | nindent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Container securityContext for containers that still run as root.
+*/}}
+{{- define "mgnl.rootContainerSecurityContext" -}}
+{{- with .Values.security.rootContainerSecurityContext -}}
+securityContext:
+  {{- toYaml . | nindent 2 }}
+{{- end -}}
+{{- end -}}
