@@ -3,7 +3,7 @@ WORKDIR /root
 COPY entrypoint ./
 RUN mvn -T 1C package
 
-FROM tomcat:11.0.23-jdk25-temurin-noble@sha256:411ab09f96186d0946bfe9bed24378fe1783fd58970b5d4ffb6460239f307aa3
+FROM tomcat:11.0.27-jdk25-temurin-noble@sha256:3e9f4af3182bbaa48b8e90adbd45f4261e8094c5721e6c7adb8acb1b39e9965d
 LABEL maintainer="Neoskop DevOps <devops@neoskop.de>"
 
 # Ensure probe dependencies exist across Debian/Ubuntu and Alpine-based variants.
