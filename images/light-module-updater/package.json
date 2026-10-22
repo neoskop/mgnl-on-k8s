@@ -14,7 +14,7 @@
   "dependencies": {
     "fastify": "^5.8.3",
     "p-retry": "^8.0.0",
-    "simple-git": "^3.27.0"
+    "simple-git": "^4.0.1"
   },
   "author": "Neoskop",
   "license": "MIT"
