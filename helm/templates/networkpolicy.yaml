@@ -1,0 +1,76 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- $np := .Values.networkPolicy }}
+{{- $dbPorts := list (include "mgnl.author.datasource.port" . | int) (include "mgnl.public.datasource.port" . | int) | uniq }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "mgnl.fullname" . }}
+  labels:
+    {{- include "mgnl.labels" . | nindent 4 }}
+spec:
+  # Every pod of the release: author, public, the author preview redirect and,
+  # if enabled, MySQL.
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Pods of the release among themselves: publishing author -> public,
+    # preview redirect -> author, Magnolia -> MySQL.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- with $np.httpFrom }}
+    # Ingress controller and in-cluster consumers on the HTTP port.
+    - from:
+        {{- toYaml . | nindent 8 }}
+      ports:
+        - protocol: TCP
+          port: 8080
+    {{- end }}
+    {{- with $np.extraIngress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ .Release.Name }}
+    # DNS. Without peers any destination on port 53.
+    - {{- with $np.dnsTo }}
+      to:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    {{- if not .Values.mysql.enabled }}
+    # External database (datasource host/port). Without peers any destination
+    # on the datasource port(s).
+    - {{- with $np.databaseTo }}
+      to:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      ports:
+        {{- range $dbPorts }}
+        - protocol: TCP
+          port: {{ . }}
+        {{- end }}
+    {{- end }}
+    {{- if $np.allowHttpsEgress }}
+    # HTTPS to anywhere: object storage backups, the light module repository
+    # (git over HTTPS or ssh.github.com:443), license and other external APIs.
+    # NetworkPolicy cannot match host names.
+    - ports:
+        - protocol: TCP
+          port: 443
+    {{- end }}
+    {{- with $np.extraEgress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

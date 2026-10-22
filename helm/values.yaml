@@ -387,3 +387,30 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 ipWhitelist: []
+# One NetworkPolicy for all pods of the release (author, public, author preview
+# redirect, MySQL), ingress and egress. Pods of the release may always talk to
+# each other. Rules not listed here are denied, so check what your instances
+# call (webhooks, SMTP, internal APIs) and add it to extraEgress.
+networkPolicy:
+  enabled: false
+  # NetworkPolicy peers allowed to reach author, public and the preview redirect
+  # on 8080: the ingress controller and in-cluster consumers. Empty = no one
+  # outside the release.
+  httpFrom: []
+  # - namespaceSelector:
+  #     matchLabels:
+  #       kubernetes.io/metadata.name: ingress-nginx
+  # Peers for DNS (53/UDP+TCP). Empty = any destination on port 53.
+  dnsTo: []
+  # - namespaceSelector:
+  #     matchLabels:
+  #       kubernetes.io/metadata.name: kube-system
+  # Peers for the external database when mysql.enabled is false, on the
+  # datasource port(s). Empty = any destination on those ports.
+  databaseTo: []
+  # Allow TCP 443 to any destination (backups to S3, light module repository,
+  # external APIs).
+  allowHttpsEgress: true
+  # Extra rules, rendered verbatim into spec.ingress / spec.egress.
+  extraIngress: []
+  extraEgress: []
