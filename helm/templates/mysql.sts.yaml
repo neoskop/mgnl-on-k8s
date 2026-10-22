@@ -18,10 +18,12 @@ spec:
         app.kubernetes.io/name: mysql
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- include "mgnl.podSecurity" . | nindent 6 }}
       initContainers:
         - name: change-permissions
           image: "{{ .Values.tmpInit.image.repository }}:{{ .Values.tmpInit.image.tag }}"
           imagePullPolicy: {{ .Values.tmpInit.image.pullPolicy }}
+          {{- include "mgnl.rootContainerSecurityContext" . | nindent 10 }}
           command: ["sh", "-c", "chown 1001:1001 /var/lib/mysql"]
           volumeMounts:
             - name: mysql-persistent-storage
@@ -33,6 +35,7 @@ spec:
         - name: mysql
           image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
           imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
+          {{- include "mgnl.rootContainerSecurityContext" . | nindent 10 }}
           resources:
             {{- toYaml .Values.mysql.resources | nindent 12 }}
           env:

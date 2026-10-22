@@ -21,10 +21,12 @@ spec:
       annotations:
         checksum/nginx-config: {{ tpl (.Files.Get "author-preview-redirect-nginx.conf") . | sha256sum }}
     spec:
+      {{- include "mgnl.podSecurity" . | nindent 6 }}
       containers:
         - name: nginx
           image: "{{ .Values.magnoliaAuthor.previewRedirect.image.repository }}:{{ .Values.magnoliaAuthor.previewRedirect.image.tag }}"
           imagePullPolicy: IfNotPresent
+          {{- include "mgnl.rootContainerSecurityContext" . | nindent 10 }}
           ports:
             - name: http
               containerPort: 8080
