@@ -54,7 +54,9 @@ This bumps version in Chart.yaml and values.yaml, creates git tag, packages and 
 Renovate (`renovate.json`) opens PRs for image and dependency updates. Dependabot
 opens security PRs for npm dependencies. For the light-module-updater, keep direct
 dependencies pinned to exact versions and refresh transitive ones with
-`pnpm update --depth Infinity`.
+`pnpm update --depth Infinity`. Use the pnpm version pinned in `packageManager`
+(`corepack pnpm` or `npx pnpm@<version>`): `pnpm-workspace.yaml` sets
+`minimumReleaseAge` to 24h, and the image build rejects lockfile entries newer than that.
 
 ## Architecture
 
