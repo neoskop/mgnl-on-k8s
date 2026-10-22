@@ -51,11 +51,10 @@ This bumps version in Chart.yaml and values.yaml, creates git tag, packages and 
 
 ### Dependency Updates
 
-```bash
-./scripts/update-deps.sh
-```
-
-Fetches latest versions from Docker Hub and Magnolia Nexus, updates Dockerfiles and values.yaml.
+Renovate (`renovate.json`) opens PRs for image and dependency updates. Dependabot
+opens security PRs for npm dependencies. For the light-module-updater, keep direct
+dependencies pinned to exact versions and refresh transitive ones with
+`pnpm update --depth Infinity`.
 
 ## Architecture
 
