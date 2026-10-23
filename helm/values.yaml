@@ -21,7 +21,7 @@ magnoliaLightModuleUpdater:
   pollInterval: 30 # Seconds between `git fetch` runs against the light module repository
   image:
     repository: neoskop/mgnl-light-module-updater
-    tag: 4.3.3
+    tag: 4.3.3@sha256:75420e0afa0815053db99fe9ef0a91ba5dbd017f162ce52c48f5224eae1dab4c
     pullPolicy: Always
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
@@ -63,7 +63,7 @@ magnoliaRuntime:
   extraJavaOpts: "-Djdk.nio.file.WatchService.maxEventsPerPoll=8192"
   image:
     repository: neoskop/mgnl-runtime-env
-    tag: 4.3.3
+    tag: 4.3.3@sha256:2d288f9240a5a7b99ee9f93da3181f13f18bfdbaabcdd6ae08bb30fe58668d3a
     pullPolicy: IfNotPresent
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
