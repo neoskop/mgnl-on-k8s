@@ -8,5 +8,5 @@ spec:
   maxUnavailable: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "mgnl.public.name" . }}
+      app.kubernetes.io/name: magnolia-public
       app.kubernetes.io/instance: {{ .Release.Name }}
