@@ -1,4 +1,4 @@
-FROM busybox:1.38.0-musl@sha256:8635836765b0c4c43970660219739baa58b0883c2e429e4b8918f7dd1519455c
+FROM busybox:1.38.0-musl@sha256:80e38f9a1b39188b8bdb28879178edb322a4402b081a9aedda1924609decd6f6
 ARG VERSION
 COPY --chown=1000 ./ce/webapp-${VERSION}.war /ROOT.war
 RUN mkdir -p /usr/local/tomcat/webapps && \
