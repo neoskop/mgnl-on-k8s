@@ -76,7 +76,7 @@ magnoliaRuntime:
 magnoliaWebapp:
   image:
     repository: neoskop/mgnl-webapp-ce
-    tag: 6.4.7@sha256:fcdf0f0da3c5b99808e907fd776db0b72fd841d931d780247d40cf4b5bfc4b5c
+    tag: 6.4.11@sha256:f583b19d416813394ba0657e8dc60d65af6fa64803ebd1bd8c01d663c9c98a87
     pullPolicy: IfNotPresent
     pullSecret: {}
     existingPullSecret: "" # Name of existing pull secret in namespace
