@@ -1,4 +1,4 @@
-FROM maven:3.9.16-eclipse-temurin-25-alpine@sha256:781f1da87cd3d142e66e47cc149c4582a652fb7f574648206d1e956170c0dc90 as java-entrypoint
+FROM maven:3.10.0-eclipse-temurin-25-alpine@sha256:908342738213796918a85cffc2065924ba82e4a9ab87d2756073e01da6b05d78 as java-entrypoint
 WORKDIR /root
 COPY entrypoint ./
 RUN mvn -T 1C package
