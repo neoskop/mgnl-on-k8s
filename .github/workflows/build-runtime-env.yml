@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     if: failure()
     steps:
-      - uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3
+      - uses: slackapi/slack-github-action@0d95c9a7becc1e6e297d76df9bc735c44f4cbcbc # v3
         with:
           payload: '{"text": "*[mgnl-on-k8s]:* Bauen des Runtime-Env-Images ist fehlgeschlagen"}'
         env:
